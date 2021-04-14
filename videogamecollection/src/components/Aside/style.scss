@@ -1,0 +1,19 @@
+@use '../../styles/vars';
+@use 'sass:color';
+
+.aside{
+  height: 100vh;
+  width: 20%;
+  border-right: 2px solid vars.$secondary-color;
+  background: vars.$background;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  &-head{
+    border-bottom: 1px solid vars.$primary-color;
+  }
+  &-logo{
+    max-width: 60%;
+    padding: 0 vars.$gutter;
+  }
+}

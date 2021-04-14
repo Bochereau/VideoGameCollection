@@ -1,0 +1,40 @@
+@use '../../styles/vars';
+@use 'sass:color';
+
+.card{
+  color: black;
+  width: 80%;
+  margin: vars.$gutter*3 auto 0;
+  border-radius: 5px;
+  &-visible{
+    &-title{
+      text-align: center;
+      padding: vars.$gutter;
+      border-bottom: 2px solid;
+      font-family: 'RocknRoll One', sans-serif;
+      font-size: vars.$gutter*2;
+      margin: 0;
+    }
+    &-display{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    &-details{
+      display: flex;
+      justify-content: space-around;
+      width: 60%;
+      padding: vars.$gutter;
+      border-right: 2px solid black;
+    }
+    &-more{
+      text-align: center;
+      border-top: 2px solid black;
+      padding-top: vars.$gutter*0.5;
+      margin-bottom: vars.$gutter*0.5;
+    }
+  }
+  &-hidden{
+    display: none;
+  }
+}

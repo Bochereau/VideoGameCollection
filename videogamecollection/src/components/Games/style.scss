@@ -1,0 +1,11 @@
+@use '../../styles/vars';
+@use 'sass:color';
+
+.games{
+  background-image: url(../../assets/images/background4.jpg);
+  background-position: center;
+  background-size: cover;
+  color: white;
+  height: 100vh;
+  overflow-y: auto;
+}

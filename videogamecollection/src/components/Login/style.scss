@@ -1,0 +1,29 @@
+@use '../../styles/vars';
+@use 'sass:color';
+
+.login{
+  width: 400px;
+  background-color: transparentize($color: rgb(31, 30, 30), $amount: 0.3);
+  padding: vars.$gutter;
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  text-shadow: 0 0 3px black;
+  box-shadow:  0 0 30px black;
+  &-form{
+    text-align: left;
+  }
+  &-redirect{
+    margin-top: vars.$gutter*2;
+    cursor: pointer;
+    //text-shadow: 0 0 5px white;
+    & p{
+      font-size: vars.$gutter*1.2;
+      color: rgb(16, 243, 213);
+      text-decoration: underline;
+      &:hover{
+        color: color.scale(rgb(16, 243, 213), $lightness:-20%)
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+@use '../../styles/vars';
+@use 'sass:color';
+
+.app {
+  display: flex;
+  width: 100%;
+  position: fixed;
+  top:0;
+  left:0;
+  &-separation {
+    width: 100%;
+  }
+}
+
+.add{
+  font-size: vars.$gutter*2;
+  font-weight: bold;
+  padding-right: vars.$gutter;
+}
