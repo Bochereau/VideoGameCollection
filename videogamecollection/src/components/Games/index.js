@@ -1,12 +1,23 @@
 import React from 'react';
 
 import './style.scss';
+import videogames from '../../datas/videogames';
 
-import Card from '../Card';
+import Card from '../../containers/Games/Card';
 
 const Games = () => (
   <main className="games">
-    <Card />
+    {videogames.map((videogame) => (
+      <Card
+        id={videogame.id}
+        name={videogame.name}
+        hardware={videogame.hardware}
+        developer={videogame.developer}
+        editor={videogame.editor}
+        release={videogame.release}
+        finished={videogame.finished}
+      />
+    ))}
   </main>
 );
 

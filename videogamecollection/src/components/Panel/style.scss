@@ -8,7 +8,7 @@
   &-button{
     text-align: left;
     margin: vars.$gutter*0.2 0;
-    padding: vars.$gutter;
+    padding: vars.$gutter*0.5;
     color: vars.$button-border;
     background-color:  vars.$button-color;
     border: 2px solid vars.$button-border;
@@ -29,12 +29,9 @@
       border-radius: 5px;
       text-align: center;
       background-color: vars.$addButton;
-      font-size: vars.$gutter*1.2;
+      font-size: vars.$gutter;
       &:hover{
         filter: invert(1);
-      }
-      &:hover{
-        background-color: color.scale(vars.$addButton, $lightness:-20%);
       }
     }
   }

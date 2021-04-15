@@ -27,7 +27,7 @@
       border-radius: 5px;
       text-align: center;
       background-color: vars.$addButton;
-      font-size: vars.$gutter*1.2;
+      font-size: vars.$gutter;
       &:hover{
         filter: invert(1);
       }
@@ -40,7 +40,7 @@
     }
     &-link{
       text-align: left;
-      padding: vars.$gutter;
+      padding: vars.$gutter*0.5;
       color: vars.$button-border;
       background-color:  vars.$button-color;
       border: 2px solid vars.$button-border;
@@ -65,14 +65,14 @@
   }
   &-search{
     &-input{
-      padding: vars.$gutter;
+      padding: vars.$gutter*0.5;
       border: 1px solid grey;
       border-radius: 5px;
       margin-right: vars.$gutter;
     }
     &-submit{
       text-align: left;
-      padding: vars.$gutter*0.8;
+      padding: vars.$gutter*0.4;
       color: vars.$button-border;
       background-color:  vars.$button-color;
       border: 2px solid vars.$button-border;
@@ -87,13 +87,14 @@
   }
   &-user{
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     &-welcome{
-      margin-right: vars.$gutter;
+      margin-right: vars.$gutter*1.5;
+      font-size: vars.$gutter*1.6;
     }
     &-logout{
       text-align: left;
-      padding: vars.$gutter;
+      padding: vars.$gutter*0.5;
       color: vars.$button-border;
       background-color:  vars.$button-color;
       border: 2px solid vars.$button-border;

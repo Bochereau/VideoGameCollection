@@ -13,7 +13,7 @@
   &-button{
     text-align: left;
     margin: vars.$gutter 0 vars.$gutter*0.5;
-    padding: vars.$gutter;
+    padding: vars.$gutter*0.5;
     border: 2px solid vars.$button-border;
     border-radius: 5px;
     text-align: center;

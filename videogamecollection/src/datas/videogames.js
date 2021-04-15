@@ -1,0 +1,38 @@
+export default [
+  {
+    id: 1,
+    name: 'Streets of Rage 2',
+    hardware: 'Megadrive',
+    developer: 'Sega',
+    editor: 'Sega',
+    release: 1992,
+    finished: true,
+  },
+  {
+    id: 2,
+    name: 'Baten Kaitos Origins',
+    hardware: 'Gamecube',
+    developer: 'Monolith Soft',
+    editor: 'Namco',
+    release: 2005,
+    finished: false,
+  },
+  {
+    id: 3,
+    name: 'Valkyrie Profile',
+    hardware: 'Playstation',
+    developer: 'Tri-Ace',
+    editor: 'Enix',
+    release: 2000,
+    finished: true,
+  },
+  {
+    id: 4,
+    name: 'Shadow Hearts: Covenant',
+    hardware: 'Playstation 2',
+    developer: 'Azure',
+    editor: 'Midway',
+    release: 2004,
+    finished: false,
+  },
+];
