@@ -2,8 +2,8 @@ import React from 'react';
 
 import './style.scss';
 
-import logo from '../../assets/images/logo4.png';
-import Panel from '../Panel';
+import logo from '../../assets/images/logo.png';
+import Panel from '../../containers/Panel';
 
 const Aside = () => (
   <aside className="aside">

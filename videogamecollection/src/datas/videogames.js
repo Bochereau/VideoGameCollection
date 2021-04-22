@@ -35,4 +35,13 @@ export default [
     release: 2004,
     finished: false,
   },
+  {
+    id: 5,
+    name: 'Final Fantasy IX',
+    hardware: 'Playstation',
+    developer: 'Square',
+    editor: 'SquareSoft',
+    release: 2000,
+    finished: true,
+  },
 ];

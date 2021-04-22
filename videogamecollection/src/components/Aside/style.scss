@@ -3,7 +3,7 @@
 
 .aside{
   height: 100vh;
-  width: 15%;
+  width: 20%;
   border-right: 2px solid vars.$secondary-color;
   background: vars.$background;
   display: flex;
@@ -13,7 +13,7 @@
     border-bottom: 1px solid vars.$primary-color;
   }
   &-logo{
-    max-width: 60%;
+    max-width: 100%;
     padding: 0 vars.$gutter;
   }
 }
