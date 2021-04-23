@@ -12,9 +12,15 @@ export const showDetails = () => ({
 });
 
 // action for openning add game modal
-export const SHOW_MODAL = 'SHOW_MODAL';
-export const showModal = () => ({
-  type: SHOW_MODAL,
+export const SHOW_GAME_MODAL = 'SHOW_GAME_MODAL';
+export const showGameModal = () => ({
+  type: SHOW_GAME_MODAL,
+});
+
+// action for openning add game modal
+export const SHOW_HARDWARE_MODAL = 'SHOW_HARDWARE_MODAL';
+export const showHardwareModal = () => ({
+  type: SHOW_HARDWARE_MODAL,
 });
 
 // action for adding a new game in the list
@@ -43,6 +49,13 @@ export const FINISHED_GAME = 'FINISHED_GAME';
 export const finishedGame = (finished) => ({
   type: FINISHED_GAME,
   finished,
+});
+
+// action to save active add button
+export const SAVE_ACTIVE_ADD_BUTTON = 'SAVE_ACTIVE_ADD_BUTTON';
+export const saveActiveAddButton = (button) => ({
+  type: SAVE_ACTIVE_ADD_BUTTON,
+  button,
 });
 
 // // action to update videogameList filtered

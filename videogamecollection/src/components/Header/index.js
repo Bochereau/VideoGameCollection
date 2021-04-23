@@ -6,7 +6,7 @@ import Nav from '../Nav';
 
 const Header = ({
   logout,
-  showModal,
+  showGameModal,
   saveGameFilter,
   filterGame,
 }) => {
@@ -67,7 +67,8 @@ const Header = ({
         <button
           className="header-ranking-add"
           type="button"
-          onClick={() => showModal()}
+          id="addGame"
+          onClick={() => showGameModal()}
         >
           <span className="add">+</span> Ajouter un jeu
         </button>
@@ -78,7 +79,7 @@ const Header = ({
 
 Header.propTypes = {
   logout: PropTypes.func.isRequired,
-  showModal: PropTypes.func.isRequired,
+  showGameModal: PropTypes.func.isRequired,
   saveGameFilter: PropTypes.func.isRequired,
   filterGame: PropTypes.string.isRequired,
 };

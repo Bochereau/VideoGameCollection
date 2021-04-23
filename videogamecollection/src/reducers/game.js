@@ -1,7 +1,8 @@
 import {
   GET_GAME_ID,
   SHOW_DETAILS,
-  SHOW_MODAL,
+  SHOW_GAME_MODAL,
+  SHOW_HARDWARE_MODAL,
   ADD_VIDEOGAME,
   SAVE_GAME_FILTER,
   SAVE_HARDWARE_FILTER,
@@ -14,7 +15,8 @@ import hardware from '../datas/hardware';
 const initialState = {
   gameId: null,
   showed: false,
-  modalOpen: false,
+  gameModalOpen: false,
+  hardwareModalOpen: false,
   videogamesList: videogames,
   filterGame: 'allgames',
   filterHardware: 'allhardware',
@@ -34,10 +36,15 @@ const game = (state = initialState, action = {}) => {
         ...state,
         showed: !state.showed,
       };
-    case SHOW_MODAL:
+    case SHOW_GAME_MODAL:
       return {
         ...state,
-        modalOpen: !state.modalOpen,
+        gameModalOpen: !state.gameModalOpen,
+      };
+    case SHOW_HARDWARE_MODAL:
+      return {
+        ...state,
+        hardwareModalOpen: !state.hardwareModalOpen,
       };
     case ADD_VIDEOGAME:
       return {

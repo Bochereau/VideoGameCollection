@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const Modale = ({
-  modalOpen,
-  showModal,
+const AddGameModal = ({
+  gameModalOpen,
+  showGameModal,
   changeCurrentValue,
   currentValue,
   hardwareList,
 }) => (
-  <Modal show={modalOpen} onHide={() => showModal()} centered>
+  <Modal show={gameModalOpen} onHide={() => showGameModal()} centered>
     <Modal.Header closeButton>
       <Modal.Title>Ajouter un jeu</Modal.Title>
     </Modal.Header>
@@ -33,7 +33,7 @@ const Modale = ({
           <Form.Label>Console</Form.Label>
           <Form.Control name="hardware" as="select">
             {hardwareList.map((item) => (
-              <option value="Megadrive">{item.hardware}</option>
+              <option value={item.hardware}>{item.hardware}</option>
             ))}
           </Form.Control>
         </Form.Group>
@@ -78,14 +78,14 @@ const Modale = ({
 
     <Modal.Footer>
       <Button variant="primary">Ajouter</Button>
-      <Button onClick={() => showModal()} variant="secondary">Fermer</Button>
+      <Button onClick={() => showGameModal()} variant="secondary">Fermer</Button>
     </Modal.Footer>
   </Modal>
 );
 
-Modale.propTypes = {
-  modalOpen: PropTypes.bool.isRequired,
-  showModal: PropTypes.func.isRequired,
+AddGameModal.propTypes = {
+  gameModalOpen: PropTypes.bool.isRequired,
+  showGameModal: PropTypes.func.isRequired,
   changeCurrentValue: PropTypes.func.isRequired,
   currentValue: PropTypes.string.isRequired,
   hardwareList: PropTypes.arrayOf(
@@ -95,4 +95,4 @@ Modale.propTypes = {
   ).isRequired,
 };
 
-export default Modale;
+export default AddGameModal;

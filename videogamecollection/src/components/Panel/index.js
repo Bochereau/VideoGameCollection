@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 
 import './style.scss';
 
-const Panel = ({ hardwareList, saveHardwareFilter }) => {
+const Panel = ({
+  hardwareList,
+  saveHardwareFilter,
+  filterHardware,
+  showHardwareModal,
+}) => {
   const handleHardwareFilter = (evt) => {
     evt.preventDefault();
     saveHardwareFilter(evt.target.value);
@@ -11,9 +16,15 @@ const Panel = ({ hardwareList, saveHardwareFilter }) => {
   return (
     <div className="panel">
       <h2 className="panel-title">Vos consoles</h2>
-      <button className="panel-button-add" type="button"><span className="add">+</span> Ajouter une console</button>
       <button
-        className="panel-button active"
+        className="panel-button-add"
+        type="button"
+        onClick={() => showHardwareModal()}
+      >
+        <span className="add">+</span> Ajouter une console
+      </button>
+      <button
+        className={filterHardware === 'allhardware' ? 'panel-button active' : 'panel-button'}
         type="button"
         value="allhardware"
         onClick={(evt) => handleHardwareFilter(evt)}
@@ -23,7 +34,7 @@ const Panel = ({ hardwareList, saveHardwareFilter }) => {
       {hardwareList.map((item) => (
         <button
           key={item.id}
-          className="panel-button"
+          className={filterHardware === item.hardware ? 'panel-button active' : 'panel-button'}
           type="button"
           value={item.hardware}
           onClick={(evt) => handleHardwareFilter(evt)}
@@ -42,6 +53,8 @@ Panel.propTypes = {
     }).isRequired,
   ).isRequired,
   saveHardwareFilter: PropTypes.func.isRequired,
+  filterHardware: PropTypes.string.isRequired,
+  showHardwareModal: PropTypes.func.isRequired,
 };
 
 export default Panel;

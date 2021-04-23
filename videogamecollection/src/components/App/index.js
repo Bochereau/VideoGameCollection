@@ -7,9 +7,10 @@ import Aside from '../Aside';
 import Header from '../../containers/Header/Header';
 import Home from '../../containers/Home/Home';
 import Games from '../../containers/Games/Games';
-import Modale from '../../containers/Modale';
+import AddGameModal from '../../containers/Modal/AddGameModal';
+import AddHardwareModal from '../../containers/Modal/AddHardwareModal';
 
-const App = ({ logged, modalOpen }) => (
+const App = ({ logged, gameModalOpen, hardwareModalOpen }) => (
   <div className="app">
     {!logged && (
       <Home />
@@ -20,7 +21,8 @@ const App = ({ logged, modalOpen }) => (
         <div className="app-separation">
           <Header />
           <Games />
-          {modalOpen && (<Modale />)}
+          {hardwareModalOpen && (<AddHardwareModal />)}
+          {gameModalOpen && (<AddGameModal />)}
         </div>
       </>
     )}
@@ -29,7 +31,8 @@ const App = ({ logged, modalOpen }) => (
 
 App.propTypes = {
   logged: PropTypes.bool.isRequired,
-  modalOpen: PropTypes.bool.isRequired,
+  gameModalOpen: PropTypes.bool.isRequired,
+  hardwareModalOpen: PropTypes.bool.isRequired,
 };
 
 export default App;

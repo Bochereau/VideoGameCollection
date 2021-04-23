@@ -3,7 +3,8 @@ import App from '../../components/App';
 
 const mapStateToProps = (state) => ({
   logged: state.user.logged,
-  modalOpen: state.game.modalOpen,
+  gameModalOpen: state.game.gameModalOpen,
+  hardwareModalOpen: state.game.hardwareModalOpen,
 });
 
 const mapDispatchToProps = () => {};

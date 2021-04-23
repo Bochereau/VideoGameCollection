@@ -6,22 +6,21 @@ import './style.scss';
 import Card from '../../containers/Games/Card';
 
 const Games = ({ videogames, filterGame, filterHardware }) => {
-  function hardwareFilter() {
+  function hardwareFilter(games) {
     let result;
     if (filterHardware === 'allhardware') {
-      result = videogames;
+      result = games;
     }
     else {
-      result = videogames.filter((videogame) => (filterHardware === videogame.hardware));
+      result = games.filter((videogame) => (filterHardware === videogame.hardware));
     }
     return result;
   }
   const finishedGames = videogames.filter((videogame) => videogame.finished === true);
   const unfinishedGames = videogames.filter((videogame) => videogame.finished === false);
-  console.log(hardwareFilter);
   return (
     <main className="games">
-      {filterGame === 'allgames' && (hardwareFilter().map((videogame) => (
+      {filterGame === 'allgames' && (hardwareFilter(videogames).map((videogame) => (
         <Card
           key={videogame.id}
           id={videogame.id}
@@ -33,7 +32,7 @@ const Games = ({ videogames, filterGame, filterHardware }) => {
           finished={videogame.finished}
         />
       )))}
-      {filterGame === 'finished' && (finishedGames.map((videogame) => (
+      {filterGame === 'finished' && (hardwareFilter(finishedGames).map((videogame) => (
         <Card
           key={videogame.id}
           id={videogame.id}
@@ -45,7 +44,7 @@ const Games = ({ videogames, filterGame, filterHardware }) => {
           finished={videogame.finished}
         />
       )))}
-      {filterGame === 'unfinished' && (unfinishedGames.map((videogame) => (
+      {filterGame === 'unfinished' && (hardwareFilter(unfinishedGames).map((videogame) => (
         <Card
           key={videogame.id}
           id={videogame.id}
