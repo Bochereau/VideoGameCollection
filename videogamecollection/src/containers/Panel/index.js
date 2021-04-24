@@ -5,6 +5,7 @@ import { saveHardwareFilter, showHardwareModal } from '../../actions/game';
 const mapStateToProps = (state) => ({
   hardwareList: state.game.hardwareList,
   filterHardware: state.game.filterHardware,
+  videogamesList: state.game.videogamesList,
 });
 
 const mapDispatchToProps = (dispatch) => ({

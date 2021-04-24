@@ -8,6 +8,7 @@ const Panel = ({
   saveHardwareFilter,
   filterHardware,
   showHardwareModal,
+  videogamesList,
 }) => {
   const handleHardwareFilter = (evt) => {
     evt.preventDefault();
@@ -29,7 +30,7 @@ const Panel = ({
         value="allhardware"
         onClick={(evt) => handleHardwareFilter(evt)}
       >
-        Toutes les consoles (25)
+        Toutes les consoles ({videogamesList.length})
       </button>
       {hardwareList.map((item) => (
         <button
@@ -39,7 +40,9 @@ const Panel = ({
           value={item.hardware}
           onClick={(evt) => handleHardwareFilter(evt)}
         >
-          {item.hardware} (...)
+          {item.hardware} ({videogamesList.filter(
+            (videogame) => videogame.hardware === item.hardware,
+          ).length})
         </button>
       ))}
     </div>
@@ -55,6 +58,11 @@ Panel.propTypes = {
   saveHardwareFilter: PropTypes.func.isRequired,
   filterHardware: PropTypes.string.isRequired,
   showHardwareModal: PropTypes.func.isRequired,
+  videogamesList: PropTypes.arrayOf(
+    PropTypes.shape({
+      hardware: PropTypes.string.isRequired,
+    }).isRequired,
+  ).isRequired,
 };
 
 export default Panel;
