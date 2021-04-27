@@ -34,8 +34,8 @@ const AddHardwareModal = ({
           <Form.Label>Constructeur</Form.Label>
           <Form.Control name="hardware" as="select">
             <option value="">-- Choississez un constructeur --</option>
-            {constructors.map((brand) => (
-              <option key={brand.id} value={brand.constructor}>{brand.constructor}</option>
+            {constructors.map((constructor) => (
+              <option key={constructor.id} value={constructor.name}>{constructor.name}</option>
             ))}
           </Form.Control>
         </Form.Group>

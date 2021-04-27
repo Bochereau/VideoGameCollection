@@ -1,0 +1,7 @@
+POSSESS, 11 HARDWARE, 0N USER
+USER: pseudo, email, password
+OWN, 11 VIDEOGAME, 0N USER
+
+HARDWARE: name, constructor
+BELONGS TO, 0N HARDWARE, 11 VIDEOGAME
+VIDEOGAME: name, editor, developer, release date, finished, picture, description, box, manual, physical, demat

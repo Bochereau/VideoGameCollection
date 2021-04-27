@@ -32,16 +32,16 @@ const Panel = ({
       >
         Toutes les consoles ({videogamesList.length})
       </button>
-      {hardwareList.map((item) => (
+      {hardwareList.map((hardware) => (
         <button
-          key={item.id}
-          className={filterHardware === item.hardware ? 'panel-button active' : 'panel-button'}
+          key={hardware.id}
+          className={filterHardware === hardware.name ? 'panel-button active' : 'panel-button'}
           type="button"
-          value={item.hardware}
+          value={hardware.name}
           onClick={(evt) => handleHardwareFilter(evt)}
         >
-          {item.hardware} ({videogamesList.filter(
-            (videogame) => videogame.hardware === item.hardware,
+          {hardware.name} ({videogamesList.filter(
+            (videogame) => videogame.hardware === hardware.name,
           ).length})
         </button>
       ))}
@@ -52,7 +52,7 @@ const Panel = ({
 Panel.propTypes = {
   hardwareList: PropTypes.arrayOf(
     PropTypes.shape({
-      hardware: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
     }).isRequired,
   ).isRequired,
   saveHardwareFilter: PropTypes.func.isRequired,

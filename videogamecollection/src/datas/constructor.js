@@ -1,30 +1,22 @@
 export default [
   {
     id: 1,
-    constructor: 'Nintendo',
+    name: 'Nintendo',
   },
   {
     id: 2,
-    constructor: 'Sega',
+    name: 'Sega',
   },
   {
     id: 3,
-    constructor: 'Sony',
+    name: 'Sony',
   },
   {
     id: 4,
-    constructor: 'Microsoft',
+    name: 'Microsoft',
   },
   {
     id: 5,
-    constructor: 'Atari',
-  },
-  {
-    id: 6,
-    constructor: 'NEC',
-  },
-  {
-    id: 7,
-    constructor: 'SNK',
+    name: 'Autres',
   },
 ];

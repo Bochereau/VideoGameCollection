@@ -1,27 +1,27 @@
 export default [
   {
     id: 1,
-    hardware: 'Megadrive',
+    name: 'Megadrive',
     constructor: 'Sega',
   },
   {
     id: 2,
-    hardware: 'Super Nintendo',
+    name: 'Super Nintendo',
     constructor: 'Nintendo',
   },
   {
     id: 3,
-    hardware: 'Playstation',
+    name: 'Playstation',
     constructor: 'Sony',
   },
   {
     id: 4,
-    hardware: 'Playstation 2',
+    name: 'Playstation 2',
     constructor: 'Sony',
   },
   {
     id: 5,
-    hardware: 'Gamecube',
+    name: 'Gamecube',
     constructor: 'Nintendo',
   },
 ];
