@@ -4,7 +4,7 @@ import Games from '../../components/Games';
 const mapStateToProps = (state) => ({
   videogames: state.game.videogamesList,
   filterGame: state.game.filterGame,
-  filterHardware: state.game.filterHardware,
+  filterHardware: state.hardware.filterHardware,
 });
 
 const mapDispatchToProps = () => {};

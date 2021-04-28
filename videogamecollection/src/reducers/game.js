@@ -2,26 +2,20 @@ import {
   GET_GAME_ID,
   SHOW_DETAILS,
   SHOW_GAME_MODAL,
-  SHOW_HARDWARE_MODAL,
   ADD_VIDEOGAME,
   SAVE_GAME_FILTER,
-  SAVE_HARDWARE_FILTER,
   FINISHED_GAME,
 } from '../actions/game';
 
 import videogames from '../datas/videogames';
-import hardware from '../datas/hardware';
 
 const initialState = {
   gameId: null,
   showed: false,
   gameModalOpen: false,
-  hardwareModalOpen: false,
   videogamesList: videogames,
   filterGame: 'allgames',
-  filterHardware: 'allhardware',
   finished: null,
-  hardwareList: hardware,
 };
 
 const game = (state = initialState, action = {}) => {
@@ -41,11 +35,6 @@ const game = (state = initialState, action = {}) => {
         ...state,
         gameModalOpen: !state.gameModalOpen,
       };
-    case SHOW_HARDWARE_MODAL:
-      return {
-        ...state,
-        hardwareModalOpen: !state.hardwareModalOpen,
-      };
     case ADD_VIDEOGAME:
       return {
         ...state,
@@ -55,11 +44,6 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         filterGame: action.filterGame,
-      };
-    case SAVE_HARDWARE_FILTER:
-      return {
-        ...state,
-        filterHardware: action.filterHardware,
       };
     case FINISHED_GAME:
       return {

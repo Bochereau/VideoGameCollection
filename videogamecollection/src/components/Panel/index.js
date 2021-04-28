@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import './style.scss';
 
+// import constructors from '../../datas/constructor';
+
 const Panel = ({
   hardwareList,
   saveHardwareFilter,
@@ -30,8 +32,9 @@ const Panel = ({
         value="allhardware"
         onClick={(evt) => handleHardwareFilter(evt)}
       >
-        Toutes les consoles ({videogamesList.length})
+        Toutes les consoles ({videogamesList.length} {videogamesList.length === 1 ? 'jeu' : 'jeux'})
       </button>
+
       {hardwareList.map((hardware) => (
         <button
           key={hardware.id}
@@ -42,7 +45,9 @@ const Panel = ({
         >
           {hardware.name} ({videogamesList.filter(
             (videogame) => videogame.hardware === hardware.name,
-          ).length})
+          ).length} {videogamesList.filter(
+            (videogame) => videogame.hardware === hardware.name,
+          ).length === 1 ? 'jeu' : 'jeux'})
         </button>
       ))}
     </div>

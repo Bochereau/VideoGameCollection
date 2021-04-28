@@ -8,8 +8,9 @@ import constructors from '../../datas/constructor';
 const AddHardwareModal = ({
   hardwareModalOpen,
   showHardwareModal,
-  changeCurrentValue,
-  currentValue,
+  changeHardwareValue,
+  currentHardwareValue,
+  newHardwareConstructor,
 }) => (
   <Modal show={hardwareModalOpen} onHide={() => showHardwareModal()} centered>
     <Modal.Header closeButton>
@@ -24,15 +25,15 @@ const AddHardwareModal = ({
             name="hardware"
             type="text"
             placeholder="Nom de la console"
-            value={currentValue}
+            value={currentHardwareValue}
             onChange={(evt) => {
-              changeCurrentValue(evt.target.value);
+              changeHardwareValue(evt.target.value);
             }}
           />
         </Form.Group>
         <Form.Group controlId="add-hardware">
           <Form.Label>Constructeur</Form.Label>
-          <Form.Control name="hardware" as="select">
+          <Form.Control onChange={(evt) => newHardwareConstructor(evt.target.value)} name="hardware" as="select">
             <option value="">-- Choississez un constructeur --</option>
             {constructors.map((constructor) => (
               <option key={constructor.id} value={constructor.name}>{constructor.name}</option>
@@ -52,8 +53,9 @@ const AddHardwareModal = ({
 AddHardwareModal.propTypes = {
   hardwareModalOpen: PropTypes.bool.isRequired,
   showHardwareModal: PropTypes.func.isRequired,
-  changeCurrentValue: PropTypes.func.isRequired,
-  currentValue: PropTypes.string.isRequired,
+  changeHardwareValue: PropTypes.func.isRequired,
+  currentHardwareValue: PropTypes.string.isRequired,
+  newHardwareConstructor: PropTypes.string.isRequired,
 };
 
 export default AddHardwareModal;

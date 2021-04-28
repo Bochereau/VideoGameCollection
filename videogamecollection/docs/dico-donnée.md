@@ -31,13 +31,13 @@ Champ|Type|Spécificités|Description|
 |editor|VARCHAR|NOT NULL|L'éditeur du jeu|
 |developer|VARCHAR|NOT NULL|Le développeur du jeu|
 |release|DATE|NOT NULL|L'année de sortie du jeu|
-|finished|BOOLEAN|TRUE: FINISHED, FALSE: NOT FINISHED|Savoir si le jeu est terminé ou non|
+|finished|TINYINT|1: FINISHED, 2: NOT FINISHED|Savoir si le jeu est terminé ou non|
 |picture|VARCHAR|L'url de l'image du jeu|
 |description|TEXT||La description du jeu ou de son contenu|
-|box|BOOLEAN|TRUE: CHECKED, FALSE: UNCHECKED|Savoir si la boite du jeu est présente|
-|manual|BOOLEAN|TRUE: CHECKED, FALSE: UNCHECKED|Savoir si le manuel du jeu est présent|
-|physical|BOOLEAN|TRUE: CHECKED, FALSE: UNCHECKED|Savoir si le jeu est en physique|
-|demat|BOOLEAN|TRUE: CHECKED, FALSE: UNCHECKED|Savoir si le jeu est en dématérialisé|
+|box|TINYINT|1: CHECKED, 2: UNCHECKED|Savoir si la boite du jeu est présente|
+|manual|TINYINT|1: CHECKED, 2: UNCHECKED|Savoir si le manuel du jeu est présent|
+|physical|TINYINT|1: CHECKED, 2: UNCHECKED|Savoir si le jeu est en physique|
+|demat|TINYINT|1: CHECKED, 2: UNCHECKED|Savoir si le jeu est en dématérialisé|
 |created_at|timestamp[current_timestamp()]| NOT NULL|La date de création du jeu|
 |updated_at|timestamp||La date de dernière mise à jour du jeu|
 |user_id|INT|NOT NULL, UNSIGNED|L'id de l'utilisateur|

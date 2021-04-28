@@ -17,12 +17,6 @@ export const showGameModal = () => ({
   type: SHOW_GAME_MODAL,
 });
 
-// action for openning add game modal
-export const SHOW_HARDWARE_MODAL = 'SHOW_HARDWARE_MODAL';
-export const showHardwareModal = () => ({
-  type: SHOW_HARDWARE_MODAL,
-});
-
 // action for adding a new game in the list
 export const ADD_VIDEOGAME = 'ADD_VIDEOGAME';
 export const addVideogame = (newVideogame) => ({
@@ -35,13 +29,6 @@ export const SAVE_GAME_FILTER = 'SAVE_GAME_FILTER';
 export const saveGameFilter = (filterGame) => ({
   type: SAVE_GAME_FILTER,
   filterGame,
-});
-
-// action to save filter slug
-export const SAVE_HARDWARE_FILTER = 'SAVE_HARDWARE_FILTER';
-export const saveHardwareFilter = (filterHardware) => ({
-  type: SAVE_HARDWARE_FILTER,
-  filterHardware,
 });
 
 // action to change finished game status

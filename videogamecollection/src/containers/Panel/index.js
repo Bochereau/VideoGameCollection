@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
 import Panel from '../../components/Panel';
-import { saveHardwareFilter, showHardwareModal } from '../../actions/game';
+import { saveHardwareFilter, showHardwareModal } from '../../actions/hardware';
 
 const mapStateToProps = (state) => ({
-  hardwareList: state.game.hardwareList,
-  filterHardware: state.game.filterHardware,
+  hardwareList: state.hardware.hardwareList,
+  filterHardware: state.hardware.filterHardware,
   videogamesList: state.game.videogamesList,
 });
 

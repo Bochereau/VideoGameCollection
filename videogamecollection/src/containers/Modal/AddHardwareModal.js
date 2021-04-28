@@ -1,20 +1,21 @@
 import { connect } from 'react-redux';
 import AddHardwareModal from '../../components/Modal/AddHardwareModal';
-import { showHardwareModal } from '../../actions/game';
-import { changeValue } from '../../actions/global';
+import { showHardwareModal, changeHardwareValue, newHardwareConstructor } from '../../actions/hardware';
 
-const mapStateToProps = (state, ownProps) => ({
-  hardwareModalOpen: state.game.hardwareModalOpen,
-  currentValue: state[ownProps.name],
+const mapStateToProps = (state) => ({
+  hardwareModalOpen: state.hardware.hardwareModalOpen,
+  currentHardwareValue: state.hardware.newHardware,
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   showHardwareModal: () => {
     dispatch(showHardwareModal());
   },
-  changeCurrentValue: (newValue) => {
-    dispatch(changeValue(newValue, ownProps.name));
-    console.log(ownProps.name);
+  changeHardwareValue: (newValue) => {
+    dispatch(changeHardwareValue(newValue));
+  },
+  newHardwareConstructor: (constructor) => {
+    dispatch(newHardwareConstructor(constructor));
   },
 });
 

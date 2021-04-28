@@ -6,7 +6,7 @@ import { changeValue } from '../../actions/global';
 const mapStateToProps = (state, ownProps) => ({
   gameModalOpen: state.game.gameModalOpen,
   currentValue: state[ownProps.name],
-  hardwareList: state.game.hardwareList,
+  hardwareList: state.hardware.hardwareList,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
