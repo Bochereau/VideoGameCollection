@@ -6,10 +6,10 @@ Champ|Type|Spécificités|Description|
 |-|-|-|-|
 |id|INT|PRIMARY KEY, NOT NULL, UNSIGNED, AUTO_INCREMENT|L'identifiant de l'utilisateur|
 |pseudo|VARCHAR|NOT NULL|Le pseudo de l'utilisateur|
-|email|VARCHAR|NOT NULL|'email de l'utilisateur|
+|email|VARCHAR|NOT NULL|L'email de l'utilisateur|
 |password|vARCHAR|NOT NULL|Le mot de passe de l'utilisateur|
-|created_at|timestamp[current_timestamp()], NOT NULL|La date de création du profil|
-|updated_at|timestamp|La date de dernière mise à jour du profil|
+|created_at|timestamp[current_timestamp()]| NOT NULL|La date de création du profil|
+|updated_at|timestamp||La date de dernière mise à jour du profil|
 
 ## Hardware
 
@@ -18,8 +18,8 @@ Champ|Type|Spécificités|Description|
 |id|INT|PRIMARY KEY, NOT NULL, UNSIGNED, AUTO_INCREMENT|L'identifiant de la console|
 |name|VARCHAR|NOT NULL|Le nom de la console|
 |constructor|VARCHAR|NOT NULL|Le constructeur de la console|
-|created_at|timestamp[current_timestamp()], NOT NULL|La date de création de la console|
-|updated_at|timestamp|La date de dernière mise à jour de la console|
+|created_at|timestamp[current_timestamp()]|NOT NULL|La date de création de la console|
+|updated_at|timestamp||La date de dernière mise à jour de la console|
 |user_id|INT|NOT NULL, UNSIGNED|L'id de l'utilisateur|
 
 ## Videogames
