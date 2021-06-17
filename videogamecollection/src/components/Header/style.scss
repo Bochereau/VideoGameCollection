@@ -1,7 +1,6 @@
 @use '../../styles/vars';
 @use 'sass:color';
 
-
 .header{
   background-color: vars.$background;
   border-bottom: 2px solid vars.$secondary-color;
@@ -27,13 +26,16 @@
       align-items: center;
       justify-content: center;
       padding: 0 vars.$gutter;
-      border: 2px solid vars.$button-border;
+      color: vars.$addButton;
+      border: 3px solid vars.$addButton;
+      background-color: white;
       border-radius: 5px;
-      text-align: center;
-      background-color: vars.$addButton;
       font-size: vars.$gutter;
+      font-weight: bold;
       &:hover{
-        filter: invert(1);
+        color: white;
+        border: 3px solid vars.$addButton;
+        background-color: vars.$addButton;
       }
     }
   }

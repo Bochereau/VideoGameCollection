@@ -27,7 +27,7 @@ const Panel = ({
         <span className="add">+</span> Ajouter une console
       </button>
       <button
-        className={filterHardware === 'allhardware' ? 'panel-button active' : 'panel-button'}
+        className={filterHardware === 'allhardware' ? 'panel-button--active' : 'panel-button'}
         type="button"
         value="allhardware"
         onClick={(evt) => handleHardwareFilter(evt)}
@@ -38,7 +38,7 @@ const Panel = ({
       {hardwareList.map((hardware) => (
         <button
           key={hardware.id}
-          className={filterHardware === hardware.name ? 'panel-button active' : 'panel-button'}
+          className={filterHardware === hardware.name ? 'panel-button--active' : 'panel-button'}
           type="button"
           value={hardware.name}
           onClick={(evt) => handleHardwareFilter(evt)}

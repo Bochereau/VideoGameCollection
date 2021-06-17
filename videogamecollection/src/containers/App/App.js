@@ -5,6 +5,7 @@ const mapStateToProps = (state) => ({
   logged: state.user.logged,
   gameModalOpen: state.game.gameModalOpen,
   hardwareModalOpen: state.hardware.hardwareModalOpen,
+  listName: state.global.listName,
 });
 
 const mapDispatchToProps = () => {};

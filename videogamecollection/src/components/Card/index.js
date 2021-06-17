@@ -26,9 +26,7 @@ const Card = ({
 }) => {
   const moreDetails = async () => {
     getGameId(id);
-    if (gameId === id) {
-      showDetails();
-    }
+    showDetails();
   };
   const handleChange = (evt) => {
     evt.preventDefault();

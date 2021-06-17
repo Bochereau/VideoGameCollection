@@ -3,16 +3,17 @@ import {
   SAVE_HARDWARE_FILTER,
   CHANGE_HARDWARE_VALUE,
   NEW_HARDWARE_CONSTRUCTOR,
+  SAVE_HARDWARE,
 } from '../actions/hardware';
 
-import hardware from '../datas/hardware';
+// import hardware from '../datas/hardware';
 
 const initialState = {
   hardwareModalOpen: false,
   filterHardware: 'allhardware',
-  hardwareList: hardware,
+  hardwareList: [],
   newHardware: '',
-  newHardwareConstructor: '',
+  newHardwareCompany: '',
 };
 
 const game = (state = initialState, action = {}) => {
@@ -21,6 +22,8 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         hardwareModalOpen: !state.hardwareModalOpen,
+        newHardware: '',
+        newHardwareCompany: '',
       };
     case SAVE_HARDWARE_FILTER:
       return {
@@ -35,7 +38,12 @@ const game = (state = initialState, action = {}) => {
     case NEW_HARDWARE_CONSTRUCTOR:
       return {
         ...state,
-        newHardwareConstructor: action.constructor,
+        newHardwareCompany: action.constructor,
+      };
+    case SAVE_HARDWARE:
+      return {
+        ...state,
+        filterHardware: action.hardwareList,
       };
     default:
       return state;

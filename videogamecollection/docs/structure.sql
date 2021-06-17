@@ -54,13 +54,13 @@ CREATE TABLE IF NOT EXISTS `videogames` (
   `editor` VARCHAR(64) NOT NULL COMMENT "L'editeur du jeu",
   `developer` VARCHAR(64) NOT NULL COMMENT "Le developer du jeu",
   `release` DATE NOT NULL COMMENT "L'année de sortie du jeu",
-  `finished` TINYINT NOT NULL DEFAULT 0 COMMENT "Savoir si le jeu est terminé ou non"
+  `finished` TINYINT NOT NULL DEFAULT 1 COMMENT "Savoir si le jeu est terminé ou non"
   `picture` VARCHAR(128) NULL COMMENT "L'image du jeu",
   `description` TEXT NULL COMMENT "La description du jeu",
-  `box` TINYINT NOT NULL DEFAULT 0 COMMENT "Savoir si la boite du jeu est présente"
-  `manual` TINYINT NOT NULL DEFAULT 0 COMMENT "Savoir si la notice du jeu est présente"
-  `physical` TINYINT NOT NULL DEFAULT 0 COMMENT "Savoir si le jeu est en physique"
-  `demat` TINYINT NOT NULL DEFAULT 0 COMMENT "Savoir si le jeu est en dématérialisé"
+  `box` TINYINT NOT NULL DEFAULT 1 COMMENT "Savoir si la boite du jeu est présente"
+  `manual` TINYINT NOT NULL DEFAULT 1 COMMENT "Savoir si la notice du jeu est présente"
+  `physical` TINYINT NOT NULL DEFAULT 1 COMMENT "Savoir si le jeu est en physique"
+  `demat` TINYINT NOT NULL DEFAULT 1 COMMENT "Savoir si le jeu est en dématérialisé"
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'La date de création du jeu',
   `updated_at` TIMESTAMP NULL COMMENT 'La date de la dernière mise à jour du jeu',
   `user_id` INT UNSIGNED NOT NULL,

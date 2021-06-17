@@ -1,19 +1,19 @@
 export default [
   {
     id: 1,
-    name: 'Nintendo',
+    name: 'NINTENDO',
   },
   {
     id: 2,
-    name: 'Sega',
+    name: 'SEGA',
   },
   {
     id: 3,
-    name: 'Sony',
+    name: 'SONY',
   },
   {
     id: 4,
-    name: 'Microsoft',
+    name: 'MICROSOFT',
   },
   {
     id: 5,

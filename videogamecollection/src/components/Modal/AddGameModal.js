@@ -6,9 +6,16 @@ import { Modal, Button, Form } from 'react-bootstrap';
 const AddGameModal = ({
   gameModalOpen,
   showGameModal,
-  changeCurrentValue,
-  currentValue,
   hardwareList,
+  newGameName,
+  newGameHardware,
+  newGameEditor,
+  newGameDeveloper,
+  newGameRelease,
+  currentNameValue,
+  currentEditorValue,
+  currentDeveloperValue,
+  currentReleaseValue,
 }) => (
   <Modal show={gameModalOpen} onHide={() => showGameModal()} centered>
     <Modal.Header closeButton>
@@ -23,17 +30,18 @@ const AddGameModal = ({
             name="game"
             type="text"
             placeholder="Nom du jeu"
-            value={currentValue}
+            value={currentNameValue}
             onChange={(evt) => {
-              changeCurrentValue(evt.target.value);
+              newGameName(evt.target.value);
             }}
           />
         </Form.Group>
         <Form.Group controlId="add-hardware">
           <Form.Label>Console</Form.Label>
-          <Form.Control name="hardware" as="select">
+          <Form.Control onChange={(evt) => newGameHardware(evt.target.value)} name="hardware" as="select">
+            <option>-- Choisissez une console --</option>
             {hardwareList.map((item) => (
-              <option value={item.hardware}>{item.hardware}</option>
+              <option value={item.name}>{item.name}</option>
             ))}
           </Form.Control>
         </Form.Group>
@@ -43,9 +51,9 @@ const AddGameModal = ({
             name="editor"
             type="text"
             placeholder="Editeur"
-            value={currentValue}
+            value={currentEditorValue}
             onChange={(evt) => {
-              changeCurrentValue(evt.target.value);
+              newGameEditor(evt.target.value);
             }}
           />
         </Form.Group>
@@ -55,9 +63,9 @@ const AddGameModal = ({
             name="developer"
             type="text"
             placeholder="Developpeur"
-            value={currentValue}
+            value={currentDeveloperValue}
             onChange={(evt) => {
-              changeCurrentValue(evt.target.value);
+              newGameDeveloper(evt.target.value);
             }}
           />
         </Form.Group>
@@ -67,9 +75,9 @@ const AddGameModal = ({
             name="release"
             type="text"
             placeholder="Année"
-            value={currentValue}
+            value={currentReleaseValue}
             onChange={(evt) => {
-              changeCurrentValue(evt.target.value);
+              newGameRelease(evt.target.value);
             }}
           />
         </Form.Group>
@@ -86,13 +94,20 @@ const AddGameModal = ({
 AddGameModal.propTypes = {
   gameModalOpen: PropTypes.bool.isRequired,
   showGameModal: PropTypes.func.isRequired,
-  changeCurrentValue: PropTypes.func.isRequired,
-  currentValue: PropTypes.string.isRequired,
   hardwareList: PropTypes.arrayOf(
     PropTypes.shape({
       hardware: PropTypes.string.isRequired,
     }).isRequired,
   ).isRequired,
+  newGameName: PropTypes.func.isRequired,
+  newGameHardware: PropTypes.func.isRequired,
+  newGameEditor: PropTypes.func.isRequired,
+  newGameDeveloper: PropTypes.func.isRequired,
+  newGameRelease: PropTypes.func.isRequired,
+  currentNameValue: PropTypes.string.isRequired,
+  currentEditorValue: PropTypes.string.isRequired,
+  currentDeveloperValue: PropTypes.string.isRequired,
+  currentReleaseValue: PropTypes.string.isRequired,
 };
 
 export default AddGameModal;

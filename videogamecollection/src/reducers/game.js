@@ -5,17 +5,29 @@ import {
   ADD_VIDEOGAME,
   SAVE_GAME_FILTER,
   FINISHED_GAME,
+  NEW_GAME_NAME,
+  NEW_GAME_HARDWARE,
+  NEW_GAME_EDITOR,
+  NEW_GAME_DEVELOPER,
+  NEW_GAME_RELEASE,
 } from '../actions/game';
 
 import videogames from '../datas/videogames';
+import wishlist from '../datas/wishlist';
 
 const initialState = {
   gameId: null,
   showed: false,
   gameModalOpen: false,
   videogamesList: videogames,
+  wishlist,
   filterGame: 'allgames',
   finished: null,
+  gameName: '',
+  gameHardware: '',
+  gameEditor: '',
+  gameDeveloper: '',
+  gameRelease: '',
 };
 
 const game = (state = initialState, action = {}) => {
@@ -34,6 +46,11 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         gameModalOpen: !state.gameModalOpen,
+        gameName: '',
+        gameHardware: '',
+        gameEditor: '',
+        gameDeveloper: '',
+        gameRelease: '',
       };
     case ADD_VIDEOGAME:
       return {
@@ -49,6 +66,31 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         // [videogamesList.gameId]: [...!state.videogamesList.finished],
+      };
+    case NEW_GAME_NAME:
+      return {
+        ...state,
+        gameName: action.nameValue,
+      };
+    case NEW_GAME_HARDWARE:
+      return {
+        ...state,
+        gameHardware: action.hardware,
+      };
+    case NEW_GAME_EDITOR:
+      return {
+        ...state,
+        gameEditor: action.editorValue,
+      };
+    case NEW_GAME_DEVELOPER:
+      return {
+        ...state,
+        gameDeveloper: action.developerValue,
+      };
+    case NEW_GAME_RELEASE:
+      return {
+        ...state,
+        gameRelease: action.releaseValue,
       };
     default:
       return state;

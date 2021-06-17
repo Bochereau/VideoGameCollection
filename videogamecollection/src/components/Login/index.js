@@ -5,7 +5,7 @@ import { Form, Button } from 'react-bootstrap';
 
 import './style.scss';
 
-const Login = ({ saveSlug, doLogin }) => {
+const Login = ({ saveSlug, doLogin, getHardware }) => {
   const handleClick = (evt) => {
     evt.preventDefault();
     saveSlug(evt.target.getAttribute('id'));
@@ -13,6 +13,7 @@ const Login = ({ saveSlug, doLogin }) => {
   const handleSubmit = (evt) => {
     evt.preventDefault();
     doLogin();
+    getHardware();
   };
   return (
     <div className="login">
@@ -51,6 +52,7 @@ const Login = ({ saveSlug, doLogin }) => {
 Login.propTypes = {
   saveSlug: PropTypes.func.isRequired,
   doLogin: PropTypes.func.isRequired,
+  getHardware: PropTypes.func.isRequired,
 };
 
 export default Login;

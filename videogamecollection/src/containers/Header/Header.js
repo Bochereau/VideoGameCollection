@@ -5,6 +5,7 @@ import { showGameModal, saveGameFilter } from '../../actions/game';
 
 const mapStateToProps = (state) => ({
   filterGame: state.game.filterGame,
+  listName: state.global.listName,
 });
 
 const mapDispatchToProps = (dispatch) => ({

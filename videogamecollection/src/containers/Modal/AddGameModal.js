@@ -1,21 +1,41 @@
 import { connect } from 'react-redux';
 import AddGameModal from '../../components/Modal/AddGameModal';
-import { showGameModal } from '../../actions/game';
-import { changeValue } from '../../actions/global';
+import {
+  showGameModal,
+  newGameName,
+  newGameHardware,
+  newGameEditor,
+  newGameDeveloper,
+  newGameRelease,
+} from '../../actions/game';
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state) => ({
   gameModalOpen: state.game.gameModalOpen,
-  currentValue: state[ownProps.name],
   hardwareList: state.hardware.hardwareList,
+  currentNameValue: state.game.gameName,
+  currentEditorValue: state.game.gameEditor,
+  currentDeveloperValue: state.game.gameDeveloper,
+  currentReleaseValue: state.game.gameRelease,
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
   showGameModal: () => {
     dispatch(showGameModal());
   },
-  changeCurrentValue: (newValue) => {
-    dispatch(changeValue(newValue, ownProps.name));
-    console.log(ownProps.name);
+  newGameName: (nameValue) => {
+    dispatch(newGameName(nameValue));
+  },
+  newGameHardware: (hardware) => {
+    dispatch(newGameHardware(hardware));
+  },
+  newGameEditor: (editorValue) => {
+    dispatch(newGameEditor(editorValue));
+  },
+  newGameDeveloper: (developerValue) => {
+    dispatch(newGameDeveloper(developerValue));
+  },
+  newGameRelease: (releaseValue) => {
+    dispatch(newGameRelease(releaseValue));
   },
 });
 

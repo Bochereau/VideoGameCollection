@@ -14,11 +14,22 @@
     background-color:  vars.$button-color;
     border: 2px solid vars.$button-border;
     border-radius: 5px;
+    box-shadow: 0 0 3px black;
     &:hover{
       background-color: vars.$button-border;
       border: 2px solid vars.$button-border;
       color: vars.$button-color;
       box-shadow: inset 0 0 5px white;
+    }
+    &--active{
+      text-align: left;
+      margin: vars.$gutter*0.2 0;
+      padding: vars.$gutter*0.5;
+      background-color: vars.$button-border;
+      border: 2px solid vars.$button-border;
+      border-radius: 5px;
+      color: vars.$button-color;
+      box-shadow: 0 0 3px black;
     }
     &-add{
       margin-bottom: vars.$gutter;
@@ -26,21 +37,19 @@
       align-items: center;
       justify-content: center;
       padding: 0 vars.$gutter;
-      border: 2px solid vars.$button-border;
-      border-radius: 5px;
       text-align: center;
-      background-color: vars.$addButton;
+      color: vars.$addButton;
+      border: 3px solid vars.$addButton;
+      background-color: white;
+      border-radius: 5px;
       font-size: vars.$gutter;
+      font-weight: bold;
       &:hover{
-        filter: invert(1);
+        color: white;
+        border: 3px solid vars.$addButton;
+        background-color: vars.$addButton;
       }
     }
   }
 }
 
-
-.active{
-  background-color: vars.$button-border;
-  border: 2px solid vars.$button-border;
-  color: vars.$button-color;
-}

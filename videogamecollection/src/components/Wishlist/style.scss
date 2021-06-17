@@ -1,0 +1,32 @@
+@use '../../styles/vars';
+@use 'sass:color';
+
+.wishlist{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background-image: url(../../assets/images/backgrounds/background4.jpg);
+  background-position: center;
+  background-size: cover;
+  height: 82vh;
+  overflow-y: auto;
+  &-item{
+    width: 22%;
+    text-align: center;
+    background-color: white;
+    margin: vars.$gutter;
+    padding: vars.$gutter;
+    border: 2px solid black;
+    border-radius: 15px;
+    max-height: 31vh;
+
+    &-title{
+      border-bottom: 2px solid black;
+      padding-bottom: vars.$gutter;
+    }
+
+    &-hardware{
+      padding: vars.$gutter*2;
+    }
+  }
+}

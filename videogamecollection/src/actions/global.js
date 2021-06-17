@@ -5,3 +5,10 @@ export const changeValue = (newValue, name) => ({
   newValue,
   name,
 });
+
+// Action to switch between collection and wishlist
+export const CHANGE_LIST = 'CHANGE_LIST';
+export const changeList = (listValue) => ({
+  type: CHANGE_LIST,
+  listValue,
+});

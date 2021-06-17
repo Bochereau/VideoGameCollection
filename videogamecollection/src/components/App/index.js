@@ -7,10 +7,16 @@ import Aside from '../Aside';
 import Header from '../../containers/Header/Header';
 import Home from '../../containers/Home/Home';
 import Games from '../../containers/Games/Games';
+import Wishlist from '../../containers/Wishlist';
 import AddGameModal from '../../containers/Modal/AddGameModal';
 import AddHardwareModal from '../../containers/Modal/AddHardwareModal';
 
-const App = ({ logged, gameModalOpen, hardwareModalOpen }) => (
+const App = ({
+  logged,
+  gameModalOpen,
+  hardwareModalOpen,
+  listName,
+}) => (
   <div className="app">
     {!logged && (
       <Home />
@@ -20,7 +26,12 @@ const App = ({ logged, gameModalOpen, hardwareModalOpen }) => (
         <Aside />
         <div className="app-separation">
           <Header />
-          <Games />
+          {listName === 'collection' && (
+            <Games />
+          )}
+          {listName === 'wishlist' && (
+            <Wishlist />
+          )}
           {hardwareModalOpen && (<AddHardwareModal />)}
           {gameModalOpen && (<AddGameModal />)}
         </div>
@@ -33,6 +44,7 @@ App.propTypes = {
   logged: PropTypes.bool.isRequired,
   gameModalOpen: PropTypes.bool.isRequired,
   hardwareModalOpen: PropTypes.bool.isRequired,
+  listName: PropTypes.string.isRequired,
 };
 
 export default App;

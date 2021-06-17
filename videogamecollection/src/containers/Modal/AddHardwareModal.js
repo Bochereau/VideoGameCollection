@@ -1,10 +1,16 @@
 import { connect } from 'react-redux';
 import AddHardwareModal from '../../components/Modal/AddHardwareModal';
-import { showHardwareModal, changeHardwareValue, newHardwareConstructor } from '../../actions/hardware';
+import {
+  showHardwareModal,
+  changeHardwareValue,
+  newHardwareConstructor,
+  addHardware,
+} from '../../actions/hardware';
 
 const mapStateToProps = (state) => ({
   hardwareModalOpen: state.hardware.hardwareModalOpen,
   currentHardwareValue: state.hardware.newHardware,
+  companySelected: state.hardware.newHardwareCompany,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -16,6 +22,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   newHardwareConstructor: (constructor) => {
     dispatch(newHardwareConstructor(constructor));
+  },
+  addHardware: () => {
+    dispatch(addHardware());
   },
 });
 

@@ -45,11 +45,39 @@ export const saveActiveAddButton = (button) => ({
   button,
 });
 
-// // action to update videogameList filtered
-// export const UPDATED_VIDEOGAME_LIST = 'UPDATED_VIDEOGAME_LIST';
-// export const updatedVideogameList = (search, filterGame, filterHardware) => ({
-//   type: UPDATED_VIDEOGAME_LIST,
-//   search,
-//   filterGame,
-//   filterHardware,
-// });
+/* Add game form */
+
+// action to change new game name value
+export const NEW_GAME_NAME = 'NEW_GAME_NAME';
+export const newGameName = (nameValue) => ({
+  type: NEW_GAME_NAME,
+  nameValue,
+});
+
+// action to select console for new game
+export const NEW_GAME_HARDWARE = 'NEW_GAME_HARDWARE';
+export const newGameHardware = (hardware) => ({
+  type: NEW_GAME_HARDWARE,
+  hardware,
+});
+
+// action to change game editor value
+export const NEW_GAME_EDITOR = 'NEW_GAME_EDITOR';
+export const newGameEditor = (editorValue) => ({
+  type: NEW_GAME_EDITOR,
+  editorValue,
+});
+
+// action to change game developer value
+export const NEW_GAME_DEVELOPER = 'NEW_GAME_DEVELOPER';
+export const newGameDeveloper = (developerValue) => ({
+  type: NEW_GAME_DEVELOPER,
+  developerValue,
+});
+
+// action to change game release date value
+export const NEW_GAME_RELEASE = 'NEW_GAME_RELEASE';
+export const newGameRelease = (releaseValue) => ({
+  type: NEW_GAME_RELEASE,
+  releaseValue,
+});
