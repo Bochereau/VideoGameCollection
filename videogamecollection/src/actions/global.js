@@ -12,3 +12,9 @@ export const changeList = (listValue) => ({
   type: CHANGE_LIST,
   listValue,
 });
+
+// Action to open aside menu
+export const OPEN_ASIDE = 'OPEN_ASIDE';
+export const openAside = () => ({
+  type: OPEN_ASIDE,
+});

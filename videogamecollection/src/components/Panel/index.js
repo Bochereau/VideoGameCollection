@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 
 import './style.scss';
 
-// import constructors from '../../datas/constructor';
+import constructors from '../../datas/company';
+import Company from '../../containers/Panel/Company';
 
 const Panel = ({
-  hardwareList,
   saveHardwareFilter,
   filterHardware,
   showHardwareModal,
@@ -26,40 +26,27 @@ const Panel = ({
       >
         <span className="add">+</span> Ajouter une console
       </button>
-      <button
-        className={filterHardware === 'allhardware' ? 'panel-button--active' : 'panel-button'}
-        type="button"
-        value="allhardware"
-        onClick={(evt) => handleHardwareFilter(evt)}
-      >
-        Toutes les consoles ({videogamesList.length} {videogamesList.length === 1 ? 'jeu' : 'jeux'})
-      </button>
 
-      {hardwareList.map((hardware) => (
+      <div className="panel-hardware">
         <button
-          key={hardware.id}
-          className={filterHardware === hardware.name ? 'panel-button--active' : 'panel-button'}
+          className={filterHardware === 'allhardware' ? 'panel-button--active' : 'panel-button'}
           type="button"
-          value={hardware.name}
+          value="allhardware"
           onClick={(evt) => handleHardwareFilter(evt)}
         >
-          {hardware.name} ({videogamesList.filter(
-            (videogame) => videogame.hardware === hardware.name,
-          ).length} {videogamesList.filter(
-            (videogame) => videogame.hardware === hardware.name,
-          ).length === 1 ? 'jeu' : 'jeux'})
+          Toutes les consoles ({videogamesList.length} {videogamesList.length === 1 ? 'jeu' : 'jeux'})
         </button>
-      ))}
+        <div className="panel-hardware-company">
+          {constructors.map((constructor) => (
+            <Company name={constructor.name} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
 
 Panel.propTypes = {
-  hardwareList: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-    }).isRequired,
-  ).isRequired,
   saveHardwareFilter: PropTypes.func.isRequired,
   filterHardware: PropTypes.string.isRequired,
   showHardwareModal: PropTypes.func.isRequired,

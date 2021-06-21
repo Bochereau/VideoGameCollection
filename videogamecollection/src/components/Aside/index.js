@@ -1,17 +1,30 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import './style.scss';
-
-import logo from '../../assets/images/logo.png';
+import pad from '../../assets/images/icons/pad.png';
 import Panel from '../../containers/Panel';
 
-const Aside = () => (
-  <aside className="aside">
-    <div className="aside-head">
-      <img className="aside-logo" src={logo} alt="logo" />
+const Aside = ({ openAside, toggleAside }) => (
+  <aside className={(toggleAside ? 'aside  aside--open' : 'aside')}>
+    <div className={(toggleAside ? 'aside-panel  aside-panel--open' : 'aside-panel')}>
+      <Panel />
     </div>
-    <Panel />
+    <div className="aside-toggle">
+      <button
+        type="button"
+        className="aside-button"
+        onClick={() => openAside()}
+      >
+        <img className="aside-button-img" src={pad} alt="pad +" />
+      </button>
+    </div>
   </aside>
 );
+
+Aside.propTypes = {
+  toggleAside: PropTypes.bool.isRequired,
+  openAside: PropTypes.func.isRequired,
+};
 
 export default Aside;

@@ -2,9 +2,9 @@ import axios from 'axios';
 
 import {
   GET_HARDWARE,
+  getHardware,
   saveHardware,
   ADD_HARDWARE,
-  showHardwareModal,
 } from '../actions/hardware';
 
 axios.defaults.baseURL = 'http://localhost:8626';
@@ -12,9 +12,9 @@ axios.defaults.baseURL = 'http://localhost:8626';
 const ajaxHardware = (store) => (next) => (action) => {
   switch (action.type) {
     case GET_HARDWARE: {
-      const userId = '60c9aa80a520a563aa3077ba';
+      // const userId = '60c9aa80a520a563aa3077ba';
       axios.get('/hardware/', {
-        userId,
+        // userId,
       })
         .then((res) => {
           console.log(res.data);
@@ -34,11 +34,13 @@ const ajaxHardware = (store) => (next) => (action) => {
         userId,
       })
         .then((res) => {
-          showHardwareModal();
           console.log(res.data);
         })
         .catch((err) => {
           console.error(err);
+        })
+        .finally(() => {
+          getHardware();
         });
       break;
     }

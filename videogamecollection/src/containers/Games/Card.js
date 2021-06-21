@@ -1,18 +1,14 @@
 import { connect } from 'react-redux';
 import Card from '../../components/Card';
-import { getGameId, showDetails } from '../../actions/game';
+import { toggleGame } from '../../actions/game';
 
 const mapStateToProps = (state) => ({
-  gameId: state.game.gameId,
-  showed: state.game.showed,
+  selectedGame: state.game.selectedGame,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  getGameId: (gameId) => {
-    dispatch(getGameId(gameId));
-  },
-  showDetails: () => {
-    dispatch(showDetails());
+  toggleGame: (game) => {
+    dispatch(toggleGame(game));
   },
 });
 

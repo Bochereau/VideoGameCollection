@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import './style.scss';
 
-import Aside from '../Aside';
+import Aside from '../../containers/Aside';
 import Header from '../../containers/Header/Header';
 import Home from '../../containers/Home/Home';
 import Games from '../../containers/Games/Games';
@@ -16,35 +16,43 @@ const App = ({
   gameModalOpen,
   hardwareModalOpen,
   listName,
-}) => (
-  <div className="app">
-    {!logged && (
-      <Home />
-    )}
-    {logged && (
-      <>
-        <Aside />
-        <div className="app-separation">
+  getHardware,
+}) => {
+  useEffect(() => {
+    getHardware();
+  });
+  return (
+    <div className="app">
+      {!logged && (
+        <Home />
+      )}
+      {logged && (
+        <>
           <Header />
-          {listName === 'collection' && (
-            <Games />
-          )}
-          {listName === 'wishlist' && (
-            <Wishlist />
-          )}
-          {hardwareModalOpen && (<AddHardwareModal />)}
-          {gameModalOpen && (<AddGameModal />)}
-        </div>
-      </>
-    )}
-  </div>
-);
-
+          <div className="app-separation">
+            {listName === 'collection' && (
+              <>
+                <Aside />
+                <Games />
+              </>
+            )}
+            {listName === 'wishlist' && (
+              <Wishlist />
+            )}
+            {hardwareModalOpen && (<AddHardwareModal />)}
+            {gameModalOpen && (<AddGameModal />)}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 App.propTypes = {
   logged: PropTypes.bool.isRequired,
   gameModalOpen: PropTypes.bool.isRequired,
   hardwareModalOpen: PropTypes.bool.isRequired,
   listName: PropTypes.string.isRequired,
+  getHardware: PropTypes.func.isRequired,
 };
 
 export default App;

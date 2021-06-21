@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Modal, Button, Form } from 'react-bootstrap';
 
-import constructors from '../../datas/constructor';
+import company from '../../datas/company';
 
 const AddHardwareModal = ({
   hardwareModalOpen,
@@ -17,6 +17,7 @@ const AddHardwareModal = ({
   const handleSubmit = (event) => {
     event.preventDefault();
     addHardware();
+    showHardwareModal(false);
   };
   return (
     <Modal show={hardwareModalOpen} onHide={() => showHardwareModal()} centered>
@@ -42,7 +43,7 @@ const AddHardwareModal = ({
             <Form.Label>Constructeur</Form.Label>
             <Form.Control onChange={(evt) => newHardwareConstructor(evt.target.value)} name="hardware" as="select">
               <option value="">-- Choississez un constructeur --</option>
-              {constructors.map((constructor) => (
+              {company.map((constructor) => (
                 <option key={constructor.id} value={constructor.name}>{constructor.name}</option>
               ))}
             </Form.Control>

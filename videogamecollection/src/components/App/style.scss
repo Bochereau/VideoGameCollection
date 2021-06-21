@@ -2,14 +2,12 @@
 @use 'sass:color';
 
 .app {
-  display: flex;
   width: 100%;
-  position: fixed;
-  top:0;
-  left:0;
+  height: 100vh;
   &-separation {
-    width: 100%;
-    height: 100%;
+    display: flex;
+    height: 80vh;
+    justify-content: space-between;
   }
 }
 

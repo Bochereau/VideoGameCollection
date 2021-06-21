@@ -1,3 +1,7 @@
+/*
+GAME FRONT INTERACTION
+*/
+
 // action that get the game id for showing more detail
 export const GET_GAME_ID = 'GET_GAME_ID';
 export const getGameId = (gameId) => ({
@@ -43,6 +47,13 @@ export const SAVE_ACTIVE_ADD_BUTTON = 'SAVE_ACTIVE_ADD_BUTTON';
 export const saveActiveAddButton = (button) => ({
   type: SAVE_ACTIVE_ADD_BUTTON,
   button,
+});
+
+// action to open GAME's hardware list
+export const TOGGLE_GAME = 'TOGGLE_GAME';
+export const toggleGame = (game) => ({
+  type: TOGGLE_GAME,
+  game,
 });
 
 /* Add game form */

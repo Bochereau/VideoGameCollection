@@ -19,18 +19,16 @@ const Card = ({
   release,
   finished,
   // showing game details
-  showDetails,
-  showed,
-  getGameId,
-  gameId,
+  toggleGame,
+  selectedGame,
 }) => {
-  const moreDetails = async () => {
-    getGameId(id);
-    showDetails();
-  };
-  const handleChange = (evt) => {
-    evt.preventDefault();
-    console.log(evt.target.checked);
+  const handleClick = () => {
+    if (selectedGame.name === name) {
+      toggleGame('');
+    }
+    else {
+      toggleGame({ name });
+    }
   };
   return (
     <article className="card" id={id}>
@@ -57,51 +55,53 @@ const Card = ({
           </div>
           <div className="card-visible-check">
             <label htmlFor="finished">
-              Terminé :<input type="checkbox" id="finished" name="finished" checked={finished} onChange={handleChange} />
+              Terminé :<input type="checkbox" id="finished" name="finished" checked={finished} />
             </label>
             <img src={trash} alt="Supprimer" />
           </div>
         </div>
         <p
           className="card-visible-more"
-          onClick={moreDetails}
+          onClick={handleClick}
         >
-          Plus de details <img src={gameId === id && showed ? `${upArrow}` : `${downArrow}`} alt="arrow" />
+          Plus de details <img src={selectedGame.name === name ? upArrow : downArrow} alt="arrow" />
         </p>
       </div>
-      <div className={gameId === id && showed ? 'card-open' : 'card-hidden'}>
-        <img className="card-open-image" src={image} alt={`Jaquette de ${name}`} />
-        <div className="card-open-info">
-          <div className="card-open-checkboxes">
-            <p>Etat : </p>
-            <div>
-              <label htmlFor="box">
-                <input type="checkbox" id="box" name="box" />
-                Boîte
-              </label>
+      {selectedGame.name === name && (
+        <div className="card-open">
+          <img className="card-open-image" src={image} alt={`Jaquette de ${name}`} />
+          <div className="card-open-info">
+            <div className="card-open-checkboxes">
+              <p>Etat : </p>
+              <div>
+                <label htmlFor="box">
+                  <input type="checkbox" id="box" name="box" />
+                  Boîte
+                </label>
+              </div>
+              <div>
+                <label htmlFor="manual">
+                  <input type="checkbox" id="manual" name="manual" />
+                  Notice
+                </label>
+              </div>
+              <div>
+                <label htmlFor="game">
+                  <input type="checkbox" id="game" name="game" />
+                  Jeu
+                </label>
+              </div>
+              <div>
+                <label htmlFor="demat">
+                  <input type="checkbox" id="demat" name="demat" />
+                  Dématérialisé
+                </label>
+              </div>
             </div>
-            <div>
-              <label htmlFor="manual">
-                <input type="checkbox" id="manual" name="manual" />
-                Notice
-              </label>
-            </div>
-            <div>
-              <label htmlFor="game">
-                <input type="checkbox" id="game" name="game" />
-                Jeu
-              </label>
-            </div>
-            <div>
-              <label htmlFor="demat">
-                <input type="checkbox" id="demat" name="demat" />
-                Dématérialisé
-              </label>
-            </div>
+            <textarea className="card-open-description" name="description" id="description" cols="70" rows="4" placeholder="Description" />
           </div>
-          <textarea className="card-open-description" name="description" id="description" cols="70" rows="4" placeholder="Description" />
         </div>
-      </div>
+      )}
     </article>
   );
 };
@@ -114,14 +114,8 @@ Card.propTypes = {
   editor: PropTypes.string.isRequired,
   release: PropTypes.number.isRequired,
   finished: PropTypes.bool.isRequired,
-  showDetails: PropTypes.func.isRequired,
-  showed: PropTypes.bool.isRequired,
-  getGameId: PropTypes.func.isRequired,
-  gameId: PropTypes.number,
-};
-
-Card.defaultProps = {
-  gameId: null,
+  toggleGame: PropTypes.func.isRequired,
+  selectedGame: PropTypes.string.isRequired,
 };
 
 export default Card;

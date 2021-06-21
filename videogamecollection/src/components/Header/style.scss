@@ -6,10 +6,21 @@
   border-bottom: 2px solid vars.$secondary-color;
   height: 20vh;
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
   & hr{
     margin: 0;
+  }
+  &-logo{
+    width: 10%;
+    border-right: 2px solid black;
+    &-img{
+      max-height: 19vh;
+    }
+  }
+  &-menu{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 100%;
   }
   &-nav{
     display: flex;

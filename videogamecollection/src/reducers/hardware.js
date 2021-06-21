@@ -4,6 +4,7 @@ import {
   CHANGE_HARDWARE_VALUE,
   NEW_HARDWARE_CONSTRUCTOR,
   SAVE_HARDWARE,
+  TOGGLE_COMPANY,
 } from '../actions/hardware';
 
 // import hardware from '../datas/hardware';
@@ -14,6 +15,7 @@ const initialState = {
   hardwareList: [],
   newHardware: '',
   newHardwareCompany: '',
+  selectedCompany: '',
 };
 
 const game = (state = initialState, action = {}) => {
@@ -43,7 +45,12 @@ const game = (state = initialState, action = {}) => {
     case SAVE_HARDWARE:
       return {
         ...state,
-        filterHardware: action.hardwareList,
+        hardwareList: action.hardwareList,
+      };
+    case TOGGLE_COMPANY:
+      return {
+        ...state,
+        selectedCompany: action.company,
       };
     default:
       return state;

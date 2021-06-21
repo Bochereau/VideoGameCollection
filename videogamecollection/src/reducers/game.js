@@ -1,6 +1,5 @@
 import {
-  GET_GAME_ID,
-  SHOW_DETAILS,
+  TOGGLE_GAME,
   SHOW_GAME_MODAL,
   ADD_VIDEOGAME,
   SAVE_GAME_FILTER,
@@ -16,8 +15,7 @@ import videogames from '../datas/videogames';
 import wishlist from '../datas/wishlist';
 
 const initialState = {
-  gameId: null,
-  showed: false,
+  selectedGame: '',
   gameModalOpen: false,
   videogamesList: videogames,
   wishlist,
@@ -32,15 +30,10 @@ const initialState = {
 
 const game = (state = initialState, action = {}) => {
   switch (action.type) {
-    case GET_GAME_ID:
+    case TOGGLE_GAME:
       return {
         ...state,
-        gameId: action.gameId,
-      };
-    case SHOW_DETAILS:
-      return {
-        ...state,
-        showed: !state.showed,
+        selectedGame: action.game,
       };
     case SHOW_GAME_MODAL:
       return {

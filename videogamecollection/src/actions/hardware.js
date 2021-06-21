@@ -29,6 +29,13 @@ export const newHardwareConstructor = (constructor) => ({
   constructor,
 });
 
+// action to open company's hardware list
+export const TOGGLE_COMPANY = 'TOGGLE_COMPANY';
+export const toggleCompany = (company) => ({
+  type: TOGGLE_COMPANY,
+  company,
+});
+
 /*
 HARDWARE REQUEST
 */

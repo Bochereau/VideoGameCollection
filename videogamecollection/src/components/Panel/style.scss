@@ -8,6 +8,7 @@
   overflow-y: auto;
   &-button{
     text-align: left;
+    width: 100%;
     margin: vars.$gutter*0.2 0;
     padding: vars.$gutter*0.5;
     color: vars.$button-border;
@@ -23,6 +24,7 @@
     }
     &--active{
       text-align: left;
+      width: 100%;
       margin: vars.$gutter*0.2 0;
       padding: vars.$gutter*0.5;
       background-color: vars.$button-border;
@@ -51,5 +53,44 @@
       }
     }
   }
+  &-hardware{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    &::-webkit-scrollbar{
+      width: vars.$gutter;
+      &-track{
+        background: black;
+        border-radius: 15px;
+      }
+      &-thumb{
+        background-color: white;
+        border: 4px solid black;
+        border-radius: 15px;
+      }
+    }
+  }
 }
 
+.company{
+  &-button{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: vars.$gutter*0.5;
+    margin: vars.$gutter*0.5 0;
+    border: 2px solid black;
+    border-radius: 10px;
+    background-color: rgb(16, 130, 138);
+    color: white;
+    &-title{
+      font-size: vars.$gutter;
+      font-weight: bold;
+      margin: 0;
+    }
+    &-arrow{
+      width: vars.$gutter;
+    }
+  }
+}

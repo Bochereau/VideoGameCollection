@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import App from '../../components/App';
+import { getHardware } from '../../actions/hardware';
 
 const mapStateToProps = (state) => ({
   logged: state.user.logged,
@@ -8,6 +9,10 @@ const mapStateToProps = (state) => ({
   listName: state.global.listName,
 });
 
-const mapDispatchToProps = () => {};
+const mapDispatchToProps = (dispatch) => ({
+  getHardware: () => {
+    dispatch(getHardware());
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

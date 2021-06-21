@@ -1,8 +1,9 @@
-import { CHANGE_VALUE, CHANGE_LIST } from '../actions/global';
+import { CHANGE_VALUE, CHANGE_LIST, OPEN_ASIDE } from '../actions/global';
 
 const initialState = {
   name: '',
   listName: 'collection',
+  toggleAside: false,
 };
 
 const global = (state = initialState, action = {}) => {
@@ -18,6 +19,11 @@ const global = (state = initialState, action = {}) => {
       return {
         ...state,
         listName: action.listValue,
+      };
+    case OPEN_ASIDE:
+      return {
+        ...state,
+        toggleAside: !state.toggleAside,
       };
     default:
       return state;
