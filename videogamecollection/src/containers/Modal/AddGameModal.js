@@ -7,6 +7,8 @@ import {
   newGameEditor,
   newGameDeveloper,
   newGameRelease,
+  addGame,
+  getGame,
 } from '../../actions/game';
 
 const mapStateToProps = (state) => ({
@@ -36,6 +38,12 @@ const mapDispatchToProps = (dispatch) => ({
   },
   newGameRelease: (releaseValue) => {
     dispatch(newGameRelease(releaseValue));
+  },
+  addGame: () => {
+    dispatch(addGame());
+  },
+  getGame: () => {
+    dispatch(getGame());
   },
 });
 

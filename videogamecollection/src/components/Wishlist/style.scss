@@ -5,28 +5,68 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  background-image: url(../../assets/images/backgrounds/background4.jpg);
+  background-image: url(../../assets/images/backgrounds/background8.jpg);
   background-position: center;
   background-size: cover;
   width: 100%;
   overflow-y: auto;
-  &-item{
-    width: 22%;
+  &::-webkit-scrollbar{
+    width: vars.$gutter;
+    &-track{
+      padding-left: vars.$gutter;
+      background: vars.$brown;
+      border-radius: 15px;
+    }
+    &-thumb{
+      padding-left: vars.$gutter;
+      background-color: vars.$yellow;
+      border: 4px solid vars.$brown;
+      border-radius: 15px;
+    }
+  }
+  
+  &-game{
+    width: 30%;
     text-align: center;
-    background-color: white;
+    color: vars.$yellow;
+    background-color: color.scale(vars.$brown, $lightness:+10%);
     margin: vars.$gutter;
     padding: vars.$gutter;
-    border: 2px solid black;
-    border-radius: 15px;
-    max-height: 31vh;
-
+    box-shadow: 6px 6px 0 vars.$yellow;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  
     &-title{
-      border-bottom: 2px solid black;
+      border-bottom: 2px solid vars.$yellow;
       padding-bottom: vars.$gutter;
+      margin-bottom:  vars.$gutter;
+      text-align: left;
     }
 
-    &-hardware{
-      padding: vars.$gutter*2;
+    &-item{
+      padding: 0 vars.$gutter*2;
+      display: flex;
+      align-items: baseline;
+      &-title{
+        margin-right: vars.$gutter;
+      }
+
+    }
+
+    &-manage{
+      display: flex;
+      justify-content: space-evenly;
+      border-top: 2px solid vars.$yellow;
+      padding-top: vars.$gutter;
+      //margin-bottom:  vars.$gutter;
+      & button{
+        border: none;
+        padding: 0 vars.$gutter*0.5;
+        background-color: vars.$yellow;
+        display: flex;
+        align-items: center;
+      }
     }
   }
 }

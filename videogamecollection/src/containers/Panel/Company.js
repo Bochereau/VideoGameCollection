@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Company from '../../components/Panel/Company';
-import { saveHardwareFilter, toggleCompany } from '../../actions/hardware';
+import { saveHardwareFilter, toggleCompany, getHardware } from '../../actions/hardware';
 
 const mapStateToProps = (state) => ({
   hardwareList: state.hardware.hardwareList,
@@ -15,6 +15,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   toggleCompany: (company) => {
     dispatch(toggleCompany(company));
+  },
+  getHardware: () => {
+    dispatch(getHardware());
   },
 });
 

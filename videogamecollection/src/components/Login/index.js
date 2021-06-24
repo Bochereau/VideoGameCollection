@@ -31,6 +31,8 @@ const Login = ({ saveSlug, doLogin }) => {
         </div>
         <Button
           type="submit"
+          className="mt-3"
+          variant="warning"
           onClick={handleSubmit}
         >
           Se connecter

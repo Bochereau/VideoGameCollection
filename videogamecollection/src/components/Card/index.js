@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 
 import './style.scss';
 
-import trash from '../../assets/images/icons/trash.png';
-import upArrow from '../../assets/images/icons/up_arrow.png';
-import downArrow from '../../assets/images/icons/down_arrow.png';
+// import trash from '../../assets/images/icons/trash.png';
+// import upArrow from '../../assets/images/icons/up_arrow.png';
+// import downArrow from '../../assets/images/icons/down_arrow.png';
 
-import image from '../../assets/images/icons/image.svg';
+// import image from '../../assets/images/icons/image.svg';
 
 const Card = ({
   // games datas display
@@ -21,6 +21,11 @@ const Card = ({
   // showing game details
   toggleGame,
   selectedGame,
+  getGameId,
+  showDeleteModal,
+  finishedGame,
+  getGame,
+  updateGame,
 }) => {
   const handleClick = () => {
     if (selectedGame.name === name) {
@@ -30,48 +35,58 @@ const Card = ({
       toggleGame({ name });
     }
   };
+  const handleChangeFinishedGame = () => {
+    finishedGame(!finished);
+    updateGame();
+    setTimeout(() => {
+      getGame();
+    }, 1000);
+  };
   return (
-    <article className="card" id={id}>
-      <div className="card-visible">
-        <h3 className="card-visible-title">{name}</h3>
-        <div className="card-visible-display">
-          <div className="card-visible-details">
-            <div className="card-visible-hardware">
-              <p>Console :</p>
-              <h4>{hardware}</h4>
-            </div>
-            <div className="card-visible-editor">
-              <p>Développeur :</p>
-              <h4>{developer}</h4>
-            </div>
-            <div className="card-visible-editor">
-              <p>Editeur :</p>
-              <h4>{editor}</h4>
-            </div>
-            <div className="card-visible-release">
-              <p>Année de sortie :</p>
-              <h4>{release}</h4>
-            </div>
+    <article className="gamecard" id={id} onMouseOver={() => getGameId(id)}>
+      <div className="gamecard-visible">
+        <h3 className="gamecard-visible-title">{name}</h3>
+        <div className="gamecard-visible-item">
+          <div className="gamecard-visible-item-details">
+            <p className="gamecard-visible-item-details-title">Console :</p>
+            <h4>{hardware}</h4>
           </div>
-          <div className="card-visible-check">
-            <label htmlFor="finished">
-              Terminé :<input type="checkbox" id="finished" name="finished" checked={finished} />
-            </label>
-            <img src={trash} alt="Supprimer" />
+          <div className="gamecard-visible-item-details">
+            <p className="gamecard-visible-item-details-title">Développeur :</p>
+            <h4>{developer}</h4>
+          </div>
+          <div className="gamecard-visible-item-details">
+            <p className="gamecard-visible-item-details-title">Editeur :</p>
+            <h4>{editor}</h4>
+          </div>
+          <div className="gamecard-visible-item-details">
+            <p className="gamecard-visible-item-details-title">Année de sortie :</p>
+            <h4>{release}</h4>
           </div>
         </div>
-        <p
-          className="card-visible-more"
+        <div className="gamecard-visible-manage">
+          <label htmlFor="finished">
+            Terminé :<input type="checkbox" id="finished" name="finished" checked={finished} onChange={handleChangeFinishedGame} />
+          </label>
+          <button
+            type="button"
+            onClick={() => showDeleteModal()}
+          >
+            <span className="remove">+ </span>Supprimer
+          </button>
+        </div>
+        <div
+          className="gamecard-visible-more"
           onClick={handleClick}
         >
-          Plus de details <img src={selectedGame.name === name ? upArrow : downArrow} alt="arrow" />
-        </p>
+          <p className="gamecard-visible-more-text">Plus de details </p>
+          <p className={selectedGame.name === name ? 'gamecard-visible-more-arrow--open' : 'gamecard-visible-more-arrow'}>></p>
+        </div>
       </div>
       {selectedGame.name === name && (
-        <div className="card-open">
-          <img className="card-open-image" src={image} alt={`Jaquette de ${name}`} />
-          <div className="card-open-info">
-            <div className="card-open-checkboxes">
+        <div className="gamecard-open">
+          <div className="gamecard-open-info">
+            <div className="gamecard-open-checkboxes">
               <p>Etat : </p>
               <div>
                 <label htmlFor="box">
@@ -98,7 +113,10 @@ const Card = ({
                 </label>
               </div>
             </div>
-            <textarea className="card-open-description" name="description" id="description" cols="70" rows="4" placeholder="Description" />
+            <div>
+              <p>Description :</p>
+              <textarea className="gamecard-open-description" name="description" id="description" cols="20" rows="5" placeholder="Entrez votre description" />
+            </div>
           </div>
         </div>
       )}
@@ -116,6 +134,11 @@ Card.propTypes = {
   finished: PropTypes.bool.isRequired,
   toggleGame: PropTypes.func.isRequired,
   selectedGame: PropTypes.string.isRequired,
+  getGameId: PropTypes.string.isRequired,
+  showDeleteModal: PropTypes.func.isRequired,
+  finishedGame: PropTypes.func.isRequired,
+  getGame: PropTypes.func.isRequired,
+  updateGame: PropTypes.func.isRequired,
 };
 
 export default Card;

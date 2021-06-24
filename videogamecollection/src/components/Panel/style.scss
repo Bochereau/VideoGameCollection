@@ -4,8 +4,13 @@
 .panel{
   display: flex;
   flex-direction: column;
-  padding: vars.$gutter;
-  overflow-y: auto;
+  //padding: vars.$gutter;
+  //overflow-y: auto;
+  color: vars.$brown;
+  height: 80vh;
+  &-title{
+    padding: vars.$gutter;
+  }
   &-button{
     text-align: left;
     width: 100%;
@@ -34,22 +39,23 @@
       box-shadow: 0 0 3px black;
     }
     &-add{
-      margin-bottom: vars.$gutter;
+      margin: vars.$gutter*0.5 vars.$gutter;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 vars.$gutter;
       text-align: center;
-      color: vars.$addButton;
-      border: 3px solid vars.$addButton;
-      background-color: white;
-      border-radius: 5px;
+      color: vars.$yellow;
+      border:none;
+      background: 
+        linear-gradient(45deg, transparent, 5%, vars.$brown 5%);
       font-size: vars.$gutter;
       font-weight: bold;
+      padding: 2px;
       &:hover{
-        color: white;
-        border: 3px solid vars.$addButton;
-        background-color: vars.$addButton;
+        padding: 0;
+        color: vars.$brown;
+        background: vars.$yellow;
+        border: 2px solid vars.$brown;
       }
     }
   }
@@ -58,15 +64,20 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    margin-right: vars.$gutter;
+    margin-top: vars.$gutter;
+    padding: 0 vars.$gutter;
     &::-webkit-scrollbar{
       width: vars.$gutter;
       &-track{
-        background: black;
+        padding-left: vars.$gutter;
+        background: vars.$brown;
         border-radius: 15px;
       }
       &-thumb{
-        background-color: white;
-        border: 4px solid black;
+        padding-left: vars.$gutter;
+        background-color: vars.$yellow;
+        border: 4px solid vars.$brown;
         border-radius: 15px;
       }
     }
@@ -78,19 +89,32 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: vars.$gutter*0.5;
+    //padding: vars.$gutter*0.5;
     margin: vars.$gutter*0.5 0;
-    border: 2px solid black;
+    //border: 2px solid black;
     border-radius: 10px;
-    background-color: rgb(16, 130, 138);
-    color: white;
+    background-color: color.scale(vars.$brown, $lightness:+10%);
+    color: vars.$yellow;
     &-title{
       font-size: vars.$gutter;
       font-weight: bold;
-      margin: 0;
+      margin: 0 vars.$gutter;
     }
-    &-arrow{
-      width: vars.$gutter;
+    &-opening{
+      padding: vars.$gutter*0.2 vars.$gutter*0.5;
+      border-left: 2px solid vars.$yellow;
+      &-arrow{
+        font-size: vars.$gutter*1.5;
+        font-weight: bold;
+        margin-bottom: 0;
+        &--open{
+          transition: transform 0.2s ease-in-out;
+          transform: rotate(90deg);
+          font-size: vars.$gutter*1.5;
+          font-weight: bold;
+          margin-bottom: 0;
+        }
+    }
     }
   }
 }

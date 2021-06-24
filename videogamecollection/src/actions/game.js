@@ -21,11 +21,10 @@ export const showGameModal = () => ({
   type: SHOW_GAME_MODAL,
 });
 
-// action for adding a new game in the list
-export const ADD_VIDEOGAME = 'ADD_VIDEOGAME';
-export const addVideogame = (newVideogame) => ({
-  type: ADD_VIDEOGAME,
-  newVideogame,
+// action for opening delete game modal
+export const SHOW_DELETE_MODAL = 'SHOW_DELETE_MODAL';
+export const showDeleteModal = () => ({
+  type: SHOW_DELETE_MODAL,
 });
 
 // action to save filter slug
@@ -35,20 +34,6 @@ export const saveGameFilter = (filterGame) => ({
   filterGame,
 });
 
-// action to change finished game status
-export const FINISHED_GAME = 'FINISHED_GAME';
-export const finishedGame = (finished) => ({
-  type: FINISHED_GAME,
-  finished,
-});
-
-// action to save active add button
-export const SAVE_ACTIVE_ADD_BUTTON = 'SAVE_ACTIVE_ADD_BUTTON';
-export const saveActiveAddButton = (button) => ({
-  type: SAVE_ACTIVE_ADD_BUTTON,
-  button,
-});
-
 // action to open GAME's hardware list
 export const TOGGLE_GAME = 'TOGGLE_GAME';
 export const toggleGame = (game) => ({
@@ -56,7 +41,46 @@ export const toggleGame = (game) => ({
   game,
 });
 
-/* Add game form */
+// action to save game in store
+export const SAVE_GAME_LIST = 'SAVE_GAME_LIST';
+export const saveGameList = (gameList) => ({
+  type: SAVE_GAME_LIST,
+  gameList,
+});
+
+/*
+GAME DB REQUEST
+*/
+
+// action to get game by user id
+export const GET_GAME = 'GET_GAME';
+export const getGame = () => ({
+  type: GET_GAME,
+});
+
+// action to add new game
+export const ADD_GAME = 'ADD_GAME';
+export const addGame = () => ({
+  type: ADD_GAME,
+});
+
+// action to update game by id
+export const UPDATE_GAME = 'UPDATE_GAME';
+export const updateGame = (gameId) => ({
+  type: UPDATE_GAME,
+  gameId,
+});
+
+// action to delete game by id
+export const DELETE_GAME = 'DELETE_GAME';
+export const deleteGame = (gameId) => ({
+  type: DELETE_GAME,
+  gameId,
+});
+
+/*
+ADD GAME FORM
+*/
 
 // action to change new game name value
 export const NEW_GAME_NAME = 'NEW_GAME_NAME';
@@ -91,4 +115,11 @@ export const NEW_GAME_RELEASE = 'NEW_GAME_RELEASE';
 export const newGameRelease = (releaseValue) => ({
   type: NEW_GAME_RELEASE,
   releaseValue,
+});
+
+// action to change finished game status
+export const FINISHED_GAME = 'FINISHED_GAME';
+export const finishedGame = (finished) => ({
+  type: FINISHED_GAME,
+  finished,
 });

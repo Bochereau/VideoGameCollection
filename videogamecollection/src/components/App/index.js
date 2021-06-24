@@ -10,16 +10,20 @@ import Games from '../../containers/Games/Games';
 import Wishlist from '../../containers/Wishlist';
 import AddGameModal from '../../containers/Modal/AddGameModal';
 import AddHardwareModal from '../../containers/Modal/AddHardwareModal';
+import DeleteModal from '../../containers/Modal/DeleteModal';
 
 const App = ({
   logged,
   gameModalOpen,
   hardwareModalOpen,
+  deleteModalOpen,
   listName,
   getHardware,
+  getGame,
 }) => {
   useEffect(() => {
     getHardware();
+    getGame();
   });
   return (
     <div className="app">
@@ -41,6 +45,7 @@ const App = ({
             )}
             {hardwareModalOpen && (<AddHardwareModal />)}
             {gameModalOpen && (<AddGameModal />)}
+            {deleteModalOpen && (<DeleteModal />)}
           </div>
         </>
       )}
@@ -51,8 +56,10 @@ App.propTypes = {
   logged: PropTypes.bool.isRequired,
   gameModalOpen: PropTypes.bool.isRequired,
   hardwareModalOpen: PropTypes.bool.isRequired,
+  deleteModalOpen: PropTypes.bool.isRequired,
   listName: PropTypes.string.isRequired,
   getHardware: PropTypes.func.isRequired,
+  getGame: PropTypes.func.isRequired,
 };
 
 export default App;

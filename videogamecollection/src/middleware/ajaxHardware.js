@@ -17,11 +17,7 @@ const ajaxHardware = (store) => (next) => (action) => {
         // userId,
       })
         .then((res) => {
-          console.log(res.data);
           store.dispatch(saveHardware(res.data));
-        })
-        .catch((err) => {
-          console.error(err);
         });
       break;
     }
@@ -33,14 +29,10 @@ const ajaxHardware = (store) => (next) => (action) => {
         company: newHardwareCompany,
         userId,
       })
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-        .finally(() => {
-          getHardware();
+        .then(async () => {
+          await getHardware();
+        }).finally(async () => {
+          await getHardware();
         });
       break;
     }

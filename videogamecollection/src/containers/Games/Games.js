@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import Games from '../../components/Games';
+import { getGame } from '../../actions/game';
 
 const mapStateToProps = (state) => ({
   videogames: state.game.videogamesList,
@@ -7,6 +8,10 @@ const mapStateToProps = (state) => ({
   filterHardware: state.hardware.filterHardware,
 });
 
-const mapDispatchToProps = () => {};
+const mapDispatchToProps = (dispatch) => ({
+  getGame: () => {
+    dispatch(getGame());
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Games);

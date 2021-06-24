@@ -16,3 +16,9 @@
   font-weight: bold;
   padding-right: vars.$gutter;
 }
+
+.remove{
+  font-size: vars.$gutter*2;
+  font-weight: bold;
+  transform: rotate(45deg);
+}

@@ -38,7 +38,11 @@ const Subscribe = ({ saveSlug }) => {
             <Form.Control type="password" placeholder="Confirmez votre mot de passe" />
           </Form.Group>
         </div>
-        <Button type="submit">
+        <Button
+          type="submit"
+          className="mt-3"
+          variant="warning"
+        >
           S'inscrire
         </Button>
       </Form>

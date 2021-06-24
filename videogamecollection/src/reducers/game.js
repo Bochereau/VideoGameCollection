@@ -1,31 +1,35 @@
 import {
   TOGGLE_GAME,
   SHOW_GAME_MODAL,
-  ADD_VIDEOGAME,
+  SHOW_DELETE_MODAL,
   SAVE_GAME_FILTER,
-  FINISHED_GAME,
   NEW_GAME_NAME,
   NEW_GAME_HARDWARE,
   NEW_GAME_EDITOR,
   NEW_GAME_DEVELOPER,
   NEW_GAME_RELEASE,
+  FINISHED_GAME,
+  GET_GAME_ID,
+  SAVE_GAME_LIST,
 } from '../actions/game';
 
-import videogames from '../datas/videogames';
+// import videogames from '../datas/videogames';
 import wishlist from '../datas/wishlist';
 
 const initialState = {
   selectedGame: '',
   gameModalOpen: false,
-  videogamesList: videogames,
+  deleteModalOpen: false,
+  videogamesList: [],
   wishlist,
   filterGame: 'allgames',
-  finished: null,
   gameName: '',
   gameHardware: '',
   gameEditor: '',
   gameDeveloper: '',
   gameRelease: '',
+  gemeId: '',
+  finished: false,
 };
 
 const game = (state = initialState, action = {}) => {
@@ -45,20 +49,15 @@ const game = (state = initialState, action = {}) => {
         gameDeveloper: '',
         gameRelease: '',
       };
-    case ADD_VIDEOGAME:
+    case SHOW_DELETE_MODAL:
       return {
         ...state,
-        videogamesList: [...state.videogamesList, action.newVideogame],
+        deleteModalOpen: !state.deleteModalOpen,
       };
     case SAVE_GAME_FILTER:
       return {
         ...state,
         filterGame: action.filterGame,
-      };
-    case FINISHED_GAME:
-      return {
-        ...state,
-        // [videogamesList.gameId]: [...!state.videogamesList.finished],
       };
     case NEW_GAME_NAME:
       return {
@@ -84,6 +83,21 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         gameRelease: action.releaseValue,
+      };
+    case FINISHED_GAME:
+      return {
+        ...state,
+        finished: action.finished,
+      };
+    case GET_GAME_ID:
+      return {
+        ...state,
+        gameId: action.gameId,
+      };
+    case SAVE_GAME_LIST:
+      return {
+        ...state,
+        videogamesList: action.gameList,
       };
     default:
       return state;

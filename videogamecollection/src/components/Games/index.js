@@ -1,11 +1,20 @@
-import React from 'react';
+/* eslint-disable no-underscore-dangle */
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import './style.scss';
 
 import Card from '../../containers/Games/Card';
+import { getGame } from '../../actions/game';
 
-const Games = ({ videogames, filterGame, filterHardware }) => {
+const Games = ({
+  videogames,
+  filterGame,
+  filterHardware,
+}) => {
+  useEffect(async () => {
+    await getGame();
+  });
   function hardwareFilter(games) {
     let result;
     if (filterHardware === 'allhardware') {
@@ -22,8 +31,8 @@ const Games = ({ videogames, filterGame, filterHardware }) => {
     <main className="games">
       {filterGame === 'allgames' && (hardwareFilter(videogames).map((videogame) => (
         <Card
-          key={videogame.id}
-          id={videogame.id}
+          key={videogame._id}
+          id={videogame._id}
           name={videogame.name}
           hardware={videogame.hardware}
           developer={videogame.developer}
@@ -34,8 +43,8 @@ const Games = ({ videogames, filterGame, filterHardware }) => {
       )))}
       {filterGame === 'finished' && (hardwareFilter(finishedGames).map((videogame) => (
         <Card
-          key={videogame.id}
-          id={videogame.id}
+          key={videogame._id}
+          id={videogame._id}
           name={videogame.name}
           hardware={videogame.hardware}
           developer={videogame.developer}
@@ -46,8 +55,8 @@ const Games = ({ videogames, filterGame, filterHardware }) => {
       )))}
       {filterGame === 'unfinished' && (hardwareFilter(unfinishedGames).map((videogame) => (
         <Card
-          key={videogame.id}
-          id={videogame.id}
+          key={videogame._id}
+          id={videogame._id}
           name={videogame.name}
           hardware={videogame.hardware}
           developer={videogame.developer}
@@ -65,7 +74,7 @@ Games.propTypes = {
   filterHardware: PropTypes.string.isRequired,
   videogames: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      _id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
       hardware: PropTypes.string.isRequired,
       developer: PropTypes.string.isRequired,

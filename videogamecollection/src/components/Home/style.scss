@@ -7,6 +7,8 @@
   
   display: flex;
   align-items: center;
+  background-color: vars.$brown;
+  color: vars.$yellow;
   &-title{
     font-family: 'Bungee Inline', cursive;
     font-size: vars.$gutter*3;
@@ -27,9 +29,10 @@
     justify-content: center;
   }
   &-login{
-    background-image: url('../../assets/images/backgrounds/background2.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
+    // background-image: url('../../assets/images/backgrounds/background2.jpg');
+    // background-size: cover;
+    // background-repeat: no-repeat;
+    background-color: vars.$yellow;
     height: 100vh;
   }
 }

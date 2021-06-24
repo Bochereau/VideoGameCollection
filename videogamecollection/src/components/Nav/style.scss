@@ -14,19 +14,21 @@
     text-align: left;
     margin: vars.$gutter 0 vars.$gutter*0.5;
     padding: vars.$gutter*0.5;
-    border: 2px solid vars.$button-border;
+    border: 2px solid vars.$brown;
     border-radius: 5px;
     text-align: center;
-    background-color: vars.$button-color;
+    background-color: vars.$yellow;
     font-size: vars.$gutter*1.2;
     &:hover{
-      background-color: vars.$addButton;
+      color: vars.$yellow;
+      background-color: vars.$brown;
+      box-shadow: inset 0 0 5px white;
     }
   }
 }
 
 .active{
-  background-color: vars.$button-border;
-  border: 2px solid vars.$button-border;
-  color: vars.$button-color;
+  background-color: vars.$brown;
+  border: 2px solid vars.$brown;
+  color: vars.$yellow;
 }

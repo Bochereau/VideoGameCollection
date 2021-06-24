@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import './style.scss';
 
-import upArrow from '../../assets/images/icons/up_arrow.png';
-import rightArrow from '../../assets/images/icons/right_arrow.png';
+// import upArrow from '../../assets/images/icons/up_arrow.png';
+// import rightArrow from '../../assets/images/icons/right_arrow.png';
 
 const Company = ({
   name,
@@ -36,7 +36,9 @@ const Company = ({
         onClick={handleClick}
       >
         <h3 className="company-button-title">{name} ({filteredHardware.length})</h3>
-        <img className="company-button-arrow" src={selectedCompany.name === name ? upArrow : rightArrow} alt="flèche vers le bas" />
+        <div className="company-button-opening">
+          <p className={selectedCompany.name === name ? 'company-button-opening-arrow--open' : 'company-button-opening-arrow'}>></p>
+        </div>
       </div>
       {selectedCompany.name === name && (
         <div className="company-hardware">

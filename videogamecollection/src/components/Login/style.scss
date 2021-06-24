@@ -3,11 +3,11 @@
 
 .login{
   width: 400px;
-  background-color: transparentize($color: rgb(31, 30, 30), $amount: 0.3);
+  background-color: vars.$brown;
   padding: vars.$gutter;
   border-radius: 15px;
   text-align: center;
-  color: white;
+  color: vars.$yellow;
   text-shadow: 0 0 3px black;
   box-shadow:  0 0 30px black;
   &-form{
@@ -19,10 +19,10 @@
     //text-shadow: 0 0 5px white;
     & p{
       font-size: vars.$gutter*1.2;
-      color: rgb(16, 243, 213);
+      color: vars.$yellow;
       text-decoration: underline;
       &:hover{
-        color: color.scale(rgb(16, 243, 213), $lightness:-20%)
+        filter: contrast(200%);
       }
     }
   }

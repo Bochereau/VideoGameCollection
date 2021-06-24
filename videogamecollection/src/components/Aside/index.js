@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import './style.scss';
-import pad from '../../assets/images/icons/pad.png';
+import pad from '../../assets/images/icons/dpad.png';
 import Panel from '../../containers/Panel';
 
 const Aside = ({ openAside, toggleAside }) => (

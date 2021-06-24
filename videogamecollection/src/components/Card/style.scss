@@ -1,37 +1,43 @@
 @use '../../styles/vars';
 @use 'sass:color';
 
-.card{
-  color: black;
-  width: 80%;
+.gamecard{
+  color: vars.$yellow;
+  width: 30%;
   margin: vars.$gutter*2 auto;
-  border-radius: 5px;
+  //padding: vars.$gutter;
+  background-color: color.scale(vars.$brown, $lightness:+10%);
+  box-shadow: 6px 6px 0 vars.$yellow;
   &-visible{
+    padding: vars.$gutter;
     &-title{
-      text-align: center;
-      padding: vars.$gutter*0.5;
-      border-bottom: 2px solid;
-      font-family: 'RocknRoll One', sans-serif;
-      font-size: vars.$gutter*1.6;
-      margin: 0;
+      border-bottom: 2px solid vars.$yellow;
+      padding-bottom: vars.$gutter;
+      margin-bottom:  vars.$gutter;
+      text-align: left;
     }
-    &-display{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    
+    &-item{
+      margin-left: vars.$gutter*0.5;
+      &-details{
+        display: flex;
+        align-items: baseline;
+        margin: vars.$gutter*0.3 0;
+        &-title{
+          margin: 0 vars.$gutter;
+        }
+      }
     }
-    &-details{
+    &-manage{
       display: flex;
+      align-items: baseline;
       justify-content: space-around;
-      width: 70%;
-      padding: vars.$gutter*0.5;
-      border-right: 2px solid black;
-    }
-    &-check{
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-around;
-      width: 30%;
+      border-top: 2px solid vars.$yellow;
+      margin-top: vars.$gutter*0.5;
+      padding-top: vars.$gutter*0.5;
+      border-bottom: 2px solid vars.$yellow;
+      padding-bottom: vars.$gutter*0.5;
+      margin-bottom: vars.$gutter*0.5;
       & label {
         display: flex;
         align-items: center;
@@ -43,16 +49,36 @@
           margin-left: vars.$gutter;
         }
       }
+      & button{
+        border: none;
+        padding: 0 vars.$gutter*0.5;
+        background-color: vars.$yellow;
+        display: flex;
+        align-items: center;
+      }
     }
     &-more{
-      text-align: center;
-      border-top: 2px solid black;
-      padding-top: vars.$gutter*0.5;
-      margin-bottom: vars.$gutter*0.5;
+      border: 1px solid color.scale(vars.$yellow, $lightness: -30%);
       font-size: vars.$gutter*1.2;
       cursor: pointer;
-      & img{
-        margin-left: vars.$gutter;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      &-text{
+        margin-right: vars.$gutter;
+        margin-bottom: 0;
+      }
+      &-arrow{
+        font-weight: bold;
+        margin-bottom: 0;
+        font-size: vars.$gutter*1.5;
+        &--open{
+          transition: transform 0.2s ease-in-out;
+          transform: rotate(90deg);
+          font-size: vars.$gutter*1.5;
+          font-weight: bold;
+          margin-bottom: 0;
+        }
       }
     }
   }
@@ -63,21 +89,21 @@
     display: block;
     padding: 0 vars.$gutter;
     border-top: 2px solid black;
-    display: flex;
-    justify-content: space-around;
 
-    &-image{
-      max-width: 200px;
-      max-height: 150px;
-      //border: 1px solid grey;
-      margin: vars.$gutter;
-    }
+    // &-image{
+    //   max-width: 200px;
+    //   max-height: 150px;
+    //   //border: 1px solid grey;
+    //   margin: vars.$gutter;
+    // }
     &-info{
       margin: vars.$gutter;
+      display: flex;
+      justify-content: space-around;
     }
     &-checkboxes{
-      display: flex;
-      justify-content: space-between;
+      // display: flex;
+      // justify-content: space-between;
       //align-items: center;
       & label {
         display: flex;

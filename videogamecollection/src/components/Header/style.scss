@@ -2,16 +2,20 @@
 @use 'sass:color';
 
 .header{
-  background-color: vars.$background;
-  border-bottom: 2px solid vars.$secondary-color;
+  background-color: vars.$yellow;
+  border-bottom: 2px solid vars.$brown;
   height: 20vh;
   display: flex;
   & hr{
     margin: 0;
   }
   &-logo{
-    width: 10%;
-    border-right: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20%;
+    border-right: 2px solid vars.$brown;
+    background-color: vars.$yellow;
     &-img{
       max-height: 19vh;
     }
@@ -37,16 +41,15 @@
       align-items: center;
       justify-content: center;
       padding: 0 vars.$gutter;
-      color: vars.$addButton;
-      border: 3px solid vars.$addButton;
-      background-color: white;
-      border-radius: 5px;
+      color: vars.$yellow;
+      border:none;
+      background: linear-gradient(45deg, transparent 5%, vars.$brown 5%);
       font-size: vars.$gutter;
       font-weight: bold;
       &:hover{
-        color: white;
-        border: 3px solid vars.$addButton;
-        background-color: vars.$addButton;
+        color: vars.$brown;
+        background: vars.$yellow;
+        border: 2px solid vars.$brown;
       }
     }
   }
@@ -58,12 +61,12 @@
     &-link{
       text-align: left;
       padding: vars.$gutter*0.5;
-      color: vars.$button-border;
-      background-color:  vars.$button-color;
-      border: 2px solid vars.$button-border;
+      color: vars.$brown;
+      background-color:  vars.$yellow;
+      border: 2px solid vars.$brown;
       &:hover{
-        background-color: vars.$button-border;
-        border: 2px solid vars.$button-border;
+        background-color: vars.$brown;
+        border: 2px solid vars.$brown;
         color: vars.$button-color;
         box-shadow: inset 0 0 5px white;
       }
@@ -90,14 +93,14 @@
     &-submit{
       text-align: left;
       padding: vars.$gutter*0.4;
-      color: vars.$button-border;
+      color: vars.$brown;
       background-color:  vars.$button-color;
-      border: 2px solid vars.$button-border;
+      border: 2px solid vars.$brown;
       border-radius: 5px;
       font-size: vars.$gutter*1.2;
       &:hover{
-        background-color: vars.$button-border;
-        border: 2px solid vars.$button-border;
+        background-color: vars.$brown;
+        border: 2px solid vars.$brown;
         color: vars.$button-color;
       }
     }
@@ -108,18 +111,19 @@
     &-welcome{
       margin-right: vars.$gutter*1.5;
       font-size: vars.$gutter*1.6;
+      font-weight: bold;
     }
     &-logout{
       text-align: left;
       padding: vars.$gutter*0.5;
-      color: vars.$button-border;
+      color: vars.$brown;
       background-color:  vars.$button-color;
-      border: 2px solid vars.$button-border;
+      border: 2px solid vars.$brown;
       border-radius: 5px;
       font-size: vars.$gutter*1.2;
       &:hover{
-        background-color: vars.$button-border;
-        border: 2px solid vars.$button-border;
+        background-color: vars.$brown;
+        border: 2px solid vars.$brown;
         color: vars.$button-color;
       }
     }
@@ -127,7 +131,7 @@
 }
 
 .active{
-  background-color: vars.$button-border;
-  border: 2px solid vars.$button-border;
-  color: vars.$button-color;
+  background-color: vars.$brown;
+  border: 2px solid vars.$brown;
+  color: vars.$yellow;
 }
