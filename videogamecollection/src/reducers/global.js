@@ -1,9 +1,15 @@
-import { CHANGE_VALUE, CHANGE_LIST, OPEN_ASIDE } from '../actions/global';
+import {
+  CHANGE_VALUE,
+  CHANGE_LIST,
+  OPEN_ASIDE,
+  SAVE_MESSAGE,
+} from '../actions/global';
 
 const initialState = {
   name: '',
   listName: 'collection',
   toggleAside: false,
+  newMessage: '',
 };
 
 const global = (state = initialState, action = {}) => {
@@ -24,6 +30,11 @@ const global = (state = initialState, action = {}) => {
       return {
         ...state,
         toggleAside: !state.toggleAside,
+      };
+    case SAVE_MESSAGE:
+      return {
+        ...state,
+        newMessage: action.newMessage,
       };
     default:
       return state;

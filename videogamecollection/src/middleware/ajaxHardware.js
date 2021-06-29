@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import {
   GET_HARDWARE,
-  getHardware,
   saveHardware,
   ADD_HARDWARE,
 } from '../actions/hardware';
@@ -12,9 +11,9 @@ axios.defaults.baseURL = 'http://localhost:8626';
 const ajaxHardware = (store) => (next) => (action) => {
   switch (action.type) {
     case GET_HARDWARE: {
-      // const userId = '60c9aa80a520a563aa3077ba';
+      const token = localStorage.getItem('token');
       axios.get('/hardware/', {
-        // userId,
+        headers: { Authorization: `bearer ${token}` },
       })
         .then((res) => {
           store.dispatch(saveHardware(res.data));
@@ -22,17 +21,17 @@ const ajaxHardware = (store) => (next) => (action) => {
       break;
     }
     case ADD_HARDWARE: {
-      const userId = '60c9aa80a520a563aa3077ba';
+      const token = localStorage.getItem('token');
       const { newHardware, newHardwareCompany } = store.getState().hardware;
       axios.post('/hardware/add', {
         name: newHardware,
         company: newHardwareCompany,
-        userId,
+      },
+      {
+        headers: { Authorization: `bearer ${token}` },
       })
-        .then(async () => {
-          await getHardware();
-        }).finally(async () => {
-          await getHardware();
+        .then((res) => {
+          console.log(res.data.message);
         });
       break;
     }

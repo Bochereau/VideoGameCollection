@@ -4,6 +4,7 @@ import rootReducer from '../reducers';
 import logMiddleware from '../middleware/logMiddleware';
 import ajaxHardware from '../middleware/ajaxHardware';
 import ajaxGame from '../middleware/ajaxGame';
+import ajaxUser from '../middleware/ajaxUser';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -12,6 +13,7 @@ const enhancers = composeEnhancers(
     logMiddleware,
     ajaxHardware,
     ajaxGame,
+    ajaxUser,
   ),
 );
 

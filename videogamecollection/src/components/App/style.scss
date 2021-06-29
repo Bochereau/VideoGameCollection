@@ -22,3 +22,39 @@
   font-weight: bold;
   transform: rotate(45deg);
 }
+
+.notification {
+  position: fixed;
+  right: 0;
+  bottom: vars.$gutter;
+  padding: vars.$gutter;
+  margin: vars.$gutter*0.5;
+  background-color: vars.$yellow;
+  color: black;
+  height: vars.$gutter*3;
+  box-shadow: 0 0 10px black;
+  filter: contrast(200%);
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  animation: appear 1s ease-in-out;
+
+  @keyframes appear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  &-logo{
+    width : 30px;
+  }
+
+  &-text{
+    margin-left: vars.$gutter;
+  }
+}

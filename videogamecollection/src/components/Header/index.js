@@ -12,6 +12,7 @@ const Header = ({
   saveGameFilter,
   filterGame,
   listName,
+  pseudo,
 }) => {
   const handleClick = (evt) => {
     evt.preventDefault();
@@ -34,7 +35,7 @@ const Header = ({
             <span className="add">+</span> Ajouter un jeu
           </button>
           <div className="header-user">
-            <h2 className="header-user-welcome">Bonjour, Antoine</h2>
+            <h2 className="header-user-welcome">Bienvenue {pseudo}</h2>
             <button
               className="header-user-logout"
               type="button"
@@ -95,6 +96,7 @@ Header.propTypes = {
   saveGameFilter: PropTypes.func.isRequired,
   filterGame: PropTypes.string.isRequired,
   listName: PropTypes.string.isRequired,
+  pseudo: PropTypes.string.isRequired,
 };
 
 export default Header;

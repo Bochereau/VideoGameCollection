@@ -5,6 +5,7 @@ import {
   changeHardwareValue,
   newHardwareConstructor,
   addHardware,
+  getHardware,
 } from '../../actions/hardware';
 
 const mapStateToProps = (state) => ({
@@ -25,6 +26,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   addHardware: () => {
     dispatch(addHardware());
+  },
+  getHardware: () => {
+    dispatch(getHardware());
   },
 });
 

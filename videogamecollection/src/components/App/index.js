@@ -11,6 +11,7 @@ import Wishlist from '../../containers/Wishlist';
 import AddGameModal from '../../containers/Modal/AddGameModal';
 import AddHardwareModal from '../../containers/Modal/AddHardwareModal';
 import DeleteModal from '../../containers/Modal/DeleteModal';
+import Notification from '../../containers/App/Notification';
 
 const App = ({
   logged,
@@ -49,9 +50,11 @@ const App = ({
           </div>
         </>
       )}
+      <Notification />
     </div>
   );
 };
+
 App.propTypes = {
   logged: PropTypes.bool.isRequired,
   gameModalOpen: PropTypes.bool.isRequired,

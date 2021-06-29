@@ -13,7 +13,7 @@ axios.defaults.baseURL = 'http://localhost:8626';
 const ajaxGame = (store) => (next) => (action) => {
   switch (action.type) {
     case ADD_GAME: {
-      const userId = '60c9aa80a520a563aa3077ba';
+      const token = localStorage.getItem('token');
       const {
         gameName,
         gameHardware,
@@ -27,26 +27,35 @@ const ajaxGame = (store) => (next) => (action) => {
         editor: gameEditor,
         developer: gameDeveloper,
         release: gameRelease,
-        userId,
+      },
+      {
+        headers: { Authorization: `bearer ${token}` },
       });
       break;
     }
     case UPDATE_GAME: {
+      const token = localStorage.getItem('token');
       const { gameId, finished } = store.getState().game;
       axios.put(`/videogame/${gameId}`, {
         finished,
+      },
+      {
+        headers: { Authorization: `bearer ${token}` },
       });
       break;
     }
     case DELETE_GAME: {
+      const token = localStorage.getItem('token');
       const { gameId } = store.getState().game;
-      axios.delete(`/videogame/${gameId}`);
+      axios.delete(`/videogame/${gameId}`, {
+        headers: { Authorization: `bearer ${token}` },
+      });
       break;
     }
     case GET_GAME: {
-      // const userId = '60c9aa80a520a563aa3077ba';
+      const token = localStorage.getItem('token');
       axios.get('/videogame/', {
-        // userId,
+        headers: { Authorization: `bearer ${token}` },
       })
         .then((res) => {
           store.dispatch(saveGameList(res.data));

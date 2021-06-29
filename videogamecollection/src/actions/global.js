@@ -18,3 +18,16 @@ export const OPEN_ASIDE = 'OPEN_ASIDE';
 export const openAside = () => ({
   type: OPEN_ASIDE,
 });
+
+// Action to save message
+export const SAVE_MESSAGE = 'SAVE_MESSAGE';
+export const saveMessage = (newMessage) => ({
+  type: SAVE_MESSAGE,
+  newMessage,
+});
+
+// Action to dispatch new message
+export const OPEN_MESSAGE = 'OPEN_MESSAGE';
+export const openMessage = () => ({
+  type: OPEN_MESSAGE,
+});
