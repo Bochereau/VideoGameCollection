@@ -8,6 +8,11 @@
   //padding: vars.$gutter;
   background-color: color.scale(vars.$brown, $lightness:+10%);
   box-shadow: 6px 6px 0 vars.$yellow;
+  @media (max-width: 1024px) {
+    width: 45%;
+  }
+
+
   &-visible{
     padding: vars.$gutter;
     &-title{
@@ -114,6 +119,10 @@
           height: 20px;
         }
       }
+    }
+
+    &-description{
+      padding: vars.$gutter*0.5;
     }
   }
 }

@@ -33,36 +33,21 @@ const Games = ({
         <Card
           key={videogame._id}
           id={videogame._id}
-          name={videogame.name}
-          hardware={videogame.hardware}
-          developer={videogame.developer}
-          editor={videogame.editor}
-          release={videogame.release}
-          finished={videogame.finished}
+          {...videogame}
         />
       )))}
       {filterGame === 'finished' && (hardwareFilter(finishedGames).map((videogame) => (
         <Card
           key={videogame._id}
           id={videogame._id}
-          name={videogame.name}
-          hardware={videogame.hardware}
-          developer={videogame.developer}
-          editor={videogame.editor}
-          release={videogame.release}
-          finished={videogame.finished}
+          {...videogame}
         />
       )))}
       {filterGame === 'unfinished' && (hardwareFilter(unfinishedGames).map((videogame) => (
         <Card
           key={videogame._id}
           id={videogame._id}
-          name={videogame.name}
-          hardware={videogame.hardware}
-          developer={videogame.developer}
-          editor={videogame.editor}
-          release={videogame.release}
-          finished={videogame.finished}
+          {...videogame}
         />
       )))}
     </main>
@@ -75,12 +60,6 @@ Games.propTypes = {
   videogames: PropTypes.arrayOf(
     PropTypes.shape({
       _id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      hardware: PropTypes.string.isRequired,
-      developer: PropTypes.string.isRequired,
-      editor: PropTypes.string.isRequired,
-      release: PropTypes.number.isRequired,
-      finished: PropTypes.bool.isRequired,
     }).isRequired,
   ).isRequired,
 };

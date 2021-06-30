@@ -8,6 +8,8 @@ import {
   DELETE_GAME,
 } from '../actions/game';
 
+import { saveMessage } from '../actions/global';
+
 axios.defaults.baseURL = 'http://localhost:8626';
 
 const ajaxGame = (store) => (next) => (action) => {
@@ -30,14 +32,30 @@ const ajaxGame = (store) => (next) => (action) => {
       },
       {
         headers: { Authorization: `bearer ${token}` },
-      });
+      })
+        .then((res) => {
+          store.dispatch(saveMessage(res.data.name));
+        });
       break;
     }
     case UPDATE_GAME: {
       const token = localStorage.getItem('token');
-      const { gameId, finished } = store.getState().game;
+      const {
+        gameId,
+        finished,
+        box,
+        manual,
+        physical,
+        demat,
+        newDescription,
+      } = store.getState().game;
       axios.put(`/videogame/${gameId}`, {
         finished,
+        box,
+        manual,
+        physical,
+        demat,
+        description: newDescription,
       },
       {
         headers: { Authorization: `bearer ${token}` },

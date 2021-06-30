@@ -9,6 +9,11 @@ import {
   NEW_GAME_DEVELOPER,
   NEW_GAME_RELEASE,
   FINISHED_GAME,
+  BOX_GAME,
+  MANUAL_GAME,
+  PHYSICAL_GAME,
+  DEMAT_GAME,
+  NEW_GAME_DESCRIPTION,
   GET_GAME_ID,
   SAVE_GAME_LIST,
 } from '../actions/game';
@@ -30,6 +35,11 @@ const initialState = {
   gameRelease: '',
   gemeId: '',
   finished: false,
+  box: false,
+  manual: false,
+  physical: false,
+  demat: false,
+  newDescription: '',
 };
 
 const game = (state = initialState, action = {}) => {
@@ -88,6 +98,31 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         finished: action.finished,
+      };
+    case BOX_GAME:
+      return {
+        ...state,
+        box: action.box,
+      };
+    case MANUAL_GAME:
+      return {
+        ...state,
+        manual: action.manual,
+      };
+    case PHYSICAL_GAME:
+      return {
+        ...state,
+        physical: action.physical,
+      };
+    case DEMAT_GAME:
+      return {
+        ...state,
+        demat: action.demat,
+      };
+    case NEW_GAME_DESCRIPTION:
+      return {
+        ...state,
+        newDescription: action.description,
       };
     case GET_GAME_ID:
       return {

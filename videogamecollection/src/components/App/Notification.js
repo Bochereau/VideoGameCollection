@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Message = ({ saveMessage, message }) => {
+import notif from '../../assets/images/icons/notif.png';
+
+const Message = ({
+  saveMessage,
+  message,
+}) => {
   if (message !== '') {
     setTimeout(() => {
       saveMessage('');
@@ -10,6 +15,7 @@ const Message = ({ saveMessage, message }) => {
   return (
     message ? (
       <div className="notification">
+        <img className="notification-logo" src={notif} alt="notification" />
         <p className="notification-text">{message}</p>
       </div>
     ) : ''

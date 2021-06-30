@@ -18,12 +18,24 @@ const Card = ({
   editor,
   release,
   finished,
+  box,
+  manual,
+  physical,
+  demat,
+  description,
+  newDescription,
   // showing game details
   toggleGame,
   selectedGame,
   getGameId,
   showDeleteModal,
+  // update game in DB
   finishedGame,
+  boxGame,
+  manualGame,
+  physicalGame,
+  dematGame,
+  newGameDescription,
   getGame,
   updateGame,
 }) => {
@@ -33,6 +45,11 @@ const Card = ({
     }
     else {
       toggleGame({ name });
+      boxGame(box);
+      manualGame(manual);
+      physicalGame(physical);
+      dematGame(demat);
+      newGameDescription(description);
     }
   };
   const handleChangeFinishedGame = () => {
@@ -42,8 +59,44 @@ const Card = ({
       getGame();
     }, 1000);
   };
+  const handleChangeBoxGame = () => {
+    boxGame(!box);
+    updateGame();
+    setTimeout(() => {
+      getGame();
+    }, 1000);
+  };
+  const handleChangeManualGame = () => {
+    manualGame(!manual);
+    updateGame();
+    setTimeout(() => {
+      getGame();
+    }, 1000);
+  };
+  const handleChangePhysicalGame = () => {
+    physicalGame(!physical);
+    updateGame();
+    setTimeout(() => {
+      getGame();
+    }, 1000);
+  };
+  const handleChangeDematGame = () => {
+    dematGame(!demat);
+    updateGame();
+    setTimeout(() => {
+      getGame();
+    }, 1000);
+  };
+  const handleChangeDescription = (evt) => {
+    newGameDescription(evt.target.value);
+    updateGame();
+  };
+  const handleOver = () => {
+    getGameId(id);
+    finishedGame(finished);
+  };
   return (
-    <article className="gamecard" id={id} onMouseOver={() => getGameId(id)}>
+    <article className="gamecard" id={id} onMouseOver={handleOver}>
       <div className="gamecard-visible">
         <h3 className="gamecard-visible-title">{name}</h3>
         <div className="gamecard-visible-item">
@@ -72,7 +125,7 @@ const Card = ({
             type="button"
             onClick={() => showDeleteModal()}
           >
-            <span className="remove">+ </span>Supprimer
+            <span className="remove">x </span>Supprimer
           </button>
         </div>
         <div
@@ -90,32 +143,44 @@ const Card = ({
               <p>Etat : </p>
               <div>
                 <label htmlFor="box">
-                  <input type="checkbox" id="box" name="box" />
+                  <input type="checkbox" id="box" name="box" checked={box} onChange={handleChangeBoxGame} />
                   Boîte
                 </label>
               </div>
               <div>
                 <label htmlFor="manual">
-                  <input type="checkbox" id="manual" name="manual" />
+                  <input type="checkbox" id="manual" name="manual" checked={manual} onChange={handleChangeManualGame} />
                   Notice
                 </label>
               </div>
               <div>
                 <label htmlFor="game">
-                  <input type="checkbox" id="game" name="game" />
+                  <input type="checkbox" id="game" name="game" checked={physical} onChange={handleChangePhysicalGame} />
                   Jeu
                 </label>
               </div>
               <div>
                 <label htmlFor="demat">
-                  <input type="checkbox" id="demat" name="demat" />
+                  <input type="checkbox" id="demat" name="demat" checked={demat} onChange={handleChangeDematGame} />
                   Dématérialisé
                 </label>
               </div>
             </div>
             <div>
               <p>Description :</p>
-              <textarea className="gamecard-open-description" name="description" id="description" cols="20" rows="5" placeholder="Entrez votre description" />
+              <textarea
+                className="gamecard-open-description"
+                name="description"
+                id="description"
+                cols="15"
+                rows="5"
+                placeholder="Entrez votre description"
+                value={newDescription}
+                onChange={handleChangeDescription}
+                onBlur={setTimeout(() => {
+                  getGame();
+                }, 1000)}
+              />
             </div>
           </div>
         </div>
@@ -132,11 +197,22 @@ Card.propTypes = {
   editor: PropTypes.string.isRequired,
   release: PropTypes.number.isRequired,
   finished: PropTypes.bool.isRequired,
+  box: PropTypes.bool.isRequired,
+  manual: PropTypes.bool.isRequired,
+  physical: PropTypes.bool.isRequired,
+  demat: PropTypes.bool.isRequired,
+  description: PropTypes.string.isRequired,
+  newDescription: PropTypes.string.isRequired,
   toggleGame: PropTypes.func.isRequired,
   selectedGame: PropTypes.string.isRequired,
   getGameId: PropTypes.string.isRequired,
   showDeleteModal: PropTypes.func.isRequired,
   finishedGame: PropTypes.func.isRequired,
+  boxGame: PropTypes.func.isRequired,
+  manualGame: PropTypes.func.isRequired,
+  physicalGame: PropTypes.func.isRequired,
+  dematGame: PropTypes.func.isRequired,
+  newGameDescription: PropTypes.func.isRequired,
   getGame: PropTypes.func.isRequired,
   updateGame: PropTypes.func.isRequired,
 };

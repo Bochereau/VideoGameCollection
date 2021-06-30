@@ -26,7 +26,7 @@ const Wishlist = ({ wishlist }) => (
         </div>
         <div className="wishlist-game-manage">
           <button type="button"><span className="add">+</span>Ajouter à la collection</button>
-          <button type="button"><span className="remove">+ </span>Supprimer</button>
+          <button type="button"><span className="remove">x </span>Supprimer</button>
         </div>
       </article>
     ))}

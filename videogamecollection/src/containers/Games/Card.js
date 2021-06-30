@@ -6,11 +6,17 @@ import {
   showDeleteModal,
   getGame,
   finishedGame,
+  boxGame,
+  manualGame,
+  physicalGame,
+  dematGame,
+  newGameDescription,
   updateGame,
 } from '../../actions/game';
 
 const mapStateToProps = (state) => ({
   selectedGame: state.game.selectedGame,
+  newDescription: state.game.newDescription,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -25,6 +31,21 @@ const mapDispatchToProps = (dispatch) => ({
   },
   finishedGame: (finished) => {
     dispatch(finishedGame(finished));
+  },
+  boxGame: (box) => {
+    dispatch(boxGame(box));
+  },
+  manualGame: (manual) => {
+    dispatch(manualGame(manual));
+  },
+  physicalGame: (physical) => {
+    dispatch(physicalGame(physical));
+  },
+  dematGame: (demat) => {
+    dispatch(dematGame(demat));
+  },
+  newGameDescription: (description) => {
+    dispatch(newGameDescription(description));
   },
   getGame: () => {
     dispatch(getGame());

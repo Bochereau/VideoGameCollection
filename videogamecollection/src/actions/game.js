@@ -123,3 +123,38 @@ export const finishedGame = (finished) => ({
   type: FINISHED_GAME,
   finished,
 });
+
+// action to change box game status
+export const BOX_GAME = 'BOX_GAME';
+export const boxGame = (box) => ({
+  type: BOX_GAME,
+  box,
+});
+
+// action to change manual game status
+export const MANUAL_GAME = 'MANUAL_GAME';
+export const manualGame = (manual) => ({
+  type: MANUAL_GAME,
+  manual,
+});
+
+// action to change physical game status
+export const PHYSICAL_GAME = 'PHYSICAL_GAME';
+export const physicalGame = (physical) => ({
+  type: PHYSICAL_GAME,
+  physical,
+});
+
+// action to change demat game status
+export const DEMAT_GAME = 'DEMAT_GAME';
+export const dematGame = (demat) => ({
+  type: DEMAT_GAME,
+  demat,
+});
+
+// action to change game description value
+export const NEW_GAME_DESCRIPTION = 'NEW_GAME_DESCRIPTION';
+export const newGameDescription = (description) => ({
+  type: NEW_GAME_DESCRIPTION,
+  description,
+});

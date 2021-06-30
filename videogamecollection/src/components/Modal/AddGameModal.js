@@ -114,7 +114,14 @@ const AddGameModal = ({
                 }}
               />
             </Form.Group>
-            <Button type="submit" variant="warning" className="mr-3">Ajouter</Button>
+            <Button
+              type="submit"
+              variant="warning"
+              className="mr-3"
+              disabled={currentNameValue === '' || currentEditorValue === '' || currentDeveloperValue === '' || currentReleaseValue === ''}
+            >
+              Ajouter
+            </Button>
             <Button onClick={() => showGameModal()} variant="secondary">Fermer</Button>
           </Form>
         </Modal.Body>
