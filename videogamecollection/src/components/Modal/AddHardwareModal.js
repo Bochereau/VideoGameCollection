@@ -28,24 +28,16 @@ const AddHardwareModal = ({
       <style type="text/css">
         {`
         .modal {
-          color: yellow;
+          color: rgb(70, 135, 187);
         }
         .modal-header{
-          background: #1E1F1F;
+          background: rgb(231, 232, 236);
         }
         .modal-body{
-          background: #1E1F1F;
+          background: rgb(231, 232, 236);
         }
         .form-control{
-          background: #1E1F1F;
-        }
-        .form-control:focus{
-          background: #1E1F1F;
-          color: yellow;
-          border: 1px solid yellow;
-        }
-        .btn-warning{
-          background: yellow;
+          background: rgb(231, 232, 236);
         }
         `}
       </style>
@@ -78,7 +70,7 @@ const AddHardwareModal = ({
               </Form.Control>
             </Form.Group>
             <Button
-              variant="warning"
+              variant="primary"
               type="submit"
               disabled={companySelected === '' || currentHardwareValue === ''}
             >

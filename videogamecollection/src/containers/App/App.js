@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import App from '../../components/App';
 import { getHardware } from '../../actions/hardware';
 import { getGame } from '../../actions/game';
+import { getWishlist } from '../../actions/wishlist';
 
 const mapStateToProps = (state) => ({
   logged: state.user.logged,
@@ -17,6 +18,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   getGame: () => {
     dispatch(getGame());
+  },
+  getWishlist: () => {
+    dispatch(getWishlist());
   },
 });
 

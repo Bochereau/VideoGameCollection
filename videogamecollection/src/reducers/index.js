@@ -3,6 +3,7 @@ import home from './home';
 import user from './user';
 import game from './game';
 import hardware from './hardware';
+import wishlist from './wishlist';
 import global from './global';
 
 export default combineReducers({
@@ -10,5 +11,6 @@ export default combineReducers({
   user,
   game,
   hardware,
+  wishlist,
   global,
 });

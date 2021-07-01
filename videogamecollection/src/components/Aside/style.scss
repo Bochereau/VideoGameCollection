@@ -24,7 +24,7 @@
 
 
   &-button{
-    border: 3px solid black;
+    border: 3px solid vars.$brown;
     border-radius: 50%;
     background-color: color.scale(vars.$yellow, $lightness: +15%);
     padding: vars.$gutter*0.5;

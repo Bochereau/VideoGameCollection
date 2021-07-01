@@ -18,8 +18,11 @@ const AddGameModal = ({
   currentReleaseValue,
   addGame,
   getGame,
+  listName,
+  getWishlist,
+  addWish,
 }) => {
-  const handleSubmit = (event) => {
+  const handleSubmitGame = (event) => {
     event.preventDefault();
     addGame();
     showGameModal(false);
@@ -27,27 +30,30 @@ const AddGameModal = ({
       getGame();
     }, 1000);
   };
+  const handleSubmitWish = (event) => {
+    event.preventDefault();
+    addWish();
+    showGameModal(false);
+    setTimeout(() => {
+      getWishlist();
+    }, 1000);
+  };
   return (
     <>
       <style type="text/css">
         {`
-        .modal {
-          color: yellow;
-        }
-        .modal-header{
-          background: #1E1F1F;
-        }
-        .modal-body{
-          background: #1E1F1F;
-        }
-        .form-control{
-          background: #1E1F1F;
-        }
-        .form-control:focus{
-          background: #1E1F1F;
-          color: yellow;
-          border: 1px solid yellow;
-        }
+          .modal {
+            color: rgb(70, 135, 187);
+          }
+          .modal-header{
+            background: rgb(231, 232, 236);
+          }
+          .modal-body{
+            background: rgb(231, 232, 236);
+          }
+          .form-control{
+            background: rgb(231, 232, 236);
+          }
         `}
       </style>
       <Modal show={gameModalOpen} onHide={() => showGameModal()} centered>
@@ -56,7 +62,7 @@ const AddGameModal = ({
         </Modal.Header>
 
         <Modal.Body>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={listName === 'collection' ? handleSubmitGame : handleSubmitWish}>
             <Form.Group controlId="add-name">
               <Form.Label>Nom du jeu</Form.Label>
               <Form.Control
@@ -116,7 +122,7 @@ const AddGameModal = ({
             </Form.Group>
             <Button
               type="submit"
-              variant="warning"
+              variant="primary"
               className="mr-3"
               disabled={currentNameValue === '' || currentEditorValue === '' || currentDeveloperValue === '' || currentReleaseValue === ''}
             >
@@ -149,6 +155,9 @@ AddGameModal.propTypes = {
   currentReleaseValue: PropTypes.string.isRequired,
   addGame: PropTypes.func.isRequired,
   getGame: PropTypes.func.isRequired,
+  listName: PropTypes.string.isRequired,
+  getWishlist: PropTypes.func.isRequired,
+  addWish: PropTypes.func.isRequired,
 };
 
 export default AddGameModal;

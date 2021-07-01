@@ -1,7 +1,15 @@
 import { connect } from 'react-redux';
 import Header from '../../components/Header';
 import { logout } from '../../actions/user';
-import { showGameModal, saveGameFilter } from '../../actions/game';
+import {
+  showGameModal,
+  saveGameFilter,
+  boxGame,
+  manualGame,
+  physicalGame,
+  dematGame,
+  newGameDescription,
+} from '../../actions/game';
 
 const mapStateToProps = (state) => ({
   filterGame: state.game.filterGame,
@@ -18,6 +26,21 @@ const mapDispatchToProps = (dispatch) => ({
   },
   saveGameFilter: (filterGame) => {
     dispatch(saveGameFilter(filterGame));
+  },
+  boxGame: (box) => {
+    dispatch(boxGame(box));
+  },
+  manualGame: (manual) => {
+    dispatch(manualGame(manual));
+  },
+  physicalGame: (physical) => {
+    dispatch(physicalGame(physical));
+  },
+  dematGame: (demat) => {
+    dispatch(dematGame(demat));
+  },
+  newGameDescription: (description) => {
+    dispatch(newGameDescription(description));
   },
 });
 

@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import AddGameModal from '../../components/Modal/AddGameModal';
+
 import {
   showGameModal,
   newGameName,
@@ -11,6 +12,8 @@ import {
   getGame,
 } from '../../actions/game';
 
+import { getWishlist, addWish } from '../../actions/wishlist';
+
 const mapStateToProps = (state) => ({
   gameModalOpen: state.game.gameModalOpen,
   hardwareList: state.hardware.hardwareList,
@@ -18,6 +21,7 @@ const mapStateToProps = (state) => ({
   currentEditorValue: state.game.gameEditor,
   currentDeveloperValue: state.game.gameDeveloper,
   currentReleaseValue: state.game.gameRelease,
+  listName: state.global.listName,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -44,6 +48,12 @@ const mapDispatchToProps = (dispatch) => ({
   },
   getGame: () => {
     dispatch(getGame());
+  },
+  getWishlist: () => {
+    dispatch(getWishlist());
+  },
+  addWish: () => {
+    dispatch(addWish());
   },
 });
 

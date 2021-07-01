@@ -13,10 +13,24 @@ const Header = ({
   filterGame,
   listName,
   pseudo,
+  boxGame,
+  manualGame,
+  physicalGame,
+  dematGame,
+  newGameDescription,
 }) => {
-  const handleClick = (evt) => {
+  const handleFilter = (evt) => {
     evt.preventDefault();
     saveGameFilter(evt.target.value);
+  };
+  const handleModalOpen = (evt) => {
+    evt.preventDefault();
+    boxGame(false);
+    manualGame(false);
+    physicalGame(false);
+    dematGame(false);
+    newGameDescription('');
+    showGameModal();
   };
   return (
     <header className="header">
@@ -30,7 +44,7 @@ const Header = ({
             className="header-ranking-add"
             type="button"
             id="addGame"
-            onClick={() => showGameModal()}
+            onClick={handleModalOpen}
           >
             <span className="add">+</span> Ajouter un jeu
           </button>
@@ -56,7 +70,7 @@ const Header = ({
                     className={filterGame === 'allgames' ? 'header-select-link active' : 'header-select-link'}
                     type="button"
                     value="allgames"
-                    onClick={handleClick}
+                    onClick={handleFilter}
                   >
                     Tous les jeux
                   </button>
@@ -64,14 +78,14 @@ const Header = ({
                     className={filterGame === 'finished' ? 'header-select-link active' : 'header-select-link'}
                     type="button"
                     value="finished"
-                    onClick={handleClick}
+                    onClick={handleFilter}
                   >
                     Jeux terminés
                   </button>
                   <button
                     className={filterGame === 'unfinished' ? 'header-select-link active' : 'header-select-link'}
                     type="button"
-                    onClick={handleClick}
+                    onClick={handleFilter}
                     value="unfinished"
                   >
                     Jeux à faire
@@ -97,6 +111,11 @@ Header.propTypes = {
   filterGame: PropTypes.string.isRequired,
   listName: PropTypes.string.isRequired,
   pseudo: PropTypes.string.isRequired,
+  boxGame: PropTypes.func.isRequired,
+  manualGame: PropTypes.func.isRequired,
+  physicalGame: PropTypes.func.isRequired,
+  dematGame: PropTypes.func.isRequired,
+  newGameDescription: PropTypes.func.isRequired,
 };
 
 export default Header;

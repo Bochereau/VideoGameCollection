@@ -21,10 +21,12 @@ const App = ({
   listName,
   getHardware,
   getGame,
+  getWishlist,
 }) => {
   useEffect(() => {
     getHardware();
     getGame();
+    getWishlist();
   });
   return (
     <div className="app">
@@ -63,6 +65,7 @@ App.propTypes = {
   listName: PropTypes.string.isRequired,
   getHardware: PropTypes.func.isRequired,
   getGame: PropTypes.func.isRequired,
+  getWishlist: PropTypes.func.isRequired,
 };
 
 export default App;

@@ -36,7 +36,7 @@
       border: 2px solid vars.$brown;
       border-radius: 5px;
       color: vars.$yellow;
-      box-shadow: 0 0 3px black;
+      box-shadow: 0 0 3px vars.$brown;
     }
     &-add{
       margin: vars.$gutter*0.5 vars.$gutter;

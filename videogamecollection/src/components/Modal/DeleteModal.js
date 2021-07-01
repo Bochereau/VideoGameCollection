@@ -24,16 +24,13 @@ const DeleteModal = ({
       <style type="text/css">
         {`
         .modal {
-          color: yellow;
+          color: rgb(70, 135, 187);
         }
         .modal-header{
-          background: #1E1F1F;
+          background: rgb(231, 232, 236);
         }
         .modal-body{
-          background: #1E1F1F;
-        }
-        .btn-warning{
-          background: yellow;
+          background: rgb(231, 232, 236);
         }
         `}
       </style>
@@ -45,7 +42,7 @@ const DeleteModal = ({
         </Modal.Header>
 
         <Modal.Body className="text-center">
-          <Button onClick={handleClick} type="submit" variant="warning" className="mr-3">Supprimer</Button>
+          <Button onClick={handleClick} type="submit" variant="primary" className="mr-3">Supprimer</Button>
           <Button onClick={() => showDeleteModal()} variant="secondary">Fermer</Button>
         </Modal.Body>
       </Modal>
