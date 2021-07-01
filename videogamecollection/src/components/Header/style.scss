@@ -57,6 +57,7 @@
     display: flex;
     &-title{
       margin: vars.$gutter vars.$gutter*2;
+      color: vars.$brown;
     }
     &-link{
       text-align: left;
@@ -67,7 +68,7 @@
       &:hover{
         background-color: vars.$brown;
         border: 2px solid vars.$brown;
-        color: vars.$button-color;
+        color: vars.$yellow;
         box-shadow: inset 0 0 5px white;
       }
       &:not(:last-child){
@@ -94,14 +95,14 @@
       text-align: left;
       padding: vars.$gutter*0.4;
       color: vars.$brown;
-      background-color:  vars.$button-color;
+      background-color:  vars.$yellow;
       border: 2px solid vars.$brown;
       border-radius: 5px;
       font-size: vars.$gutter*1.2;
       &:hover{
         background-color: vars.$brown;
         border: 2px solid vars.$brown;
-        color: vars.$button-color;
+        color: vars.$yellow;
       }
     }
   }
@@ -112,19 +113,20 @@
       margin-right: vars.$gutter*1.5;
       font-size: vars.$gutter*1.6;
       font-weight: bold;
+      color: vars.$brown;
     }
     &-logout{
       text-align: left;
       padding: vars.$gutter*0.5;
       color: vars.$brown;
-      background-color:  vars.$button-color;
+      background-color:  vars.$yellow;
       border: 2px solid vars.$brown;
       border-radius: 5px;
       font-size: vars.$gutter*1.2;
       &:hover{
         background-color: vars.$brown;
         border: 2px solid vars.$brown;
-        color: vars.$button-color;
+        color: vars.$yellow;
       }
     }
   }

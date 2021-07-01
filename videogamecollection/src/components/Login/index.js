@@ -49,7 +49,7 @@ const Login = ({
         <Button
           type="submit"
           className="mt-3"
-          variant="warning"
+          variant="primary"
           onClick={handleSubmit}
         >
           Se connecter

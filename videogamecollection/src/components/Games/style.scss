@@ -7,10 +7,11 @@
   align-items: flex-start;
   width: 100%;
   padding: 0 vars.$gutter;
-  background-image: url(../../assets/images/backgrounds/background8.jpg);
-  background-position: center;
-  background-size: cover;
-  //background-color: vars.$brown;
+  // background-image: url(../../assets/images/backgrounds/background8.jpg);
+  // background-image: url('../../assets/images/backgrounds/background5.jpg');
+  // background-position: center;
+  // background-size: cover;
+  background-color: vars.$brown;
   overflow-y: auto;
   &::-webkit-scrollbar{
     width: vars.$gutter;

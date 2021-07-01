@@ -122,6 +122,7 @@ const Card = ({
             Terminé :<input type="checkbox" id="finished" name="finished" checked={finished} onChange={handleChangeFinishedGame} />
           </label>
           <button
+            className="gamecard-visible-delete"
             type="button"
             onClick={() => showDeleteModal()}
           >

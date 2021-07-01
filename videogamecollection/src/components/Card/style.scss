@@ -2,12 +2,12 @@
 @use 'sass:color';
 
 .gamecard{
-  color: vars.$yellow;
+  color: vars.$brown;
   width: 30%;
   margin: vars.$gutter*2 auto;
   //padding: vars.$gutter;
-  background-color: color.scale(vars.$brown, $lightness:+10%);
-  box-shadow: 6px 6px 0 vars.$yellow;
+  background-color: vars.$yellow;
+  box-shadow: 6px 6px 0 color.scale(vars.$brown, $lightness: -30%);
   @media (max-width: 1024px) {
     width: 45%;
   }
@@ -16,7 +16,7 @@
   &-visible{
     padding: vars.$gutter;
     &-title{
-      border-bottom: 2px solid vars.$yellow;
+      border-bottom: 2px solid vars.$brown;
       padding-bottom: vars.$gutter;
       margin-bottom:  vars.$gutter;
       text-align: left;
@@ -37,10 +37,10 @@
       display: flex;
       align-items: baseline;
       justify-content: space-around;
-      border-top: 2px solid vars.$yellow;
+      border-top: 2px solid vars.$brown;
       margin-top: vars.$gutter*0.5;
       padding-top: vars.$gutter*0.5;
-      border-bottom: 2px solid vars.$yellow;
+      border-bottom: 2px solid vars.$brown;
       padding-bottom: vars.$gutter*0.5;
       margin-bottom: vars.$gutter*0.5;
       & label {
@@ -57,13 +57,14 @@
       & button{
         border: none;
         padding: 0 vars.$gutter*0.5;
-        background-color: vars.$yellow;
+        color: vars.$yellow;
+        background-color: vars.$brown;
         display: flex;
         align-items: center;
       }
     }
     &-more{
-      border: 1px solid color.scale(vars.$yellow, $lightness: -30%);
+      border: 1px solid vars.$brown;
       font-size: vars.$gutter*1.2;
       cursor: pointer;
       display: flex;
@@ -93,7 +94,7 @@
   &-open{
     display: block;
     padding: 0 vars.$gutter;
-    border-top: 2px solid black;
+    border-top: 2px solid vars.$brown;
 
     // &-image{
     //   max-width: 200px;
@@ -123,6 +124,7 @@
 
     &-description{
       padding: vars.$gutter*0.5;
+      color: vars.$brown;
     }
   }
 }

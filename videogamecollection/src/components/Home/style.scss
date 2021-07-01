@@ -6,8 +6,8 @@
   width: 100%;
   display: flex;
   align-items: center;
-  background-color: vars.$brown;
-  color: vars.$yellow;
+  background-color: vars.$yellow;
+  color: vars.$brown;
   @media (max-width: 768px) {
     flex-direction: column;
     height: 200vh;
@@ -60,10 +60,10 @@
     }
   }
   &-login{
-    // background-image: url('../../assets/images/backgrounds/background2.jpg');
-    // background-size: cover;
-    // background-repeat: no-repeat;
-    background-color: vars.$yellow;
+    background-image: url('../../assets/images/backgrounds/background5.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    // background-color: vars.$yellow;
     height: 100vh;
     @media (max-width: 425px) {
       padding: vars.$gutter*1.5;

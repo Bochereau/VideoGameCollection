@@ -5,7 +5,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  background-image: url(../../assets/images/backgrounds/background8.jpg);
+  background-image: url(../../assets/images/backgrounds/background5.jpg);
   background-position: center;
   background-size: cover;
   width: 100%;
@@ -28,17 +28,17 @@
   &-game{
     width: 30%;
     text-align: center;
-    color: vars.$yellow;
-    background-color: color.scale(vars.$brown, $lightness:+10%);
+    color: vars.$brown;
+    background-color: vars.$yellow;
     margin: vars.$gutter;
     padding: vars.$gutter;
-    box-shadow: 6px 6px 0 vars.$yellow;
+    box-shadow: 6px 6px 0 color.scale(vars.$brown, $lightness:+30%);
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
   
     &-title{
-      border-bottom: 2px solid vars.$yellow;
+      border-bottom: 2px solid vars.$brown;
       padding-bottom: vars.$gutter;
       margin-bottom:  vars.$gutter;
       text-align: left;
@@ -57,13 +57,14 @@
     &-manage{
       display: flex;
       justify-content: space-evenly;
-      border-top: 2px solid vars.$yellow;
+      border-top: 2px solid vars.$brown;
       padding-top: vars.$gutter;
       //margin-bottom:  vars.$gutter;
       & button{
         border: none;
         padding: 0 vars.$gutter*0.5;
-        background-color: vars.$yellow;
+        color: vars.$yellow;
+        background-color: vars.$brown;
         display: flex;
         align-items: center;
       }
