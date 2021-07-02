@@ -46,7 +46,6 @@ const ajaxUser = (store) => (next) => (action) => {
       })
         .then((res) => {
           localStorage.setItem('token', res.data.token);
-          store.dispatch(saveMessage(res.data.message));
           store.dispatch(doLogin());
         })
         .catch((err) => {

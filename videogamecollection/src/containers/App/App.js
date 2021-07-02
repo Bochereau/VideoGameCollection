@@ -9,6 +9,7 @@ const mapStateToProps = (state) => ({
   gameModalOpen: state.game.gameModalOpen,
   hardwareModalOpen: state.hardware.hardwareModalOpen,
   deleteModalOpen: state.game.deleteModalOpen,
+  transferModalOpen: state.wishlist.transferModalOpen,
   listName: state.global.listName,
 });
 

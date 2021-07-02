@@ -5,6 +5,12 @@ export const saveWishlist = (list) => ({
   list,
 });
 
+// action to open tranfer modal
+export const SHOW_TRANSFER_MODAL = 'SHOW_TRANSFER_MODAL';
+export const showTransferModal = () => ({
+  type: SHOW_TRANSFER_MODAL,
+});
+
 /*
 request in DB
 */

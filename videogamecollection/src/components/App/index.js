@@ -11,6 +11,7 @@ import Wishlist from '../../containers/Wishlist';
 import AddGameModal from '../../containers/Modal/AddGameModal';
 import AddHardwareModal from '../../containers/Modal/AddHardwareModal';
 import DeleteModal from '../../containers/Modal/DeleteModal';
+import TransferModal from '../../containers/Modal/TransferModal';
 import Notification from '../../containers/App/Notification';
 
 const App = ({
@@ -18,6 +19,7 @@ const App = ({
   gameModalOpen,
   hardwareModalOpen,
   deleteModalOpen,
+  transferModalOpen,
   listName,
   getHardware,
   getGame,
@@ -49,6 +51,7 @@ const App = ({
             {hardwareModalOpen && (<AddHardwareModal />)}
             {gameModalOpen && (<AddGameModal />)}
             {deleteModalOpen && (<DeleteModal />)}
+            {transferModalOpen && (<TransferModal />)}
           </div>
         </>
       )}
@@ -62,6 +65,7 @@ App.propTypes = {
   gameModalOpen: PropTypes.bool.isRequired,
   hardwareModalOpen: PropTypes.bool.isRequired,
   deleteModalOpen: PropTypes.bool.isRequired,
+  transferModalOpen: PropTypes.bool.isRequired,
   listName: PropTypes.string.isRequired,
   getHardware: PropTypes.func.isRequired,
   getGame: PropTypes.func.isRequired,

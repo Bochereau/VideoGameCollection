@@ -1,7 +1,8 @@
-import { SAVE_WISHLIST } from '../actions/wishlist';
+import { SAVE_WISHLIST, SHOW_TRANSFER_MODAL } from '../actions/wishlist';
 
 const initialState = {
   list: [],
+  transferModalOpen: false,
 };
 
 const wishlist = (state = initialState, action = {}) => {
@@ -10,6 +11,11 @@ const wishlist = (state = initialState, action = {}) => {
       return {
         ...state,
         list: action.list,
+      };
+    case SHOW_TRANSFER_MODAL:
+      return {
+        ...state,
+        transferModalOpen: !state.transferModalOpen,
       };
     default:
       return state;
