@@ -34,7 +34,8 @@ const ajaxGame = (store) => (next) => (action) => {
         headers: { Authorization: `bearer ${token}` },
       })
         .then((res) => {
-          store.dispatch(saveMessage(res.data.name));
+          console.log(res);
+          store.dispatch(saveMessage(res.data.message));
         });
       break;
     }

@@ -11,10 +11,12 @@ const Games = ({
   videogames,
   filterGame,
   filterHardware,
+  search,
 }) => {
   useEffect(async () => {
     await getGame();
   });
+  const searchString = search.toLowerCase();
   function hardwareFilter(games) {
     let result;
     if (filterHardware === 'allhardware') {
@@ -25,31 +27,31 @@ const Games = ({
     }
     return result;
   }
-  const finishedGames = videogames.filter((videogame) => videogame.finished === true);
-  const unfinishedGames = videogames.filter((videogame) => videogame.finished === false);
+  function filteredGame(value, filter) {
+    if (search !== '') {
+      const searchedGames = (
+        videogames.filter((videogame) => videogame.name.toLowerCase().includes(value)));
+      return searchedGames;
+    }
+    if (filter === 'finished') {
+      const finishedGames = videogames.filter((videogame) => videogame.finished === true);
+      return finishedGames;
+    }
+    if (filter === 'unfinished') {
+      const unfinishedGames = videogames.filter((videogame) => videogame.finished === false);
+      return unfinishedGames;
+    }
+    return videogames;
+  }
   return (
     <main className="games">
-      {filterGame === 'allgames' && (hardwareFilter(videogames).map((videogame) => (
+      {hardwareFilter(filteredGame(searchString, filterGame)).map((videogame) => (
         <Card
           key={videogame._id}
           id={videogame._id}
           {...videogame}
         />
-      )))}
-      {filterGame === 'finished' && (hardwareFilter(finishedGames).map((videogame) => (
-        <Card
-          key={videogame._id}
-          id={videogame._id}
-          {...videogame}
-        />
-      )))}
-      {filterGame === 'unfinished' && (hardwareFilter(unfinishedGames).map((videogame) => (
-        <Card
-          key={videogame._id}
-          id={videogame._id}
-          {...videogame}
-        />
-      )))}
+      ))}
     </main>
   );
 };
@@ -59,9 +61,10 @@ Games.propTypes = {
   filterHardware: PropTypes.string.isRequired,
   videogames: PropTypes.arrayOf(
     PropTypes.shape({
-      _id: PropTypes.number.isRequired,
+      _id: PropTypes.string.isRequired,
     }).isRequired,
   ).isRequired,
+  search: PropTypes.string.isRequired,
 };
 
 export default Games;

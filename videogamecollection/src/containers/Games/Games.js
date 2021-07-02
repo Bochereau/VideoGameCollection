@@ -6,6 +6,7 @@ const mapStateToProps = (state) => ({
   videogames: state.game.videogamesList,
   filterGame: state.game.filterGame,
   filterHardware: state.hardware.filterHardware,
+  search: state.game.search,
 });
 
 const mapDispatchToProps = (dispatch) => ({

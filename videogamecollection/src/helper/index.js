@@ -1,7 +1,7 @@
 // function that find videogame name with id
-function videogameName(videogamesList, gameId) {
+function videogameName(list, gameId) {
   // eslint-disable-next-line no-underscore-dangle
-  const videogame = videogamesList.find((videogames) => videogames._id === gameId);
+  const videogame = list.find((videogames) => videogames._id === gameId);
   return videogame.name;
 }
 

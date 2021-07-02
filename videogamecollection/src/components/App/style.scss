@@ -26,17 +26,13 @@
 
 .notification {
   position: fixed;
-  right: 0;
-  bottom: vars.$gutter;
+  bottom: 0;
+  width: 100%;
   padding: vars.$gutter;
-  margin: vars.$gutter*0.5;
-  background-color: vars.$yellow;
-  color: black;
+  background-color: vars.$brown;
+  color: vars.$yellow;
   height: vars.$gutter*3;
-  border-radius: 5px;
-  box-shadow: 0 0 10px black;
-  opacity: 0.8;
-  filter: contrast(200%);
+  border-top: 2px solid vars.$yellow;
 
   display: flex;
   justify-content: space-around;

@@ -1,12 +1,18 @@
+/* eslint-disable no-underscore-dangle */
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import './style.scss';
 
-const Wishlist = ({ wishlist }) => (
+const Wishlist = ({ wishlist, getGameId, showDeleteModal }) => (
   <div className="wishlist">
     {wishlist.map((game) => (
-      <article className="wishlist-game" id={game.id}>
+      <article
+        className="wishlist-game"
+        key={game._id}
+        id={game._id}
+        onMouseOver={() => getGameId(game._id)}
+      >
         <h3 className="wishlist-game-title">{game.name}</h3>
         <div className="wishlist-game-item">
           <p className="wishlist-game-item-title">Console :</p>
@@ -26,7 +32,7 @@ const Wishlist = ({ wishlist }) => (
         </div>
         <div className="wishlist-game-manage">
           <button type="button"><span className="add">+</span>Ajouter à la collection</button>
-          <button type="button"><span className="remove">x </span>Supprimer</button>
+          <button type="button" onClick={() => showDeleteModal()}><span className="remove">x </span>Supprimer</button>
         </div>
       </article>
     ))}
@@ -36,7 +42,7 @@ const Wishlist = ({ wishlist }) => (
 Wishlist.propTypes = {
   wishlist: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      _id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
       hardware: PropTypes.string.isRequired,
       developer: PropTypes.string.isRequired,
@@ -44,6 +50,8 @@ Wishlist.propTypes = {
       release: PropTypes.string.isRequired,
     }).isRequired,
   ).isRequired,
+  getGameId: PropTypes.func.isRequired,
+  showDeleteModal: PropTypes.func.isRequired,
 };
 
 export default Wishlist;

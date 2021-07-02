@@ -18,6 +18,8 @@ const Header = ({
   physicalGame,
   dematGame,
   newGameDescription,
+  saveSearch,
+  search,
 }) => {
   const handleFilter = (evt) => {
     evt.preventDefault();
@@ -93,8 +95,15 @@ const Header = ({
                 </div>
               </div>
               <form className="header-search">
-                <input className="header-search-input" type="text" name="search" id="search" placeholder="Rechercher un jeu" />
-                <button className="header-search-submit" type="submit">Chercher</button>
+                <input
+                  className="header-search-input"
+                  type="text"
+                  name="search"
+                  id="search"
+                  placeholder="Rechercher un jeu"
+                  value={search}
+                  onChange={(evt) => saveSearch(evt.target.value)}
+                />
               </form>
             </div>
           </>
@@ -116,6 +125,8 @@ Header.propTypes = {
   physicalGame: PropTypes.func.isRequired,
   dematGame: PropTypes.func.isRequired,
   newGameDescription: PropTypes.func.isRequired,
+  saveSearch: PropTypes.func.isRequired,
+  search: PropTypes.string.isRequired,
 };
 
 export default Header;

@@ -9,12 +9,14 @@ import {
   physicalGame,
   dematGame,
   newGameDescription,
+  saveSearch,
 } from '../../actions/game';
 
 const mapStateToProps = (state) => ({
   filterGame: state.game.filterGame,
   listName: state.global.listName,
   pseudo: state.user.pseudo,
+  search: state.game.search,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -41,6 +43,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   newGameDescription: (description) => {
     dispatch(newGameDescription(description));
+  },
+  saveSearch: (search) => {
+    dispatch(saveSearch(search));
   },
 });
 

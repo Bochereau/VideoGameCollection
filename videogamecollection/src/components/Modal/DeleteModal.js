@@ -10,14 +10,24 @@ const DeleteModal = ({
   deleteModalOpen,
   showDeleteModal,
   deleteGame,
+  deleteWish,
+  listName,
   videogamesList,
+  wishList,
   gameId,
   getGame,
+  getWishlist,
 }) => {
   const handleClick = async () => {
-    deleteGame();
+    if (listName === 'collection') {
+      deleteGame();
+      await getGame();
+    }
+    if (listName === 'wishlist') {
+      deleteWish();
+      await getWishlist();
+    }
     showDeleteModal();
-    await getGame();
   };
   return (
     <>
@@ -37,7 +47,8 @@ const DeleteModal = ({
       <Modal show={deleteModalOpen} onHide={() => showDeleteModal()} centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            Supprimer définitivement : {videogameName(videogamesList, gameId)}
+            Supprimer définitivement : {listName === 'collection'
+            ? videogameName(videogamesList, gameId) : videogameName(wishList, gameId)}
           </Modal.Title>
         </Modal.Header>
 
@@ -53,8 +64,10 @@ const DeleteModal = ({
 DeleteModal.propTypes = {
   deleteModalOpen: PropTypes.bool.isRequired,
   showDeleteModal: PropTypes.func.isRequired,
+  deleteWish: PropTypes.func.isRequired,
   deleteGame: PropTypes.func.isRequired,
   gameId: PropTypes.string.isRequired,
+  listName: PropTypes.string.isRequired,
   videogamesList: PropTypes.arrayOf(
     PropTypes.shape({
       _id: PropTypes.number.isRequired,
@@ -66,7 +79,18 @@ DeleteModal.propTypes = {
       finished: PropTypes.bool.isRequired,
     }).isRequired,
   ).isRequired,
+  wishList: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      hardware: PropTypes.string.isRequired,
+      developer: PropTypes.string.isRequired,
+      editor: PropTypes.string.isRequired,
+      release: PropTypes.number.isRequired,
+    }).isRequired,
+  ).isRequired,
   getGame: PropTypes.func.isRequired,
+  getWishlist: PropTypes.func.isRequired,
 };
 
 export default DeleteModal;

@@ -51,7 +51,6 @@ const ajaxGame = (store) => (next) => (action) => {
         headers: { Authorization: `bearer ${token}` },
       })
         .then((res) => {
-          console.log(res);
           store.dispatch(saveWishlist(res.data));
         });
       break;

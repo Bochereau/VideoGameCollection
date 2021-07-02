@@ -191,7 +191,7 @@ const Card = ({
 };
 
 Card.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   hardware: PropTypes.string.isRequired,
   developer: PropTypes.string.isRequired,

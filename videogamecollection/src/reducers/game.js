@@ -16,6 +16,7 @@ import {
   NEW_GAME_DESCRIPTION,
   GET_GAME_ID,
   SAVE_GAME_LIST,
+  SAVE_SEARCH,
 } from '../actions/game';
 
 // import videogames from '../datas/videogames';
@@ -33,13 +34,14 @@ const initialState = {
   gameEditor: '',
   gameDeveloper: '',
   gameRelease: '',
-  gemeId: '',
+  gameId: '',
   finished: false,
   box: false,
   manual: false,
   physical: false,
   demat: false,
   newDescription: '',
+  search: '',
 };
 
 const game = (state = initialState, action = {}) => {
@@ -133,6 +135,11 @@ const game = (state = initialState, action = {}) => {
       return {
         ...state,
         videogamesList: action.gameList,
+      };
+    case SAVE_SEARCH:
+      return {
+        ...state,
+        search: action.search,
       };
     default:
       return state;
