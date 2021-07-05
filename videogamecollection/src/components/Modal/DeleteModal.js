@@ -21,11 +21,15 @@ const DeleteModal = ({
   const handleClick = async () => {
     if (listName === 'collection') {
       deleteGame();
-      await getGame();
+      setTimeout(() => {
+        getGame();
+      }, 1000);
     }
     if (listName === 'wishlist') {
       deleteWish();
-      await getWishlist();
+      setTimeout(() => {
+        getWishlist();
+      }, 1000);
     }
     showDeleteModal();
   };

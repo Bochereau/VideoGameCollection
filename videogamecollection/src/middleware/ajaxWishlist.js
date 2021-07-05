@@ -33,7 +33,7 @@ const ajaxGame = (store) => (next) => (action) => {
         headers: { Authorization: `bearer ${token}` },
       })
         .then((res) => {
-          store.dispatch(saveMessage(res.data.name));
+          store.dispatch(saveMessage(res.data.message));
         });
       break;
     }
@@ -42,7 +42,10 @@ const ajaxGame = (store) => (next) => (action) => {
       const { gameId } = store.getState().game;
       axios.delete(`/wishlist/${gameId}`, {
         headers: { Authorization: `bearer ${token}` },
-      });
+      })
+        .then((res) => {
+          store.dispatch(saveMessage(res.data.message));
+        });
       break;
     }
     case GET_WISHLIST: {

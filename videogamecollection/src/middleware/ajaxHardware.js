@@ -6,6 +6,8 @@ import {
   ADD_HARDWARE,
 } from '../actions/hardware';
 
+import { saveMessage } from '../actions/global';
+
 axios.defaults.baseURL = 'http://localhost:8626';
 
 const ajaxHardware = (store) => (next) => (action) => {
@@ -32,6 +34,7 @@ const ajaxHardware = (store) => (next) => (action) => {
       })
         .then((res) => {
           console.log(res.data.message);
+          store.dispatch(saveMessage(res.data.message));
         });
       break;
     }

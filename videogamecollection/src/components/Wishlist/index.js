@@ -57,11 +57,17 @@ const Wishlist = ({
           <div className="wishlist-game-manage">
             <button
               type="button"
+              className="wishlist-game-manage-add"
               onClick={handleClickTransfer}
             >
               <span className="add">+</span>Ajouter à la collection
             </button>
-            <button type="button" onClick={() => showDeleteModal()}><span className="remove">x </span>Supprimer</button>
+            <button
+              type="button"
+              className="wishlist-game-manage-delete"
+              onClick={() => showDeleteModal()}
+            ><span className="remove">x </span>Supprimer
+            </button>
           </div>
         </article>
       ))}

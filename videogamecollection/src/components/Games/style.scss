@@ -4,8 +4,10 @@
 .games{
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
   align-items: flex-start;
   width: 100%;
+  
   padding: 0 vars.$gutter;
   // background-image: url(../../assets/images/backgrounds/background8.jpg);
   // background-image: url('../../assets/images/backgrounds/background5.jpg');

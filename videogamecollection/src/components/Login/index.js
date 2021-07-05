@@ -50,6 +50,7 @@ const Login = ({
           type="submit"
           className="mt-3"
           variant="primary"
+          disabled={pseudoValue === '' || passwordValue === ''}
           onClick={handleSubmit}
         >
           Se connecter

@@ -80,6 +80,7 @@ const Subscribe = ({
           type="submit"
           className="mt-3"
           variant="primary"
+          disabled={emailValue === '' || pseudoValue === '' || passwordValue === '' || verifiedPasswordValue === ''}
           onClick={handleSubmit}
         >
           S'inscrire

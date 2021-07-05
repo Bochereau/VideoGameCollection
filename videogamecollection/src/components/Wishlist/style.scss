@@ -5,11 +5,12 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-self: flex-start;
+  align-items: flex-start;
+  width: 100%;
+
   background-image: url(../../assets/images/backgrounds/background5.jpg);
   background-position: center;
   background-size: cover;
-  width: 100%;
   overflow-y: auto;
   &::-webkit-scrollbar{
     width: vars.$gutter;
@@ -34,6 +35,7 @@
     margin: vars.$gutter;
     padding: vars.$gutter;
     box-shadow: 6px 6px 0 color.scale(vars.$brown, $lightness:+30%);
+    border-top-left-radius: 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -68,6 +70,16 @@
         background-color: vars.$brown;
         display: flex;
         align-items: center;
+      }
+      &-add{
+        &:hover{
+          background-color: vars.$button-add;
+        }
+      }
+      &-delete{
+        &:hover{
+          background-color: vars.$button-delete;
+        }
       }
     }
   }

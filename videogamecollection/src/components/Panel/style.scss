@@ -22,8 +22,8 @@
     border-radius: 5px;
     box-shadow: 0 0 3px vars.$brown;
     &:hover{
-      background-color: vars.$brown;
-      border: 2px solid vars.$brown;
+      background-color: vars.$button-hardware;
+      border: 2px solid vars.$button-hardware;
       color: vars.$yellow;
       box-shadow: inset 0 0 5px white;
     }
@@ -32,11 +32,11 @@
       width: 100%;
       margin: vars.$gutter*0.2 0;
       padding: vars.$gutter*0.5;
-      background-color: vars.$brown;
-      border: 2px solid vars.$brown;
+      background-color: vars.$button-hardware;
+      border: 2px solid vars.$button-hardware;
       border-radius: 5px;
       color: vars.$yellow;
-      box-shadow: 0 0 3px vars.$brown;
+      box-shadow: 0 0 3px vars.$button-hardware;
     }
     &-add{
       margin: vars.$gutter*0.5 vars.$gutter;
@@ -95,6 +95,10 @@
     border-radius: 10px;
     background-color: color.scale(vars.$brown, $lightness:+10%);
     color: vars.$yellow;
+    &:hover{
+      filter: contrast(120%);
+    }
+
     &-title{
       font-size: vars.$gutter;
       font-weight: bold;

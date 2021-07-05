@@ -206,7 +206,7 @@ Card.propTypes = {
   newDescription: PropTypes.string.isRequired,
   toggleGame: PropTypes.func.isRequired,
   selectedGame: PropTypes.string.isRequired,
-  getGameId: PropTypes.string.isRequired,
+  getGameId: PropTypes.func.isRequired,
   showDeleteModal: PropTypes.func.isRequired,
   finishedGame: PropTypes.func.isRequired,
   boxGame: PropTypes.func.isRequired,

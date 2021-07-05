@@ -44,7 +44,7 @@ const Company = ({
         <div className="company-hardware">
           {filteredHardware.map((hardware) => (
             <button
-              key={hardware.id}
+              key={hardware.name}
               className={filterHardware === hardware.name ? 'panel-button--active' : 'panel-button'}
               type="button"
               value={hardware.name}

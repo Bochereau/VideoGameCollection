@@ -38,7 +38,10 @@ const Panel = ({
         </button>
         <div className="panel-hardware-company">
           {constructors.map((constructor) => (
-            <Company name={constructor.name} />
+            <Company
+              key={constructor.name}
+              name={constructor.name}
+            />
           ))}
         </div>
       </div>
