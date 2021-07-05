@@ -52,6 +52,12 @@
         border: 2px solid vars.$brown;
       }
     }
+    &--hidden{
+      display: flex;
+      justify-content: space-between;
+      padding: vars.$gutter*0.5;
+      visibility: hidden;
+    }
   }
   &-select{
     display: flex;

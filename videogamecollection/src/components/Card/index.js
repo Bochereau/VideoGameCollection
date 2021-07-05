@@ -95,8 +95,16 @@ const Card = ({
     getGameId(id);
     finishedGame(finished);
   };
+  const handleOut = () => {
+    finishedGame(false);
+    boxGame(false);
+    manualGame(false);
+    physicalGame(false);
+    dematGame(false);
+    newGameDescription('');
+  };
   return (
-    <article className="gamecard" id={id} onMouseOver={handleOver}>
+    <article className="gamecard" id={id} onMouseOver={handleOver} onMouseOut={handleOut}>
       <div className="gamecard-visible">
         <h3 className="gamecard-visible-title">{name}</h3>
         <div className="gamecard-visible-item">

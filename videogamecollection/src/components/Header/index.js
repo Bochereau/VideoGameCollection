@@ -61,53 +61,49 @@ const Header = ({
             </button>
           </div>
         </div>
-        {listName === 'collection' && (
-          <>
-            <hr />
-            <div className="header-ranking">
-              <div className="header-select">
-                <p className="header-select-title">Trier par :</p>
-                <div className="header-select-list">
-                  <button
-                    className={filterGame === 'allgames' ? 'header-select-link active' : 'header-select-link'}
-                    type="button"
-                    value="allgames"
-                    onClick={handleFilter}
-                  >
-                    Tous les jeux
-                  </button>
-                  <button
-                    className={filterGame === 'finished' ? 'header-select-link active' : 'header-select-link'}
-                    type="button"
-                    value="finished"
-                    onClick={handleFilter}
-                  >
-                    Jeux terminés
-                  </button>
-                  <button
-                    className={filterGame === 'unfinished' ? 'header-select-link active' : 'header-select-link'}
-                    type="button"
-                    onClick={handleFilter}
-                    value="unfinished"
-                  >
-                    Jeux à faire
-                  </button>
-                </div>
-              </div>
-              <form className="header-search">
-                <input
-                  className="header-search-input"
-                  type="text"
-                  name="search"
-                  id="search"
-                  placeholder="Rechercher un jeu"
-                  value={search}
-                  onChange={(evt) => saveSearch(evt.target.value)}
-                />
-              </form>
+        <hr />
+        <div className={listName === 'collection' ? 'header-ranking' : 'header-ranking--hidden'}>
+          <div className="header-select">
+            <p className="header-select-title">Trier par :</p>
+            <div className="header-select-list">
+              <button
+                className={filterGame === 'allgames' ? 'header-select-link active' : 'header-select-link'}
+                type="button"
+                value="allgames"
+                onClick={handleFilter}
+              >
+                Tous les jeux
+              </button>
+              <button
+                className={filterGame === 'finished' ? 'header-select-link active' : 'header-select-link'}
+                type="button"
+                value="finished"
+                onClick={handleFilter}
+              >
+                Jeux terminés
+              </button>
+              <button
+                className={filterGame === 'unfinished' ? 'header-select-link active' : 'header-select-link'}
+                type="button"
+                onClick={handleFilter}
+                value="unfinished"
+              >
+                Jeux à faire
+              </button>
             </div>
-          </>
-        )}
+          </div>
+          <form className="header-search">
+            <input
+              className="header-search-input"
+              type="text"
+              name="search"
+              id="search"
+              placeholder="Rechercher un jeu"
+              value={search}
+              onChange={(evt) => saveSearch(evt.target.value)}
+            />
+          </form>
+        </div>
       </div>
     </header>
   );
