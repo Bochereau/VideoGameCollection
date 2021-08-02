@@ -15,12 +15,20 @@
 
 
   &-visible{
-    padding: vars.$gutter;
-    &-title{
+    padding: vars.$gutter*0.5 vars.$gutter;
+
+    &-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       border-bottom: 2px solid vars.$brown;
-      padding-bottom: vars.$gutter;
-      margin-bottom:  vars.$gutter;
-      text-align: left;
+      
+      &-title{
+        text-align: left;
+      }
+      &-img{
+        height: 50px;
+      }
     }
     
     &-item{

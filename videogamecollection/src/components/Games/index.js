@@ -29,9 +29,22 @@ const Games = ({
   }
   function filteredGame(value, filter) {
     if (search !== '') {
-      const searchedGames = (
-        videogames.filter((videogame) => videogame.name.toLowerCase().includes(value)));
-      return searchedGames;
+      let result;
+      if (filter === 'allgames') {
+        result = (
+          videogames.filter((videogame) => videogame.name.toLowerCase().includes(value)));
+      }
+      if (filter === 'finished') {
+        const finishedGames = videogames.filter((videogame) => videogame.finished === true);
+        result = (
+          finishedGames.filter((videogame) => videogame.name.toLowerCase().includes(value)));
+      }
+      if (filter === 'unfinished') {
+        const unfinishedGames = videogames.filter((videogame) => videogame.finished === false);
+        result = (
+          unfinishedGames.filter((videogame) => videogame.name.toLowerCase().includes(value)));
+      }
+      return result;
     }
     if (filter === 'finished') {
       const finishedGames = videogames.filter((videogame) => videogame.finished === true);

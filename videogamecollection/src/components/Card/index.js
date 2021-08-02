@@ -104,9 +104,12 @@ const Card = ({
     newGameDescription('');
   };
   return (
-    <article className="gamecard" id={id} onMouseOver={handleOver} onMouseOut={handleOut}>
+    <article className="gamecard" id={id} onMouseOver={handleOver} onMouseLeave={handleOut}>
       <div className="gamecard-visible">
-        <h3 className="gamecard-visible-title">{name}</h3>
+        <div className="gamecard-visible-header">
+          <h3 className="gamecard-visible-header-title">{name}</h3>
+          {/* <img className="gamecard-visible-header-img" src={image} alt="jeu" /> */}
+        </div>
         <div className="gamecard-visible-item">
           <div className="gamecard-visible-item-details">
             <p className="gamecard-visible-item-details-title">Console :</p>

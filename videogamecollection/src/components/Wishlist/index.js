@@ -47,11 +47,11 @@ const Wishlist = ({
             <h4 className="wishlist-game-item-name">{game.developer}</h4>
           </div>
           <div className="wishlist-game-item">
-            <p className="wishlist-game-item-title">Console :</p>
+            <p className="wishlist-game-item-title">Editeur :</p>
             <h4 className="wishlist-game-item-name">{game.editor}</h4>
           </div>
           <div className="wishlist-game-item">
-            <p className="wishlist-game-item-title">Console :</p>
+            <p className="wishlist-game-item-title">Année de sortie :</p>
             <h4 className="wishlist-game-item-name">{game.release}</h4>
           </div>
           <div className="wishlist-game-manage">

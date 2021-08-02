@@ -10,6 +10,7 @@ import {
   newGameRelease,
   addGame,
   getGame,
+  doSearch,
 } from '../../actions/game';
 
 import { getWishlist, addWish } from '../../actions/wishlist';
@@ -54,6 +55,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   addWish: () => {
     dispatch(addWish());
+  },
+  doSearch: () => {
+    dispatch(doSearch());
   },
 });
 

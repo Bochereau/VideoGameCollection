@@ -85,6 +85,12 @@ export const deleteGame = (gameId) => ({
   gameId,
 });
 
+// do search from giantbomb
+export const DO_SEARCH = 'DO_SEARCH';
+export const doSearch = () => ({
+  type: DO_SEARCH,
+});
+
 /*
 ADD GAME FORM
 */
