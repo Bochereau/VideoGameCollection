@@ -19,6 +19,8 @@ export function serializeGame(doc) {
     release: doc.release ?? null,
     finished: Boolean(doc.finished),
     wishlist: Boolean(doc.wishlist),
+    cover: doc.cover ?? null,
+    rawgId: doc.rawgId ?? null,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   }

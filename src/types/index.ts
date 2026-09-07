@@ -7,6 +7,8 @@ export interface Game {
   release: number | null
   finished: boolean
   wishlist: boolean
+  cover?: string | null
+  rawgId?: number | null
   createdAt?: string
   updatedAt?: string
 }
@@ -26,6 +28,25 @@ export type GameInput = {
   release?: number | null
   finished?: boolean
   wishlist?: boolean
+  cover?: string | null
+  rawgId?: number | null
+}
+
+export type CatalogGame = {
+  rawgId: number
+  name: string
+  release: number | null
+  cover: string | null
+  platforms: string[]
+  rating?: number | null
+  developer?: string
+  editor?: string
+}
+
+export type CatalogPlatform = {
+  rawgId: number
+  name: string
+  gamesCount: number
 }
 
 export type FinishedFilter = 'all' | 'finished' | 'todo'

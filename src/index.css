@@ -3,15 +3,17 @@
 @theme {
   --font-display: "Outfit", system-ui, sans-serif;
   --font-sans: "Source Sans 3", system-ui, sans-serif;
-  --color-ink: #0f172a;
-  --color-ink-muted: #64748b;
-  --color-surface: #f8fafc;
-  --color-surface-elevated: #ffffff;
-  --color-line: #e2e8f0;
-  --color-accent: #0d9488;
-  --color-accent-strong: #0f766e;
-  --color-accent-soft: #ccfbf1;
-  --color-danger: #dc2626;
+  --color-ink: #e8eef8;
+  --color-ink-muted: #9aabc4;
+  --color-bg: #080c1b;
+  --color-surface: rgb(18 24 44 / 0.72);
+  --color-surface-elevated: rgb(28 36 64 / 0.82);
+  --color-line: rgb(125 201 232 / 0.22);
+  --color-accent: #7dc9e8;
+  --color-accent-strong: #4a89d8;
+  --color-accent-soft: rgb(125 201 232 / 0.16);
+  --color-amber: #f3e098;
+  --color-danger: #e8a87c;
 }
 
 @layer base {
@@ -30,10 +32,18 @@
     min-height: 100vh;
     font-family: var(--font-sans);
     color: var(--color-ink);
-    background:
-      radial-gradient(1200px 600px at 10% -10%, #ccfbf1 0%, transparent 55%),
-      radial-gradient(900px 500px at 100% 0%, #e0f2fe 0%, transparent 50%),
-      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-color: var(--color-bg);
+    background-image:
+      linear-gradient(
+        180deg,
+        rgb(8 12 27 / 0.28) 0%,
+        rgb(8 12 27 / 0.38) 50%,
+        rgb(8 12 27 / 0.55) 100%
+      ),
+      url("/night_city.jpg");
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
     background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
   }
@@ -48,11 +58,47 @@
   textarea {
     font: inherit;
   }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-line);
+    background: rgb(8 12 27 / 0.65);
+    color: var(--color-ink);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+  }
+
+  .field::placeholder {
+    color: rgb(154 171 196 / 0.7);
+  }
+
+  .field:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgb(125 201 232 / 0.2);
+  }
 }
 
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+  }
+
+  .glass {
+    background: var(--color-surface);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--color-line);
   }
 
   .animate-fade-up {

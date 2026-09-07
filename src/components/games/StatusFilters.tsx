@@ -17,7 +17,7 @@ const options: { id: FinishedFilter; label: string }[] = [
 export function StatusFilters({ value, onChange, onAdd, addLabel }: Props) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-white/70 p-1">
+      <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-surface/80 p-1 backdrop-blur-md">
         {options.map((opt) => (
           <button
             key={opt.id}
@@ -25,7 +25,7 @@ export function StatusFilters({ value, onChange, onAdd, addLabel }: Props) {
             onClick={() => onChange(opt.id)}
             className={`rounded-lg px-3 py-1.5 text-sm transition ${
               value === opt.id
-                ? 'bg-ink text-white shadow-sm'
+                ? 'bg-accent text-bg shadow-sm'
                 : 'text-ink-muted hover:text-ink'
             }`}
           >

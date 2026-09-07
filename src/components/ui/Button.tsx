@@ -4,11 +4,11 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 const styles: Record<Variant, string> = {
   primary:
-    'bg-accent text-white hover:bg-accent-strong shadow-sm shadow-teal-900/10',
+    'bg-accent text-bg hover:bg-accent-strong shadow-sm shadow-cyan-500/20',
   secondary:
-    'bg-white text-ink border border-line hover:border-slate-300 hover:bg-slate-50',
-  ghost: 'bg-transparent text-ink-muted hover:text-ink hover:bg-white/70',
-  danger: 'bg-red-50 text-danger hover:bg-red-100',
+    'bg-surface-elevated text-ink border border-line hover:border-accent/50 hover:bg-white/5',
+  ghost: 'bg-transparent text-ink-muted hover:text-ink hover:bg-white/5',
+  danger: 'bg-danger/15 text-danger border border-danger/30 hover:bg-danger/25',
 }
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -24,7 +24,7 @@ export function Button({
 }: Props) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`}
+      className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`}
       type="button"
       {...props}
     >

@@ -8,7 +8,7 @@ type Props = {
 
 export function EmptyState({ title, description, action }: Props) {
   return (
-    <div className="animate-fade-in flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-white/50 px-6 py-16 text-center">
+    <div className="animate-fade-in flex flex-col items-center justify-center rounded-2xl border border-dashed border-line bg-surface/60 px-6 py-16 text-center backdrop-blur-md">
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path

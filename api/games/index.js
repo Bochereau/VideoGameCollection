@@ -59,6 +59,8 @@ export default async function handler(req, res) {
             : Number(body.release),
         finished: Boolean(body?.finished),
         wishlist: Boolean(body?.wishlist),
+        cover: body?.cover ? String(body.cover) : null,
+        rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
         createdAt: now,
         updatedAt: now,
       }

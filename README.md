@@ -7,6 +7,7 @@ Gestion de collection de jeux vidéo — même logique que le blog : Vite + API 
 - Front : Vite, React 19, TypeScript, Tailwind, Clerk
 - API : `api/**/*.js` (Vercel Serverless), driver natif `mongodb`
 - BDD : Atlas, database `vgc` (collections `games`, `consoles`)
+- Catalogue : [RAWG](https://rawg.io/apidocs) (recherche jeux/plateformes + jaquettes)
 
 ## Créer le projet Vercel (nouveau)
 
@@ -16,6 +17,7 @@ Gestion de collection de jeux vidéo — même logique que le blog : Vite + API 
    - `MONGODB_URI`
    - `CLERK_SECRET_KEY`
    - `VITE_CLERK_PUBLISHABLE_KEY`
+   - `RAWG_API_KEY` (créer une clé sur [rawg.io/apidocs](https://rawg.io/apidocs))
 4. Deploy
 5. Dans Clerk → Domains : ajoute `https://ton-projet.vercel.app` et `http://localhost:5173`
 6. Atlas → Network Access : `0.0.0.0/0` (comme pour le blog)

@@ -10,17 +10,8 @@ export function LandingPage() {
       </SignedIn>
       <SignedOut>
         <div className="relative min-h-screen overflow-hidden">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0)',
-              backgroundSize: '24px 24px',
-            }}
-          />
-
           <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-            <span className="font-display text-xl font-bold tracking-tight text-ink">
+            <span className="font-display text-xl font-bold tracking-tight text-amber">
               VGC
             </span>
             <SignInButton mode="redirect" forceRedirectUrl="/collection">
@@ -40,7 +31,7 @@ export function LandingPage() {
               style={{ animationDelay: '80ms' }}
             >
               Une collection claire, filtrable, à portée de main — consoles, progression
-              et liste d&apos;envies, sans le bruit.
+              et liste d&apos;envies, sous les lumières de la ville.
             </p>
             <div
               className="animate-fade-up mt-10 flex flex-wrap gap-3"
@@ -57,17 +48,16 @@ export function LandingPage() {
             </div>
 
             <div
-              className="animate-fade-up relative mt-20 overflow-hidden rounded-3xl border border-line bg-white/70 shadow-xl shadow-slate-900/5"
+              className="animate-fade-up relative mt-20 overflow-hidden rounded-3xl border border-line bg-surface shadow-xl shadow-black/30 backdrop-blur-md"
               style={{ animationDelay: '200ms' }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-50/80 via-transparent to-sky-50/60" />
-              <div className="relative grid gap-px bg-line sm:grid-cols-3">
+              <div className="relative grid gap-px bg-line/40 sm:grid-cols-3">
                 {[
                   { label: 'Collection', value: 'Filtrez par console & statut' },
                   { label: 'Envies', value: 'Gardez ce que vous visez' },
-                  { label: 'Compte', value: 'Sécurisé avec Clerk' },
+                  { label: 'Catalogue', value: 'Recherche RAWG + jaquettes' },
                 ].map((item) => (
-                  <div key={item.label} className="bg-white/90 p-6 sm:p-8">
+                  <div key={item.label} className="bg-surface-elevated p-6 sm:p-8">
                     <p className="font-display text-sm font-semibold text-accent">
                       {item.label}
                     </p>

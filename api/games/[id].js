@@ -36,6 +36,10 @@ export default async function handler(req, res) {
       }
       if (body?.finished !== undefined) $set.finished = Boolean(body.finished)
       if (body?.wishlist !== undefined) $set.wishlist = Boolean(body.wishlist)
+      if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
+      if (body?.rawgId !== undefined) {
+        $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null
+      }
 
       const name = $set.name ?? existing.name
       const hardware = $set.hardware ?? existing.hardware

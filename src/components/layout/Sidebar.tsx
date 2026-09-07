@@ -1,5 +1,7 @@
-import { useState, type FormEvent } from 'react'
-import type { ConsoleItem } from '@/types'
+import { useAuth } from '@clerk/clerk-react'
+import { useEffect, useState, type FormEvent } from 'react'
+import type { CatalogPlatform, ConsoleItem } from '@/types'
+import { catalogApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 
 type Props = {
@@ -21,9 +23,29 @@ export function Sidebar({
   open,
   onClose,
 }: Props) {
+  const { getToken } = useAuth()
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
+  const [suggestions, setSuggestions] = useState<CatalogPlatform[]>([])
+
+  useEffect(() => {
+    if (!adding) return
+    const q = name.trim()
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const token = await getToken()
+          if (!token) return
+          const list = await catalogApi.platforms(token, q)
+          setSuggestions(list.slice(0, 8))
+        } catch {
+          setSuggestions([])
+        }
+      })()
+    }, 250)
+    return () => window.clearTimeout(timer)
+  }, [name, adding, getToken])
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -33,15 +55,16 @@ export function Sidebar({
       await onAddConsole(name.trim())
       setName('')
       setAdding(false)
+      setSuggestions([])
     } finally {
       setBusy(false)
     }
   }
 
   const content = (
-    <aside className="flex h-full w-64 flex-col border-r border-line/80 bg-white/60 backdrop-blur-sm">
+    <aside className="flex h-full w-64 flex-col border-r border-line bg-bg/50 backdrop-blur-xl">
       <div className="flex items-center justify-between px-4 py-4">
-        <h2 className="font-display text-sm font-semibold tracking-wide text-ink uppercase">
+        <h2 className="font-display text-sm font-semibold tracking-wide text-amber uppercase">
           Consoles
         </h2>
         <button
@@ -63,8 +86,8 @@ export function Sidebar({
           }}
           className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
             selectedHardware === null
-              ? 'bg-accent-soft font-medium text-accent-strong'
-              : 'text-ink-muted hover:bg-slate-50 hover:text-ink'
+              ? 'bg-accent-soft font-medium text-accent'
+              : 'text-ink-muted hover:bg-white/5 hover:text-ink'
           }`}
         >
           <span>Toutes</span>
@@ -80,8 +103,8 @@ export function Sidebar({
               }}
               className={`flex min-w-0 flex-1 items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                 selectedHardware === c.name
-                  ? 'bg-accent-soft font-medium text-accent-strong'
-                  : 'text-ink-muted hover:bg-slate-50 hover:text-ink'
+                  ? 'bg-accent-soft font-medium text-accent'
+                  : 'text-ink-muted hover:bg-white/5 hover:text-ink'
               }`}
             >
               <span className="truncate">{c.name}</span>
@@ -89,7 +112,7 @@ export function Sidebar({
             </button>
             <button
               type="button"
-              className="rounded p-1.5 text-ink-muted opacity-0 transition group-hover:opacity-100 hover:bg-red-50 hover:text-danger"
+              className="rounded p-1.5 text-ink-muted opacity-0 transition group-hover:opacity-100 hover:bg-danger/15 hover:text-danger"
               aria-label={`Supprimer ${c.name}`}
               onClick={() => onDeleteConsole(c.id)}
             >
@@ -114,8 +137,29 @@ export function Sidebar({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nom de la console"
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="field"
+              list="platform-suggestions"
             />
+            <datalist id="platform-suggestions">
+              {suggestions.map((p) => (
+                <option key={p.rawgId} value={p.name} />
+              ))}
+            </datalist>
+            {suggestions.length > 0 ? (
+              <ul className="max-h-28 overflow-y-auto rounded-lg border border-line bg-bg text-xs">
+                {suggestions.map((p) => (
+                  <li key={p.rawgId}>
+                    <button
+                      type="button"
+                      className="w-full px-2 py-1.5 text-left hover:bg-accent-soft"
+                      onClick={() => setName(p.name)}
+                    >
+                      {p.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <div className="flex gap-2">
               <Button type="submit" disabled={busy || !name.trim()} className="flex-1">
                 Ajouter
@@ -126,6 +170,7 @@ export function Sidebar({
                 onClick={() => {
                   setAdding(false)
                   setName('')
+                  setSuggestions([])
                 }}
               >
                 Annuler
@@ -148,7 +193,7 @@ export function Sidebar({
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-[1px]"
+            className="absolute inset-0 bg-black/50"
             aria-label="Fermer le panneau"
             onClick={onClose}
           />

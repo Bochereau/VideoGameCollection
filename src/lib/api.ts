@@ -1,4 +1,11 @@
-import type { ConsoleItem, Game, GameInput, GamesQuery } from '@/types'
+import type {
+  CatalogGame,
+  CatalogPlatform,
+  ConsoleItem,
+  Game,
+  GameInput,
+  GamesQuery,
+} from '@/types'
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 
@@ -85,4 +92,21 @@ export const consolesApi = {
     apiFetch<{ ok: boolean }>(`/api/consoles/${id}`, token, {
       method: 'DELETE',
     }),
+}
+
+export const catalogApi = {
+  searchGames: (token: string, q: string) =>
+    apiFetch<CatalogGame[]>(
+      `/api/catalog/games?q=${encodeURIComponent(q)}`,
+      token,
+    ),
+
+  gameDetails: (token: string, rawgId: number) =>
+    apiFetch<CatalogGame>(`/api/catalog/games/${rawgId}`, token),
+
+  platforms: (token: string, q = '') =>
+    apiFetch<CatalogPlatform[]>(
+      `/api/catalog/platforms${q ? `?q=${encodeURIComponent(q)}` : ''}`,
+      token,
+    ),
 }

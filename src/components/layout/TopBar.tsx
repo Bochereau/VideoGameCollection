@@ -11,13 +11,13 @@ type Props = {
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-lg px-3 py-1.5 text-sm font-medium transition ${
     isActive
-      ? 'bg-accent-soft text-accent-strong'
-      : 'text-ink-muted hover:bg-white/80 hover:text-ink'
+      ? 'bg-accent-soft text-accent'
+      : 'text-ink-muted hover:bg-white/5 hover:text-ink'
   }`
 
 export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
   return (
-    <header className="sticky top-0 z-30 border-b border-line/80 bg-white/75 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-line bg-bg/55 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
         <Button
           variant="ghost"
@@ -35,7 +35,10 @@ export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
           </svg>
         </Button>
 
-        <NavLink to="/collection" className="font-display shrink-0 text-lg font-bold tracking-tight text-ink">
+        <NavLink
+          to="/collection"
+          className="font-display shrink-0 text-lg font-bold tracking-tight text-amber"
+        >
           VGC
         </NavLink>
 
@@ -71,7 +74,7 @@ export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Rechercher un jeu…"
-              className="w-full rounded-lg border border-line bg-white py-2 pr-3 pl-9 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="field w-full !rounded-lg !py-2 !pr-3 !pl-9"
             />
           </label>
           <UserButton afterSignOutUrl="/" />
