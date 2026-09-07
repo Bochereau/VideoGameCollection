@@ -68,13 +68,13 @@ export const gamesApi = {
     }),
 
   update: (token: string, id: string, body: Partial<GameInput>) =>
-    apiFetch<Game>(`/api/games/${id}`, token, {
+    apiFetch<Game>(`/api/games?id=${encodeURIComponent(id)}`, token, {
       method: 'PATCH',
       body: JSON.stringify(body),
     }),
 
   remove: (token: string, id: string) =>
-    apiFetch<{ ok: boolean }>(`/api/games/${id}`, token, {
+    apiFetch<{ ok: boolean }>(`/api/games?id=${encodeURIComponent(id)}`, token, {
       method: 'DELETE',
     }),
 }
@@ -89,9 +89,11 @@ export const consolesApi = {
     }),
 
   remove: (token: string, id: string) =>
-    apiFetch<{ ok: boolean }>(`/api/consoles/${id}`, token, {
-      method: 'DELETE',
-    }),
+    apiFetch<{ ok: boolean }>(
+      `/api/consoles?id=${encodeURIComponent(id)}`,
+      token,
+      { method: 'DELETE' },
+    ),
 }
 
 export const catalogApi = {

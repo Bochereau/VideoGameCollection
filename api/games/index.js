@@ -1,6 +1,11 @@
+import { ObjectId } from 'mongodb'
 import { requireUserId } from '../_lib/auth.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
 import { errorResponse, json, serializeGame } from '../_lib/respond.js'
+
+function parseBody(req) {
+  return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
+}
 
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return
@@ -38,7 +43,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+      const body = parseBody(req)
       const name = String(body?.name ?? '').trim()
       const hardware = String(body?.hardware ?? '').trim()
 
@@ -67,6 +72,58 @@ export default async function handler(req, res) {
 
       const result = await games.insertOne(doc)
       return json(res, 201, serializeGame({ ...doc, _id: result.insertedId }))
+    }
+
+    // PATCH / DELETE via ?id= — same pattern as the blog (avoids flaky /api/games/[id] routing)
+    const id = req.query.id
+    if (
+      (req.method === 'PATCH' || req.method === 'DELETE') &&
+      (typeof id !== 'string' || !ObjectId.isValid(id))
+    ) {
+      return json(res, 400, { error: 'Invalid game id' })
+    }
+
+    if (req.method === 'PATCH' && typeof id === 'string') {
+      const body = parseBody(req)
+      const _id = new ObjectId(id)
+      const existing = await games.findOne({ _id, userId })
+      if (!existing) {
+        return json(res, 404, { error: 'Game not found' })
+      }
+
+      const $set = { updatedAt: new Date() }
+      if (body?.name !== undefined) $set.name = String(body.name).trim()
+      if (body?.hardware !== undefined) $set.hardware = String(body.hardware).trim()
+      if (body?.developer !== undefined) $set.developer = String(body.developer).trim()
+      if (body?.editor !== undefined) $set.editor = String(body.editor).trim()
+      if (body?.release !== undefined) {
+        $set.release =
+          body.release === null || body.release === '' ? null : Number(body.release)
+      }
+      if (body?.finished !== undefined) $set.finished = Boolean(body.finished)
+      if (body?.wishlist !== undefined) $set.wishlist = Boolean(body.wishlist)
+      if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
+      if (body?.rawgId !== undefined) {
+        $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null
+      }
+
+      const name = $set.name ?? existing.name
+      const hardware = $set.hardware ?? existing.hardware
+      if (!name || !hardware) {
+        return json(res, 400, { error: 'name and hardware are required' })
+      }
+
+      await games.updateOne({ _id, userId }, { $set })
+      const updated = await games.findOne({ _id, userId })
+      return json(res, 200, serializeGame(updated))
+    }
+
+    if (req.method === 'DELETE' && typeof id === 'string') {
+      const result = await games.deleteOne({ _id: new ObjectId(id), userId })
+      if (result.deletedCount === 0) {
+        return json(res, 404, { error: 'Game not found' })
+      }
+      return json(res, 200, { ok: true })
     }
 
     return json(res, 405, { error: 'Method not allowed' })

@@ -114,9 +114,13 @@ export function GamesPage({
 
   async function removeGame(game: Game) {
     if (!window.confirm(`Supprimer « ${game.name} » ?`)) return
-    await withToken((token) => gamesApi.remove(token, game.id))
-    await load()
-    await refreshConsoles()
+    try {
+      await withToken((token) => gamesApi.remove(token, game.id))
+      await load()
+      await refreshConsoles()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Suppression impossible')
+    }
   }
 
   return (

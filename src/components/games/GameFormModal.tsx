@@ -4,6 +4,8 @@ import type { CatalogGame, Game, GameInput } from '@/types'
 import { catalogApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 
+const OTHER = '__other__'
+
 type Props = {
   open: boolean
   initial?: Game | null
@@ -25,6 +27,24 @@ const empty: GameInput = {
   rawgId: null,
 }
 
+function matchSavedConsole(platforms: string[], saved: string[]): string | null {
+  for (const platform of platforms) {
+    const exact = saved.find(
+      (s) => s.localeCompare(platform, undefined, { sensitivity: 'accent' }) === 0,
+    )
+    if (exact) return exact
+  }
+  for (const platform of platforms) {
+    const p = platform.toLowerCase()
+    const soft = saved.find((s) => {
+      const n = s.toLowerCase()
+      return n.includes(p) || p.includes(n)
+    })
+    if (soft) return soft
+  }
+  return null
+}
+
 export function GameFormModal({
   open,
   initial,
@@ -40,7 +60,8 @@ export function GameFormModal({
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CatalogGame[]>([])
   const [searching, setSearching] = useState(false)
-  const [platforms, setPlatforms] = useState<string[]>([])
+  const [consoleChoice, setConsoleChoice] = useState('')
+  const [customHardware, setCustomHardware] = useState('')
 
   useEffect(() => {
     if (!open) return
@@ -57,15 +78,22 @@ export function GameFormModal({
         rawgId: initial.rawgId ?? null,
       })
       setQuery(initial.name)
-      setPlatforms(initial.hardware ? [initial.hardware] : [])
+      if (consoleNames.includes(initial.hardware)) {
+        setConsoleChoice(initial.hardware)
+        setCustomHardware('')
+      } else {
+        setConsoleChoice(OTHER)
+        setCustomHardware(initial.hardware)
+      }
     } else {
       setForm({ ...empty, wishlist: defaultWishlist })
       setQuery('')
-      setPlatforms([])
+      setConsoleChoice(consoleNames[0] ?? OTHER)
+      setCustomHardware('')
     }
     setResults([])
     setError(null)
-  }, [open, initial, defaultWishlist])
+  }, [open, initial, defaultWishlist, consoleNames])
 
   useEffect(() => {
     if (!open || initial) return
@@ -96,6 +124,11 @@ export function GameFormModal({
 
   if (!open) return null
 
+  function applyHardwareChoice(choice: string, custom: string) {
+    const hardware = choice === OTHER ? custom.trim() : choice
+    setForm((f) => ({ ...f, hardware }))
+  }
+
   async function pickCatalogGame(item: CatalogGame) {
     setBusy(true)
     setError(null)
@@ -103,20 +136,42 @@ export function GameFormModal({
       const token = await getToken()
       if (!token) throw new Error('Non authentifié')
       const details = await catalogApi.gameDetails(token, item.rawgId)
+      // Keep casing from the search hit (RAWG details can alter Roman numerals)
+      const title = item.name
       const platformList =
         details.platforms.length > 0 ? details.platforms : item.platforms
-      setPlatforms(platformList)
-      setForm((f) => ({
-        ...f,
-        name: details.name,
-        hardware: platformList[0] || f.hardware,
-        developer: details.developer || '',
-        editor: details.editor || '',
-        release: details.release,
-        cover: details.cover,
-        rawgId: details.rawgId,
-      }))
-      setQuery(details.name)
+      const matched = matchSavedConsole(platformList, consoleNames)
+
+      if (matched) {
+        setConsoleChoice(matched)
+        setCustomHardware('')
+        setForm((f) => ({
+          ...f,
+          name: title,
+          hardware: matched,
+          developer: details.developer || '',
+          editor: details.editor || '',
+          release: details.release,
+          cover: details.cover,
+          rawgId: details.rawgId,
+        }))
+      } else {
+        const fallback = platformList[0] || ''
+        setConsoleChoice(OTHER)
+        setCustomHardware(fallback)
+        setForm((f) => ({
+          ...f,
+          name: title,
+          hardware: fallback,
+          developer: details.developer || '',
+          editor: details.editor || '',
+          release: details.release,
+          cover: details.cover,
+          rawgId: details.rawgId,
+        }))
+      }
+
+      setQuery(title)
       setResults([])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur catalogue')
@@ -127,7 +182,9 @@ export function GameFormModal({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!form.name.trim() || !form.hardware.trim()) {
+    const hardware =
+      consoleChoice === OTHER ? customHardware.trim() : consoleChoice.trim()
+    if (!form.name.trim() || !hardware) {
       setError('Nom et console sont requis.')
       return
     }
@@ -137,7 +194,7 @@ export function GameFormModal({
       await onSubmit({
         ...form,
         name: form.name.trim(),
-        hardware: form.hardware.trim(),
+        hardware,
         developer: form.developer?.trim() ?? '',
         editor: form.editor?.trim() ?? '',
       })
@@ -148,10 +205,6 @@ export function GameFormModal({
       setBusy(false)
     }
   }
-
-  const hardwareOptions = Array.from(
-    new Set([...consoleNames, ...platforms].filter(Boolean)),
-  )
 
   return (
     <div className="animate-fade-in fixed inset-0 z-50 flex items-end justify-center sm:items-center">
@@ -181,6 +234,9 @@ export function GameFormModal({
                 className="field"
                 placeholder="Ex. Streets of Rage 2"
                 autoFocus
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
               />
             </Field>
             {searching ? (
@@ -207,7 +263,7 @@ export function GameFormModal({
                         </div>
                       )}
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold">
+                        <span className="block truncate text-sm font-semibold normal-case">
                           {item.name}
                         </span>
                         <span className="block truncate text-xs text-ink-muted">
@@ -233,7 +289,7 @@ export function GameFormModal({
                 className="h-28 w-20 rounded-lg object-cover"
               />
               <div className="text-xs text-ink-muted">
-                <p className="text-sm font-semibold text-ink">{form.name}</p>
+                <p className="text-sm font-semibold text-ink normal-case">{form.name}</p>
                 <p className="mt-1">Jaquette importée depuis RAWG</p>
               </div>
             </div>
@@ -245,26 +301,63 @@ export function GameFormModal({
                 required
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="field"
+                className="field normal-case"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+            </Field>
+          ) : form.name ? (
+            <Field label="Nom">
+              <input
+                required
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                className="field normal-case"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
               />
             </Field>
           ) : null}
 
           <Field label="Console">
-            <input
-              required
-              list="console-options"
-              value={form.hardware}
-              onChange={(e) => setForm((f) => ({ ...f, hardware: e.target.value }))}
+            <select
               className="field"
-              placeholder="Megadrive"
-            />
-            <datalist id="console-options">
-              {hardwareOptions.map((n) => (
-                <option key={n} value={n} />
+              value={consoleChoice}
+              onChange={(e) => {
+                const value = e.target.value
+                setConsoleChoice(value)
+                applyHardwareChoice(value, customHardware)
+              }}
+              required={consoleChoice !== OTHER}
+            >
+              <option value="" disabled>
+                Choisir une console…
+              </option>
+              {consoleNames.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
               ))}
-            </datalist>
+              <option value={OTHER}>Autre…</option>
+            </select>
           </Field>
+
+          {consoleChoice === OTHER ? (
+            <Field label="Nom de la console">
+              <input
+                required
+                value={customHardware}
+                onChange={(e) => {
+                  setCustomHardware(e.target.value)
+                  applyHardwareChoice(OTHER, e.target.value)
+                }}
+                className="field"
+                placeholder="Ex. Neo Geo CD"
+              />
+            </Field>
+          ) : null}
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Développeur">

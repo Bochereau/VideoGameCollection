@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import { requireUserId } from '../_lib/auth.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
 import { errorResponse, json, serializeConsole } from '../_lib/respond.js'
@@ -43,6 +44,21 @@ export default async function handler(req, res) {
       const doc = { userId, name, createdAt: new Date() }
       const result = await consoles.insertOne(doc)
       return json(res, 201, serializeConsole({ ...doc, _id: result.insertedId }, 0))
+    }
+
+    if (req.method === 'DELETE') {
+      const id = req.query.id
+      if (typeof id !== 'string' || !ObjectId.isValid(id)) {
+        return json(res, 400, { error: 'Invalid console id' })
+      }
+      const result = await consoles.deleteOne({
+        _id: new ObjectId(id),
+        userId,
+      })
+      if (result.deletedCount === 0) {
+        return json(res, 404, { error: 'Console not found' })
+      }
+      return json(res, 200, { ok: true })
     }
 
     return json(res, 405, { error: 'Method not allowed' })
