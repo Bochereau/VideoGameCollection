@@ -124,49 +124,55 @@ export function GamesPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-up">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">
-          {title}
-        </h1>
-        <p className="mt-1 text-ink-muted">{subtitle}</p>
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="shrink-0 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+        <div className="animate-fade-up">
+          <h1 className="font-display text-4xl tracking-wide text-ink sm:text-5xl">
+            {title}
+          </h1>
+          <p className="mt-1 text-ink-muted">{subtitle}</p>
+        </div>
 
-      <StatusFilters
-        value={finishedFilter}
-        onChange={setStatus}
-        onAdd={() => {
-          setEditing(null)
-          setModalOpen(true)
-        }}
-        addLabel={addLabel}
-      />
-
-      {error ? (
-        <p className="rounded-lg border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
-          {error}
-        </p>
-      ) : null}
-
-      {loading ? (
-        <Loading />
-      ) : (
-        <GameGrid
-          games={games}
-          emptyTitle={emptyTitle}
-          emptyDescription={emptyDescription}
+        <StatusFilters
+          value={finishedFilter}
+          onChange={setStatus}
           onAdd={() => {
             setEditing(null)
             setModalOpen(true)
           }}
-          onEdit={(game) => {
-            setEditing(game)
-            setModalOpen(true)
-          }}
-          onToggleFinished={toggleFinished}
-          onDelete={removeGame}
+          addLabel={addLabel}
         />
-      )}
+
+        {error ? (
+          <p className="rounded-lg border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
+            {error}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="px-4 pb-6 sm:px-6 lg:px-8">
+          {loading ? (
+            <Loading />
+          ) : (
+            <GameGrid
+              games={games}
+              emptyTitle={emptyTitle}
+              emptyDescription={emptyDescription}
+              onAdd={() => {
+                setEditing(null)
+                setModalOpen(true)
+              }}
+              onEdit={(game) => {
+                setEditing(game)
+                setModalOpen(true)
+              }}
+              onToggleFinished={toggleFinished}
+              onDelete={removeGame}
+            />
+          )}
+        </div>
+      </div>
 
       <GameFormModal
         open={modalOpen}

@@ -63,13 +63,13 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <TopBar
         search={search}
         onSearchChange={setSearch}
         onToggleSidebar={() => setSidebarOpen(true)}
       />
-      <div className="mx-auto flex max-w-7xl">
+      <div className="flex min-h-0 flex-1">
         <Sidebar
           consoles={consoles}
           selectedHardware={selectedHardware}
@@ -79,7 +79,7 @@ export function AppLayout() {
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
-        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Outlet context={{ refreshConsoles }} />
         </main>
       </div>

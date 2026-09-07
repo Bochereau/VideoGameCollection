@@ -60,6 +60,7 @@ export function GameFormModal({
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CatalogGame[]>([])
   const [searching, setSearching] = useState(false)
+  const [catalogLocked, setCatalogLocked] = useState(false)
   const [consoleChoice, setConsoleChoice] = useState('')
   const [customHardware, setCustomHardware] = useState('')
 
@@ -92,11 +93,12 @@ export function GameFormModal({
       setCustomHardware('')
     }
     setResults([])
+    setCatalogLocked(false)
     setError(null)
   }, [open, initial, defaultWishlist, consoleNames])
 
   useEffect(() => {
-    if (!open || initial) return
+    if (!open || initial || catalogLocked) return
     const q = query.trim()
     if (q.length < 2) {
       setResults([])
@@ -120,7 +122,7 @@ export function GameFormModal({
     }, 350)
 
     return () => window.clearTimeout(timer)
-  }, [query, open, initial, getToken])
+  }, [query, open, initial, catalogLocked, getToken])
 
   if (!open) return null
 
@@ -173,6 +175,7 @@ export function GameFormModal({
 
       setQuery(title)
       setResults([])
+      setCatalogLocked(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur catalogue')
     } finally {
@@ -218,7 +221,7 @@ export function GameFormModal({
         onSubmit={handleSubmit}
         className="relative z-10 max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-2xl border border-line bg-surface-elevated p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:rounded-2xl sm:p-6"
       >
-        <h2 className="font-display text-xl font-semibold text-ink">
+        <h2 className="font-display text-2xl tracking-wide text-ink">
           {initial ? 'Modifier le jeu' : 'Ajouter un jeu'}
         </h2>
 
@@ -228,6 +231,7 @@ export function GameFormModal({
               <input
                 value={query}
                 onChange={(e) => {
+                  setCatalogLocked(false)
                   setQuery(e.target.value)
                   setForm((f) => ({ ...f, name: e.target.value }))
                 }}

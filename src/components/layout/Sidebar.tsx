@@ -61,10 +61,12 @@ export function Sidebar({
     }
   }
 
+  const totalCount = consoles.reduce((sum, c) => sum + c.count, 0)
+
   const content = (
-    <aside className="flex h-full w-64 flex-col border-r border-line bg-bg/50 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-4 py-4">
-        <h2 className="font-display text-sm font-semibold tracking-wide text-amber uppercase">
+    <aside className="flex h-full min-h-0 w-64 shrink-0 flex-col border-r border-line bg-bg/50 backdrop-blur-xl">
+      <div className="flex shrink-0 items-center justify-between px-4 py-4">
+        <h2 className="font-display text-sm tracking-wide text-amber uppercase">
           Consoles
         </h2>
         <button
@@ -77,21 +79,25 @@ export function Sidebar({
         </button>
       </div>
 
-      <div className="flex-1 space-y-1 overflow-y-auto px-2 pb-4">
-        <button
-          type="button"
-          onClick={() => {
-            onSelectHardware(null)
-            onClose()
-          }}
-          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
-            selectedHardware === null
-              ? 'bg-accent-soft font-medium text-accent'
-              : 'text-ink-muted hover:bg-white/5 hover:text-ink'
-          }`}
-        >
-          <span>Toutes</span>
-        </button>
+      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-4">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              onSelectHardware(null)
+              onClose()
+            }}
+            className={`flex min-w-0 flex-1 items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
+              selectedHardware === null
+                ? 'bg-accent-soft font-medium text-accent'
+                : 'text-ink-muted hover:bg-white/5 hover:text-ink'
+            }`}
+          >
+            <span>Toutes</span>
+            <span className="ml-2 tabular-nums text-xs opacity-70">{totalCount}</span>
+          </button>
+          <span className="w-[26px] shrink-0" aria-hidden />
+        </div>
 
         {consoles.map((c) => (
           <div key={c.id} className="group flex items-center gap-1">
@@ -129,7 +135,7 @@ export function Sidebar({
         ))}
       </div>
 
-      <div className="border-t border-line p-3">
+      <div className="shrink-0 border-t border-line p-3">
         {adding ? (
           <form onSubmit={submit} className="space-y-2">
             <input
@@ -188,7 +194,9 @@ export function Sidebar({
 
   return (
     <>
-      <div className="hidden lg:block">{content}</div>
+      <div className="hidden h-full min-h-0 w-64 shrink-0 lg:flex lg:flex-col">
+        {content}
+      </div>
       {open ? (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <button

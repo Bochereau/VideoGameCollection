@@ -17,8 +17,8 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-bg/55 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-30 shrink-0 border-b border-line bg-bg/55 backdrop-blur-xl">
+      <div className="flex w-full items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Button
           variant="ghost"
           className="lg:hidden !px-2"
@@ -37,7 +37,7 @@ export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
 
         <NavLink
           to="/collection"
-          className="font-display shrink-0 text-lg font-bold tracking-tight text-amber"
+          className="font-display shrink-0 text-2xl tracking-wide text-amber"
         >
           VGC
         </NavLink>

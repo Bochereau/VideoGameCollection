@@ -11,7 +11,7 @@ export function LandingPage() {
       <SignedOut>
         <div className="relative min-h-screen overflow-hidden">
           <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-            <span className="font-display text-xl font-bold tracking-tight text-amber">
+            <span className="font-display text-2xl tracking-wide text-amber">
               VGC
             </span>
             <SignInButton mode="redirect" forceRedirectUrl="/collection">
@@ -20,10 +20,10 @@ export function LandingPage() {
           </header>
 
           <main className="relative z-10 mx-auto flex max-w-6xl flex-col px-6 pt-16 pb-24 sm:pt-28">
-            <p className="animate-fade-up font-display text-sm font-semibold tracking-[0.2em] text-accent uppercase">
+            <p className="animate-fade-up font-display text-sm tracking-[0.2em] text-accent uppercase">
               Video Game Collection
             </p>
-            <h1 className="animate-fade-up font-display mt-4 max-w-3xl text-5xl leading-[1.05] font-bold tracking-tight text-ink sm:text-6xl lg:text-7xl">
+            <h1 className="animate-fade-up font-display mt-4 max-w-3xl text-6xl leading-[1.05] tracking-wide text-ink sm:text-7xl lg:text-8xl">
               VGC
             </h1>
             <p
@@ -58,7 +58,7 @@ export function LandingPage() {
                   { label: 'Catalogue', value: 'Recherche RAWG + jaquettes' },
                 ].map((item) => (
                   <div key={item.label} className="bg-surface-elevated p-6 sm:p-8">
-                    <p className="font-display text-sm font-semibold text-accent">
+                    <p className="font-display text-lg tracking-wide text-accent">
                       {item.label}
                     </p>
                     <p className="mt-2 text-ink-muted">{item.value}</p>

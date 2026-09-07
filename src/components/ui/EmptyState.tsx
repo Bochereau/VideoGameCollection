@@ -23,7 +23,7 @@ export function EmptyState({ title, description, action }: Props) {
           />
         </svg>
       </div>
-      <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
+      <h3 className="font-display text-xl tracking-wide text-ink">{title}</h3>
       {description ? (
         <p className="mt-1 max-w-sm text-sm text-ink-muted">{description}</p>
       ) : null}

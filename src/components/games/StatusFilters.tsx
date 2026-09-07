@@ -16,7 +16,8 @@ const options: { id: FinishedFilter; label: string }[] = [
 
 export function StatusFilters({ value, onChange, onAdd, addLabel }: Props) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="flex flex-wrap items-center gap-3">
+      <Button onClick={onAdd}>{addLabel}</Button>
       <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-surface/80 p-1 backdrop-blur-md">
         {options.map((opt) => (
           <button
@@ -33,7 +34,6 @@ export function StatusFilters({ value, onChange, onAdd, addLabel }: Props) {
           </button>
         ))}
       </div>
-      <Button onClick={onAdd}>{addLabel}</Button>
     </div>
   )
 }
