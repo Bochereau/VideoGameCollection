@@ -32,19 +32,30 @@ export function Sidebar({
   useEffect(() => {
     if (!adding) return
     const q = name.trim()
+    if (q.length < 2) {
+      setSuggestions([])
+      return
+    }
+
+    let cancelled = false
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
           const token = await getToken()
-          if (!token) return
+          if (!token || cancelled) return
           const list = await catalogApi.platforms(token, q)
+          if (cancelled) return
           setSuggestions(list.slice(0, 8))
         } catch {
-          setSuggestions([])
+          if (!cancelled) setSuggestions([])
         }
       })()
-    }, 250)
-    return () => window.clearTimeout(timer)
+    }, 450)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
   }, [name, adding, getToken])
 
   async function submit(e: FormEvent) {

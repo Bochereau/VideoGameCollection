@@ -102,26 +102,32 @@ export function GameFormModal({
     const q = query.trim()
     if (q.length < 2) {
       setResults([])
+      setSearching(false)
       return
     }
 
+    let cancelled = false
+    setSearching(true)
     const timer = window.setTimeout(() => {
       void (async () => {
-        setSearching(true)
         try {
           const token = await getToken()
-          if (!token) return
+          if (!token || cancelled) return
           const list = await catalogApi.searchGames(token, q)
+          if (cancelled) return
           setResults(list)
         } catch {
-          setResults([])
+          if (!cancelled) setResults([])
         } finally {
-          setSearching(false)
+          if (!cancelled) setSearching(false)
         }
       })()
-    }, 350)
+    }, 500)
 
-    return () => window.clearTimeout(timer)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
   }, [query, open, initial, catalogLocked, getToken])
 
   if (!open) return null
