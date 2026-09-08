@@ -211,7 +211,8 @@ export function GameFormModal({
       return
     }
     const hardware =
-      consoleChoice === OTHER ? customHardware.trim() : consoleChoice.trim()
+      (consoleChoice === OTHER ? customHardware : consoleChoice).trim() ||
+      (form.hardware || '').trim()
 
     setCoverSearching(true)
     setCoverPickerOpen(true)
@@ -222,9 +223,7 @@ export function GameFormModal({
       const data = await catalogApi.searchCovers(token, name, hardware || undefined)
       setCoverResults(data.results)
       if (!data.results.length) {
-        setError(
-          'Aucune jaquette Libretro trouvée. Essaie un nom plus proche du dump (ex. titre + région).',
-        )
+        setError('Aucune jaquette Libretro trouvée pour ce titre.')
       }
     } catch (err) {
       setCoverResults([])
@@ -402,6 +401,9 @@ export function GameFormModal({
                           />
                           <span className="block truncate px-1.5 py-1 text-[0.65rem] text-ink-muted group-hover:text-ink">
                             {item.region}
+                            {item.system
+                              ? ` · ${item.system.replace(/^(Sony|Sega|Nintendo|Microsoft|SNK|NEC) - /i, '')}`
+                              : ''}
                           </span>
                         </button>
                       </li>
