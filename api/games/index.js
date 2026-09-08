@@ -7,7 +7,7 @@ function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
 }
 
-const CONDITIONS = new Set(['complete', 'box', 'manual', 'none'])
+const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
 const EDITIONS = new Set(['standard', 'special', 'collector'])
 
 function parseCopyFields(body, existing = {}) {
@@ -77,6 +77,9 @@ function conditionFilterClause(value) {
         },
       ],
     }
+  }
+  if (value === 'loose') {
+    return { condition: 'loose' }
   }
   // none
   return {

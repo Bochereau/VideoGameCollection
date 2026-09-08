@@ -11,6 +11,14 @@ type Props = {
 }
 
 export function GameCard({ game, index, onEdit, onToggleFinished, onDelete }: Props) {
+  const format = game.format === 'digital' ? 'digital' : 'physical'
+  const condition =
+    format === 'physical' && game.condition && game.condition in CONDITION_LABELS
+      ? game.condition
+      : 'none'
+  const edition =
+    game.edition && game.edition in EDITION_LABELS ? game.edition : 'standard'
+
   return (
     <article
       className="animate-fade-up group relative flex flex-col overflow-hidden rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 backdrop-blur-md transition duration-300 hover:border-accent/40 hover:shadow-cyan-500/10"
@@ -90,16 +98,16 @@ export function GameCard({ game, index, onEdit, onToggleFinished, onDelete }: Pr
         </dl>
 
         <div className="mt-2 flex flex-wrap gap-1">
-          <span className="rounded bg-bg/70 px-1.5 py-0.5 text-[0.6rem] font-medium tracking-wide text-ink-muted uppercase">
-            {game.format === 'digital' ? 'Numérique' : 'Physique'}
+          <span className="rounded bg-bg/70 px-1.5 py-0.5 text-[0.65rem] font-medium text-ink-muted">
+            {format === 'digital' ? 'Numérique' : 'Physique'}
           </span>
-          {game.format === 'physical' ? (
-            <span className="rounded bg-accent-soft px-1.5 py-0.5 text-[0.6rem] font-medium text-accent">
-              {CONDITION_LABELS[game.condition]}
+          {format === 'physical' ? (
+            <span className="rounded bg-accent-soft px-1.5 py-0.5 text-[0.65rem] font-medium text-accent">
+              {CONDITION_LABELS[condition]}
             </span>
           ) : null}
-          <span className="rounded bg-amber/15 px-1.5 py-0.5 text-[0.6rem] font-medium text-amber">
-            {EDITION_LABELS[game.edition]}
+          <span className="rounded bg-amber/20 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber">
+            {EDITION_LABELS[edition]}
           </span>
         </div>
       </div>

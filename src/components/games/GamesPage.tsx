@@ -59,7 +59,7 @@ export function GamesPage({
       finished?: boolean
       q?: string
       format?: 'physical' | 'digital'
-      condition?: 'complete' | 'box' | 'manual' | 'none'
+      condition?: 'complete' | 'box' | 'manual' | 'loose' | 'none'
       edition?: 'standard' | 'special' | 'collector'
     } = { wishlist }
     if (hardware) base.hardware = hardware
@@ -75,6 +75,7 @@ export function GamesPage({
       (conditionFilter === 'complete' ||
         conditionFilter === 'box' ||
         conditionFilter === 'manual' ||
+        conditionFilter === 'loose' ||
         conditionFilter === 'none')
     ) {
       base.condition = conditionFilter

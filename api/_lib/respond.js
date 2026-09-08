@@ -9,7 +9,7 @@ export function errorResponse(res, err) {
   json(res, status, { error: message })
 }
 
-const CONDITIONS = new Set(['complete', 'box', 'manual', 'none'])
+const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
 const EDITIONS = new Set(['standard', 'special', 'collector'])
 
 export function resolveCondition(doc) {

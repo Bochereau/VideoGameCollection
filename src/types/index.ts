@@ -1,5 +1,5 @@
 export type GameFormat = 'physical' | 'digital'
-export type GameCondition = 'complete' | 'box' | 'manual' | 'none'
+export type GameCondition = 'complete' | 'box' | 'manual' | 'loose' | 'none'
 export type GameEdition = 'standard' | 'special' | 'collector'
 
 export interface Game {
@@ -78,6 +78,7 @@ export const CONDITION_LABELS: Record<GameCondition, string> = {
   complete: 'Complet',
   box: 'Boîte',
   manual: 'Livret',
+  loose: 'Loose',
   none: 'Aucun',
 }
 
