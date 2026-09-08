@@ -53,6 +53,16 @@ export type CatalogGame = {
   editor?: string
 }
 
+export type CatalogCover = {
+  id: number
+  name: string
+  system: string
+  region: string
+  mediaUrl: string
+  thumb: string
+  alternatives: { region: string; mediaUrl: string }[]
+}
+
 export type CatalogPlatform = {
   rawgId: number
   name: string

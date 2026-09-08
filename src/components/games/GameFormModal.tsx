@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
-import type { CatalogGame, Game, GameInput } from '@/types'
+import type { CatalogCover, CatalogGame, Game, GameInput } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { catalogApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
@@ -67,6 +67,10 @@ export function GameFormModal({
   const [catalogLocked, setCatalogLocked] = useState(false)
   const [consoleChoice, setConsoleChoice] = useState('')
   const [customHardware, setCustomHardware] = useState('')
+  const [coverResults, setCoverResults] = useState<CatalogCover[]>([])
+  const [coverSearching, setCoverSearching] = useState(false)
+  const [coverPickerOpen, setCoverPickerOpen] = useState(false)
+  const [coverSource, setCoverSource] = useState<'rawg' | 'libretro' | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -101,6 +105,9 @@ export function GameFormModal({
     }
     setResults([])
     setCatalogLocked(false)
+    setCoverResults([])
+    setCoverPickerOpen(false)
+    setCoverSource(initial?.cover ? 'rawg' : null)
     setError(null)
   }, [open, initial, defaultWishlist, consoleNames])
 
@@ -186,6 +193,7 @@ export function GameFormModal({
         }))
       }
 
+      setCoverSource(details.cover ? 'rawg' : null)
       setQuery(title)
       setResults([])
       setCatalogLocked(true)
@@ -194,6 +202,43 @@ export function GameFormModal({
     } finally {
       setBusy(false)
     }
+  }
+
+  async function searchLibretroCovers() {
+    const name = form.name.trim() || query.trim()
+    if (name.length < 2) {
+      setError('Indique un nom de jeu pour chercher une jaquette.')
+      return
+    }
+    const hardware =
+      consoleChoice === OTHER ? customHardware.trim() : consoleChoice.trim()
+
+    setCoverSearching(true)
+    setCoverPickerOpen(true)
+    setError(null)
+    try {
+      const token = await getToken()
+      if (!token) throw new Error('Non authentifié')
+      const data = await catalogApi.searchCovers(token, name, hardware || undefined)
+      setCoverResults(data.results)
+      if (!data.results.length) {
+        setError(
+          'Aucune jaquette Libretro trouvée. Essaie un nom plus proche du dump (ex. titre + région).',
+        )
+      }
+    } catch (err) {
+      setCoverResults([])
+      setError(err instanceof Error ? err.message : 'Erreur Libretro Thumbnails')
+    } finally {
+      setCoverSearching(false)
+    }
+  }
+
+  function applyLibretroCover(item: CatalogCover) {
+    setForm((f) => ({ ...f, cover: item.mediaUrl }))
+    setCoverSource('libretro')
+    setCoverPickerOpen(false)
+    setError(null)
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -298,19 +343,76 @@ export function GameFormModal({
         ) : null}
 
         <div className="mt-5 space-y-3">
-          {form.cover ? (
-            <div className="flex gap-4 rounded-xl border border-line bg-bg/60 p-3">
-              <img
-                src={form.cover}
-                alt=""
-                className="h-28 w-20 rounded-lg object-cover"
-              />
-              <div className="text-xs text-ink-muted">
-                <p className="text-sm font-semibold text-ink normal-case">{form.name}</p>
-                <p className="mt-1">Jaquette importée depuis RAWG</p>
+          <div className="rounded-xl border border-line bg-bg/60 p-3">
+            <div className="flex gap-4">
+              {form.cover ? (
+                <img
+                  src={form.cover}
+                  alt=""
+                  className="h-28 w-20 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-28 w-20 shrink-0 items-center justify-center rounded-lg bg-surface text-[10px] text-ink-muted">
+                  N/A
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-ink normal-case">
+                  {form.name || 'Jaquette'}
+                </p>
+                <p className="mt-1 text-xs text-ink-muted">
+                  {coverSource === 'libretro'
+                    ? 'Jaquette Libretro Thumbnails'
+                    : coverSource === 'rawg' || form.cover
+                      ? 'Jaquette RAWG'
+                      : 'Aucune jaquette'}
+                </p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="mt-3 !text-xs"
+                  disabled={busy || coverSearching || !(form.name.trim() || query.trim())}
+                  onClick={() => void searchLibretroCovers()}
+                >
+                  {coverSearching
+                    ? 'Recherche Libretro…'
+                    : 'Choisir une jaquette Libretro'}
+                </Button>
               </div>
             </div>
-          ) : null}
+
+            {coverPickerOpen ? (
+              <div className="mt-3 border-t border-line pt-3">
+                {coverSearching ? (
+                  <p className="text-xs text-ink-muted">Chargement des jaquettes…</p>
+                ) : coverResults.length > 0 ? (
+                  <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    {coverResults.map((item) => (
+                      <li key={`${item.system}-${item.mediaUrl}`}>
+                        <button
+                          type="button"
+                          onClick={() => applyLibretroCover(item)}
+                          disabled={busy}
+                          className="group w-full overflow-hidden rounded-lg border border-line bg-surface text-left transition hover:border-accent/50"
+                        >
+                          <img
+                            src={item.thumb}
+                            alt=""
+                            className="aspect-[3/4] w-full object-cover object-top"
+                          />
+                          <span className="block truncate px-1.5 py-1 text-[0.65rem] text-ink-muted group-hover:text-ink">
+                            {item.region}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-ink-muted">Aucun résultat.</p>
+                )}
+              </div>
+            ) : null}
+          </div>
 
           {initial ? (
             <Field label="Nom">

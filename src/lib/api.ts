@@ -1,4 +1,5 @@
 import type {
+  CatalogCover,
   CatalogGame,
   CatalogPlatform,
   ConsoleItem,
@@ -114,4 +115,13 @@ export const catalogApi = {
       `/api/catalog/platforms${q ? `?q=${encodeURIComponent(q)}` : ''}`,
       token,
     ),
+
+  searchCovers: (token: string, q: string, hardware?: string) => {
+    const params = new URLSearchParams({ q })
+    if (hardware) params.set('hardware', hardware)
+    return apiFetch<{ configured: boolean; results: CatalogCover[] }>(
+      `/api/catalog/covers?${params}`,
+      token,
+    )
+  },
 }
