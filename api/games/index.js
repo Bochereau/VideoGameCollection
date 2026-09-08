@@ -7,6 +7,114 @@ function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
 }
 
+const CONDITIONS = new Set(['complete', 'box', 'manual', 'none'])
+const EDITIONS = new Set(['standard', 'special', 'collector'])
+
+function parseCopyFields(body, existing = {}) {
+  const rawFormat = body?.format ?? existing.format
+  const format = rawFormat === 'digital' ? 'digital' : 'physical'
+
+  let condition = 'none'
+  if (format === 'physical') {
+    const raw = body?.condition ?? existing.condition
+    if (CONDITIONS.has(raw)) {
+      condition = raw
+    } else if (body?.condition === undefined && existing.condition === undefined) {
+      // legacy
+      const box = Boolean(existing.hasBox)
+      const manual = Boolean(existing.hasManual)
+      if (box && manual) condition = 'complete'
+      else if (box) condition = 'box'
+      else if (manual) condition = 'manual'
+      else condition = 'none'
+    }
+  }
+
+  const rawEdition = body?.edition ?? existing.edition
+  let edition = 'standard'
+  if (EDITIONS.has(rawEdition)) {
+    edition = rawEdition
+  } else if (body?.edition === undefined && Boolean(existing.isCollector)) {
+    edition = 'collector'
+  }
+
+  return { format, condition, edition }
+}
+
+function conditionFilterClause(value) {
+  if (value === 'complete') {
+    return {
+      $or: [
+        { condition: 'complete' },
+        {
+          condition: { $exists: false },
+          hasBox: true,
+          hasManual: true,
+        },
+      ],
+    }
+  }
+  if (value === 'box') {
+    return {
+      $or: [
+        { condition: 'box' },
+        {
+          condition: { $exists: false },
+          hasBox: true,
+          hasManual: { $ne: true },
+        },
+      ],
+    }
+  }
+  if (value === 'manual') {
+    return {
+      $or: [
+        { condition: 'manual' },
+        {
+          condition: { $exists: false },
+          hasManual: true,
+          hasBox: { $ne: true },
+        },
+      ],
+    }
+  }
+  // none
+  return {
+    $or: [
+      { condition: 'none' },
+      {
+        condition: { $exists: false },
+        hasBox: { $ne: true },
+        hasManual: { $ne: true },
+      },
+    ],
+  }
+}
+
+function editionFilterClause(value) {
+  if (value === 'collector') {
+    return {
+      $or: [
+        { edition: 'collector' },
+        { edition: { $exists: false }, isCollector: true },
+      ],
+    }
+  }
+  if (value === 'special') {
+    return { edition: 'special' }
+  }
+  // standard
+  return {
+    $or: [
+      { edition: 'standard' },
+      {
+        edition: { $exists: false },
+        isCollector: { $ne: true },
+      },
+    ],
+  }
+}
+
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return
 
@@ -17,6 +125,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const filter = { userId }
+      const and = []
 
       if (req.query.wishlist === 'true') filter.wishlist = true
       else if (req.query.wishlist === 'false') filter.wishlist = false
@@ -28,15 +137,39 @@ export default async function handler(req, res) {
       if (req.query.finished === 'true') filter.finished = true
       else if (req.query.finished === 'false') filter.finished = false
 
+      if (req.query.format === 'digital') {
+        filter.format = 'digital'
+      } else if (req.query.format === 'physical') {
+        and.push({
+          $or: [
+            { format: 'physical' },
+            { format: { $exists: false } },
+            { format: null },
+          ],
+        })
+      }
+
+      if (CONDITIONS.has(req.query.condition)) {
+        and.push(conditionFilterClause(req.query.condition))
+      }
+
+      if (EDITIONS.has(req.query.edition)) {
+        and.push(editionFilterClause(req.query.edition))
+      }
+
       if (typeof req.query.q === 'string' && req.query.q.trim()) {
         const term = req.query.q.trim()
-        filter.$or = [
-          { name: { $regex: term, $options: 'i' } },
-          { developer: { $regex: term, $options: 'i' } },
-          { editor: { $regex: term, $options: 'i' } },
-          { hardware: { $regex: term, $options: 'i' } },
-        ]
+        and.push({
+          $or: [
+            { name: { $regex: term, $options: 'i' } },
+            { developer: { $regex: term, $options: 'i' } },
+            { editor: { $regex: term, $options: 'i' } },
+            { hardware: { $regex: term, $options: 'i' } },
+          ],
+        })
       }
+
+      if (and.length) filter.$and = and
 
       const docs = await games.find(filter).sort({ name: 1 }).toArray()
       return json(res, 200, docs.map(serializeGame))
@@ -52,6 +185,7 @@ export default async function handler(req, res) {
       }
 
       const now = new Date()
+      const copy = parseCopyFields(body)
       const doc = {
         userId,
         name,
@@ -66,6 +200,7 @@ export default async function handler(req, res) {
         wishlist: Boolean(body?.wishlist),
         cover: body?.cover ? String(body.cover) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
+        ...copy,
         createdAt: now,
         updatedAt: now,
       }
@@ -74,7 +209,6 @@ export default async function handler(req, res) {
       return json(res, 201, serializeGame({ ...doc, _id: result.insertedId }))
     }
 
-    // PATCH / DELETE via ?id= — same pattern as the blog (avoids flaky /api/games/[id] routing)
     const id = req.query.id
     if (
       (req.method === 'PATCH' || req.method === 'DELETE') &&
@@ -105,6 +239,14 @@ export default async function handler(req, res) {
       if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
       if (body?.rawgId !== undefined) {
         $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null
+      }
+
+      if (
+        body?.format !== undefined ||
+        body?.condition !== undefined ||
+        body?.edition !== undefined
+      ) {
+        Object.assign($set, parseCopyFields(body, existing))
       }
 
       const name = $set.name ?? existing.name

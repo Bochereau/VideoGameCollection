@@ -1,3 +1,7 @@
+export type GameFormat = 'physical' | 'digital'
+export type GameCondition = 'complete' | 'box' | 'manual' | 'none'
+export type GameEdition = 'standard' | 'special' | 'collector'
+
 export interface Game {
   id: string
   name: string
@@ -9,6 +13,9 @@ export interface Game {
   wishlist: boolean
   cover?: string | null
   rawgId?: number | null
+  format: GameFormat
+  condition: GameCondition
+  edition: GameEdition
   createdAt?: string
   updatedAt?: string
 }
@@ -30,6 +37,9 @@ export type GameInput = {
   wishlist?: boolean
   cover?: string | null
   rawgId?: number | null
+  format?: GameFormat
+  condition?: GameCondition
+  edition?: GameEdition
 }
 
 export type CatalogGame = {
@@ -50,10 +60,29 @@ export type CatalogPlatform = {
 }
 
 export type FinishedFilter = 'all' | 'finished' | 'todo'
+export type FormatFilter = 'all' | GameFormat
+export type ConditionFilter = 'all' | GameCondition
+export type EditionFilter = 'all' | GameEdition
 
 export type GamesQuery = {
   wishlist?: boolean
   hardware?: string
   finished?: boolean
   q?: string
+  format?: GameFormat
+  condition?: GameCondition
+  edition?: GameEdition
+}
+
+export const CONDITION_LABELS: Record<GameCondition, string> = {
+  complete: 'Complet',
+  box: 'Boîte',
+  manual: 'Livret',
+  none: 'Aucun',
+}
+
+export const EDITION_LABELS: Record<GameEdition, string> = {
+  standard: 'Standard',
+  special: 'Spéciale',
+  collector: 'Collector',
 }

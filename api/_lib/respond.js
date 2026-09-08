@@ -9,7 +9,29 @@ export function errorResponse(res, err) {
   json(res, status, { error: message })
 }
 
+const CONDITIONS = new Set(['complete', 'box', 'manual', 'none'])
+const EDITIONS = new Set(['standard', 'special', 'collector'])
+
+export function resolveCondition(doc) {
+  if (CONDITIONS.has(doc.condition)) return doc.condition
+  // Legacy booleans from earlier iteration
+  const box = Boolean(doc.hasBox)
+  const manual = Boolean(doc.hasManual)
+  if (box && manual) return 'complete'
+  if (box) return 'box'
+  if (manual) return 'manual'
+  return 'none'
+}
+
+export function resolveEdition(doc) {
+  if (EDITIONS.has(doc.edition)) return doc.edition
+  if (Boolean(doc.isCollector)) return 'collector'
+  return 'standard'
+}
+
 export function serializeGame(doc) {
+  const format = doc.format === 'digital' ? 'digital' : 'physical'
+  const condition = format === 'physical' ? resolveCondition(doc) : 'none'
   return {
     id: String(doc._id),
     name: doc.name,
@@ -21,6 +43,9 @@ export function serializeGame(doc) {
     wishlist: Boolean(doc.wishlist),
     cover: doc.cover ?? null,
     rawgId: doc.rawgId ?? null,
+    format,
+    condition,
+    edition: resolveEdition(doc),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   }

@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import type { CatalogGame, Game, GameInput } from '@/types'
+import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { catalogApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 
@@ -25,6 +26,9 @@ const empty: GameInput = {
   wishlist: false,
   cover: null,
   rawgId: null,
+  format: 'physical',
+  condition: 'none',
+  edition: 'standard',
 }
 
 function matchSavedConsole(platforms: string[], saved: string[]): string | null {
@@ -77,6 +81,9 @@ export function GameFormModal({
         wishlist: initial.wishlist,
         cover: initial.cover ?? null,
         rawgId: initial.rawgId ?? null,
+        format: initial.format ?? 'physical',
+        condition: initial.condition ?? 'none',
+        edition: initial.edition ?? 'standard',
       })
       setQuery(initial.name)
       if (consoleNames.includes(initial.hardware)) {
@@ -401,6 +408,80 @@ export function GameFormModal({
               className="field"
             />
           </Field>
+
+          <fieldset className="space-y-2">
+            <legend className="text-xs font-medium tracking-wide text-ink-muted uppercase">
+              Format
+            </legend>
+            <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-bg/60 p-1">
+              {(
+                [
+                  { id: 'physical', label: 'Physique' },
+                  { id: 'digital', label: 'Numérique' },
+                ] as const
+              ).map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() =>
+                    setForm((f) => ({
+                      ...f,
+                      format: opt.id,
+                      condition: opt.id === 'physical' ? f.condition ?? 'none' : 'none',
+                    }))
+                  }
+                  className={`rounded-lg px-3 py-1.5 text-sm transition ${
+                    (form.format ?? 'physical') === opt.id
+                      ? 'bg-accent text-bg shadow-sm'
+                      : 'text-ink-muted hover:text-ink'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(form.format ?? 'physical') === 'physical' ? (
+              <Field label="État">
+                <select
+                  className="field"
+                  value={form.condition ?? 'none'}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      condition: e.target.value as GameInput['condition'],
+                    }))
+                  }
+                >
+                  {Object.entries(CONDITION_LABELS).map(([id, label]) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ) : null}
+            <Field label="Édition">
+              <select
+                className="field"
+                value={form.edition ?? 'standard'}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    edition: e.target.value as GameInput['edition'],
+                  }))
+                }
+              >
+                {Object.entries(EDITION_LABELS).map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
 
           <div className="flex flex-wrap gap-4 pt-1 text-sm">
             <label className="flex items-center gap-2 text-ink-muted">

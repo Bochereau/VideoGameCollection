@@ -8,7 +8,7 @@ const styles: Record<Variant, string> = {
   secondary:
     'bg-surface-elevated text-ink border border-line hover:border-accent/50 hover:bg-white/5',
   ghost: 'bg-transparent text-ink-muted hover:text-ink hover:bg-white/5',
-  danger: 'bg-danger/15 text-danger border border-danger/30 hover:bg-danger/25',
+  danger: 'bg-danger/40 text-danger border border-danger/60 hover:bg-danger/55',
 }
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {

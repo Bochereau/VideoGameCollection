@@ -53,6 +53,9 @@ function toQuery(params: GamesQuery): string {
     search.set('finished', String(params.finished))
   }
   if (params.q) search.set('q', params.q)
+  if (params.format) search.set('format', params.format)
+  if (params.condition) search.set('condition', params.condition)
+  if (params.edition) search.set('edition', params.edition)
   const qs = search.toString()
   return qs ? `?${qs}` : ''
 }

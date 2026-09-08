@@ -6,7 +6,14 @@ import { GameGrid } from '@/components/games/GameGrid'
 import { StatusFilters } from '@/components/games/StatusFilters'
 import { Loading } from '@/components/ui/Loading'
 import { gamesApi, consolesApi } from '@/lib/api'
-import type { FinishedFilter, Game, GameInput } from '@/types'
+import type {
+  ConditionFilter,
+  EditionFilter,
+  FinishedFilter,
+  FormatFilter,
+  Game,
+  GameInput,
+} from '@/types'
 
 type OutletCtx = { refreshConsoles: () => Promise<void> }
 
@@ -40,6 +47,10 @@ export function GamesPage({
   const q = searchParams.get('q') ?? ''
   const hardware = searchParams.get('hardware') ?? undefined
   const finishedFilter = (searchParams.get('status') as FinishedFilter) || 'all'
+  const formatFilter = (searchParams.get('format') as FormatFilter) || 'all'
+  const conditionFilter =
+    (searchParams.get('condition') as ConditionFilter) || 'all'
+  const editionFilter = (searchParams.get('edition') as EditionFilter) || 'all'
 
   const query = useMemo(() => {
     const base: {
@@ -47,13 +58,44 @@ export function GamesPage({
       hardware?: string
       finished?: boolean
       q?: string
+      format?: 'physical' | 'digital'
+      condition?: 'complete' | 'box' | 'manual' | 'none'
+      edition?: 'standard' | 'special' | 'collector'
     } = { wishlist }
     if (hardware) base.hardware = hardware
     if (q) base.q = q
     if (finishedFilter === 'finished') base.finished = true
     if (finishedFilter === 'todo') base.finished = false
+    if (formatFilter === 'physical' || formatFilter === 'digital') {
+      base.format = formatFilter
+    }
+    if (
+      conditionFilter !== 'all' &&
+      formatFilter !== 'digital' &&
+      (conditionFilter === 'complete' ||
+        conditionFilter === 'box' ||
+        conditionFilter === 'manual' ||
+        conditionFilter === 'none')
+    ) {
+      base.condition = conditionFilter
+    }
+    if (
+      editionFilter === 'standard' ||
+      editionFilter === 'special' ||
+      editionFilter === 'collector'
+    ) {
+      base.edition = editionFilter
+    }
     return base
-  }, [wishlist, hardware, q, finishedFilter])
+  }, [
+    wishlist,
+    hardware,
+    q,
+    finishedFilter,
+    formatFilter,
+    conditionFilter,
+    editionFilter,
+  ])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -78,12 +120,40 @@ export function GamesPage({
     void load()
   }, [load])
 
-  function setStatus(value: FinishedFilter) {
+  function patchParams(mutate: (next: URLSearchParams) => void) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
+      mutate(next)
+      return next
+    })
+  }
+
+  function setStatus(value: FinishedFilter) {
+    patchParams((next) => {
       if (value === 'all') next.delete('status')
       else next.set('status', value)
-      return next
+    })
+  }
+
+  function setFormat(value: FormatFilter) {
+    patchParams((next) => {
+      if (value === 'all') next.delete('format')
+      else next.set('format', value)
+      if (value === 'digital') next.delete('condition')
+    })
+  }
+
+  function setCondition(value: ConditionFilter) {
+    patchParams((next) => {
+      if (value === 'all') next.delete('condition')
+      else next.set('condition', value)
+    })
+  }
+
+  function setEdition(value: EditionFilter) {
+    patchParams((next) => {
+      if (value === 'all') next.delete('edition')
+      else next.set('edition', value)
     })
   }
 
@@ -134,8 +204,14 @@ export function GamesPage({
         </div>
 
         <StatusFilters
-          value={finishedFilter}
-          onChange={setStatus}
+          status={finishedFilter}
+          onStatusChange={setStatus}
+          format={formatFilter}
+          onFormatChange={setFormat}
+          condition={conditionFilter}
+          onConditionChange={setCondition}
+          edition={editionFilter}
+          onEditionChange={setEdition}
           onAdd={() => {
             setEditing(null)
             setModalOpen(true)
