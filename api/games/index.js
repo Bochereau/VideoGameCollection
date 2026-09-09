@@ -180,7 +180,11 @@ export default async function handler(req, res) {
 
       if (and.length) filter.$and = and
 
-      const docs = await games.find(filter).sort({ name: 1 }).toArray()
+      const docs = await games
+        .find(filter)
+        .collation({ locale: 'fr', strength: 2 })
+        .sort({ name: 1 })
+        .toArray()
       return json(res, 200, docs.map(serializeGame))
     }
 

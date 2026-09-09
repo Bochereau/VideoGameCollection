@@ -13,7 +13,11 @@ export default async function handler(req, res) {
     const games = db.collection('games')
 
     if (req.method === 'GET') {
-      const docs = await consoles.find({ userId }).sort({ name: 1 }).toArray()
+      const docs = await consoles
+        .find({ userId })
+        .collation({ locale: 'fr', strength: 2 })
+        .sort({ name: 1 })
+        .toArray()
       const wishlistMode = req.query.wishlist === 'true'
       const countMatch = wishlistMode
         ? { userId, wishlist: true }
