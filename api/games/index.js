@@ -130,8 +130,14 @@ export default async function handler(req, res) {
       const filter = { userId }
       const and = []
 
-      if (req.query.wishlist === 'true') filter.wishlist = true
-      else if (req.query.wishlist === 'false') filter.wishlist = false
+      if (req.query.wishlist === 'true') {
+        filter.wishlist = true
+      } else if (req.query.wishlist === 'false') {
+        // Owned collection: exclude wishlist (and treat missing flag as owned)
+        and.push({
+          $nor: [{ wishlist: true }, { wishlist: 'true' }],
+        })
+      }
 
       if (typeof req.query.hardware === 'string' && req.query.hardware) {
         filter.hardware = req.query.hardware
@@ -200,7 +206,7 @@ export default async function handler(req, res) {
             ? null
             : Number(body.release),
         finished: Boolean(body?.finished),
-        wishlist: Boolean(body?.wishlist),
+        wishlist: body?.wishlist === true || body?.wishlist === 'true',
         cover: body?.cover ? String(body.cover) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
         ...copy,
@@ -238,7 +244,9 @@ export default async function handler(req, res) {
           body.release === null || body.release === '' ? null : Number(body.release)
       }
       if (body?.finished !== undefined) $set.finished = Boolean(body.finished)
-      if (body?.wishlist !== undefined) $set.wishlist = Boolean(body.wishlist)
+      if (body?.wishlist !== undefined) {
+        $set.wishlist = body.wishlist === true || body.wishlist === 'true'
+      }
       if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
       if (body?.rawgId !== undefined) {
         $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null

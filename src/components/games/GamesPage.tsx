@@ -165,11 +165,16 @@ export function GamesPage({
   }
 
   async function handleSubmit(data: GameInput) {
+    // Wishlist page always creates envies; collection page respects the form checkbox
+    const asWishlist = wishlist ? true : Boolean(data.wishlist)
     await withToken(async (token) => {
       if (editing) {
-        await gamesApi.update(token, editing.id, data)
+        await gamesApi.update(token, editing.id, {
+          ...data,
+          wishlist: Boolean(data.wishlist),
+        })
       } else {
-        await gamesApi.create(token, { ...data, wishlist })
+        await gamesApi.create(token, { ...data, wishlist: asWishlist })
       }
     })
     await load()

@@ -40,7 +40,7 @@ export function serializeGame(doc) {
     editor: doc.editor ?? '',
     release: doc.release ?? null,
     finished: Boolean(doc.finished),
-    wishlist: Boolean(doc.wishlist),
+    wishlist: doc.wishlist === true || doc.wishlist === 'true',
     cover: doc.cover ?? null,
     rawgId: doc.rawgId ?? null,
     format,

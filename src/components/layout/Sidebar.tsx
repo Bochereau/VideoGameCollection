@@ -12,6 +12,7 @@ type Props = {
   onDeleteConsole: (id: string) => Promise<void>
   open: boolean
   onClose: () => void
+  wishlistMode?: boolean
 }
 
 export function Sidebar({
@@ -22,6 +23,7 @@ export function Sidebar({
   onDeleteConsole,
   open,
   onClose,
+  wishlistMode = false,
 }: Props) {
   const { getToken } = useAuth()
   const [adding, setAdding] = useState(false)
@@ -78,7 +80,7 @@ export function Sidebar({
     <aside className="flex h-full min-h-0 w-64 shrink-0 flex-col border-r border-line bg-bg/50 backdrop-blur-xl">
       <div className="flex shrink-0 items-center justify-between px-4 py-4">
         <h2 className="font-display text-sm tracking-wide text-amber uppercase">
-          Consoles
+          {wishlistMode ? 'Envies' : 'Consoles'}
         </h2>
         <button
           type="button"

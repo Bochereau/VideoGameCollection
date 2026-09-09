@@ -84,7 +84,13 @@ export const gamesApi = {
 }
 
 export const consolesApi = {
-  list: (token: string) => apiFetch<ConsoleItem[]>('/api/consoles', token),
+  list: (token: string, opts?: { wishlist?: boolean }) => {
+    const params = new URLSearchParams()
+    if (opts?.wishlist === true) params.set('wishlist', 'true')
+    if (opts?.wishlist === false) params.set('wishlist', 'false')
+    const qs = params.toString()
+    return apiFetch<ConsoleItem[]>(`/api/consoles${qs ? `?${qs}` : ''}`, token)
+  },
 
   create: (token: string, name: string) =>
     apiFetch<ConsoleItem>('/api/consoles', token, {

@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useCallback, useEffect, useState } from 'react'
-import { Outlet, useSearchParams } from 'react-router-dom'
+import { Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { consolesApi } from '@/lib/api'
@@ -8,19 +8,21 @@ import type { ConsoleItem } from '@/types'
 
 export function AppLayout() {
   const { getToken } = useAuth()
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [consoles, setConsoles] = useState<ConsoleItem[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const search = searchParams.get('q') ?? ''
   const selectedHardware = searchParams.get('hardware')
+  const wishlistMode = location.pathname.startsWith('/wishlist')
 
   const refreshConsoles = useCallback(async () => {
     const token = await getToken()
     if (!token) return
-    const data = await consolesApi.list(token)
+    const data = await consolesApi.list(token, { wishlist: wishlistMode })
     setConsoles(data)
-  }, [getToken])
+  }, [getToken, wishlistMode])
 
   useEffect(() => {
     void refreshConsoles().catch(console.error)
@@ -78,6 +80,7 @@ export function AppLayout() {
           onDeleteConsole={deleteConsole}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          wishlistMode={wishlistMode}
         />
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Outlet context={{ refreshConsoles }} />

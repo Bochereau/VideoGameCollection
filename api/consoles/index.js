@@ -14,9 +14,17 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const docs = await consoles.find({ userId }).sort({ name: 1 }).toArray()
+      const wishlistMode = req.query.wishlist === 'true'
+      const countMatch = wishlistMode
+        ? { userId, wishlist: true }
+        : {
+            userId,
+            $nor: [{ wishlist: true }, { wishlist: 'true' }],
+          }
+
       const counts = await games
         .aggregate([
-          { $match: { userId, wishlist: false } },
+          { $match: countMatch },
           { $group: { _id: '$hardware', count: { $sum: 1 } } },
         ])
         .toArray()
