@@ -1,6 +1,11 @@
 export type GameFormat = 'physical' | 'digital'
 export type GameCondition = 'complete' | 'box' | 'manual' | 'loose' | 'none'
-export type GameEdition = 'standard' | 'special' | 'collector'
+export type GameEdition =
+  | 'standard'
+  | 'steelbook'
+  | 'special'
+  | 'deluxe'
+  | 'collector'
 
 export interface Game {
   id: string
@@ -94,6 +99,8 @@ export const CONDITION_LABELS: Record<GameCondition, string> = {
 
 export const EDITION_LABELS: Record<GameEdition, string> = {
   standard: 'Standard',
+  steelbook: 'Steelbook',
   special: 'Spéciale',
+  deluxe: 'Deluxe',
   collector: 'Collector',
 }

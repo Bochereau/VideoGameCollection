@@ -60,7 +60,7 @@ export function GamesPage({
       q?: string
       format?: 'physical' | 'digital'
       condition?: 'complete' | 'box' | 'manual' | 'loose' | 'none'
-      edition?: 'standard' | 'special' | 'collector'
+      edition?: 'standard' | 'special' | 'collector' | 'steelbook' | 'deluxe'
     } = { wishlist }
     if (hardware) base.hardware = hardware
     if (q) base.q = q
@@ -83,7 +83,9 @@ export function GamesPage({
     if (
       editionFilter === 'standard' ||
       editionFilter === 'special' ||
-      editionFilter === 'collector'
+      editionFilter === 'collector' ||
+      editionFilter === 'steelbook' ||
+      editionFilter === 'deluxe'
     ) {
       base.edition = editionFilter
     }

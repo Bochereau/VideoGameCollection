@@ -10,7 +10,7 @@ export function errorResponse(res, err) {
 }
 
 const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
-const EDITIONS = new Set(['standard', 'special', 'collector'])
+const EDITIONS = new Set(['standard', 'steelbook', 'special', 'deluxe', 'collector'])
 
 export function resolveCondition(doc) {
   if (CONDITIONS.has(doc.condition)) return doc.condition

@@ -8,7 +8,7 @@ function parseBody(req) {
 }
 
 const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
-const EDITIONS = new Set(['standard', 'special', 'collector'])
+const EDITIONS = new Set(['standard', 'steelbook', 'special', 'deluxe', 'collector'])
 
 function parseCopyFields(body, existing = {}) {
   const rawFormat = body?.format ?? existing.format
@@ -103,9 +103,9 @@ function editionFilterClause(value) {
       ],
     }
   }
-  if (value === 'special') {
-    return { edition: 'special' }
-  }
+  if (value === 'special') return { edition: 'special' }
+  if (value === 'steelbook') return { edition: 'steelbook' }
+  if (value === 'deluxe') return { edition: 'deluxe' }
   // standard
   return {
     $or: [
