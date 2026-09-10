@@ -20,40 +20,6 @@ type Props = {
   addLabel: string
 }
 
-const statusOptions: { id: FinishedFilter; label: string }[] = [
-  { id: 'all', label: 'Tous' },
-  { id: 'finished', label: 'Terminés' },
-  { id: 'todo', label: 'À faire' },
-]
-
-const formatOptions: { id: FormatFilter; label: string }[] = [
-  { id: 'all', label: 'Tous' },
-  { id: 'physical', label: 'Physique' },
-  { id: 'digital', label: 'Numérique' },
-]
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-lg px-3 py-1.5 text-sm transition ${
-        active ? 'bg-accent text-bg shadow-sm' : 'text-ink-muted hover:text-ink'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
 function FilterSelect({
   label,
   value,
@@ -105,39 +71,27 @@ export function StatusFilters({
     <div className="flex flex-wrap items-center gap-3">
       <Button onClick={onAdd}>{addLabel}</Button>
 
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[0.65rem] font-medium tracking-wide text-ink-muted uppercase">
-          Statut
-        </span>
-        <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-surface/80 p-1 backdrop-blur-md">
-          {statusOptions.map((opt) => (
-            <Chip
-              key={opt.id}
-              active={status === opt.id}
-              onClick={() => onStatusChange(opt.id)}
-            >
-              {opt.label}
-            </Chip>
-          ))}
-        </div>
-      </div>
+      <FilterSelect
+        label="Statut"
+        value={status}
+        onChange={(v) => onStatusChange(v as FinishedFilter)}
+        options={[
+          { id: 'all', label: 'Statut : tous' },
+          { id: 'finished', label: 'Statut : terminés' },
+          { id: 'todo', label: 'Statut : à faire' },
+        ]}
+      />
 
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[0.65rem] font-medium tracking-wide text-ink-muted uppercase">
-          Format
-        </span>
-        <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-surface/80 p-1 backdrop-blur-md">
-          {formatOptions.map((opt) => (
-            <Chip
-              key={opt.id}
-              active={format === opt.id}
-              onClick={() => onFormatChange(opt.id)}
-            >
-              {opt.label}
-            </Chip>
-          ))}
-        </div>
-      </div>
+      <FilterSelect
+        label="Format"
+        value={format}
+        onChange={(v) => onFormatChange(v as FormatFilter)}
+        options={[
+          { id: 'all', label: 'Format : tous' },
+          { id: 'physical', label: 'Format : physique' },
+          { id: 'digital', label: 'Format : numérique' },
+        ]}
+      />
 
       <FilterSelect
         label="État"
