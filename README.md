@@ -1,44 +1,66 @@
-# VideoGameCollection (VGC)
+# Video Game Collection
 
-Gestion de collection de jeux vidéo — même logique que le blog : Vite + API serverless Vercel + MongoDB Atlas (`MongoClient`), projet Vercel **dédié**.
+![Aperçu de VGC](./public/VideoGameCollection.png)
 
-## Stack
 
-- Front : Vite, React 19, TypeScript, Tailwind, Clerk
-- API : `api/**/*.js` (Vercel Serverless), driver natif `mongodb`
-- BDD : Atlas, database `vgc` (collections `games`, `consoles`)
-- Catalogue : [RAWG](https://rawg.io/apidocs) (recherche jeux/plateformes + jaquettes)
+## Un projet de gestion de collection de jeux vidéo👋
 
-## Créer le projet Vercel (nouveau)
+Amoureux de jeux vidéo, j'avais envie de créer un outils de gestion de ma petite collection dans une app dédiée, claire et filtrable.
 
-1. [vercel.com](https://vercel.com) → **Add New Project** → importer le repo **VideoGameCollection** (pas le blog)
-2. Framework : Vite (auto)
-3. Variables d’environnement (Production + Preview) :
-   - `MONGODB_URI`
-   - `CLERK_SECRET_KEY`
-   - `VITE_CLERK_PUBLISHABLE_KEY`
-   - `RAWG_API_KEY` (créer une clé sur [rawg.io/apidocs](https://rawg.io/apidocs))
-4. Deploy
-5. Dans Clerk → Domains : ajoute `https://ton-projet.vercel.app` et `http://localhost:5173`
-6. Atlas → Network Access : `0.0.0.0/0` (comme pour le blog)
+## Contenu de l'application
 
-## Local (même approche que le blog)
+🏠 __Accueil__ : une landing de présentation avec authentification (connexion / inscription via Clerk).
 
-Le blog en local appelle l’API **déjà déployée** sur Vercel. Ici :
+🎮 __Collection__ : l'inventaire des jeux possédés, organisés par console.
 
-1. Déploie une première fois sur ton nouveau projet Vercel
-2. Dans `.env` local :
-   ```env
-   VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-   VITE_API_URL=https://TON-PROJET-VGC.vercel.app
-   ```
-   (`CLERK_SECRET_KEY` et `MONGODB_URI` restent sur Vercel pour l’API)
-3. `npm install` puis `npm run dev`
-4. Ouvre `http://localhost:5173`
+- ajout et édition d'un jeu (titre, studio, année, jaquette, métadonnées).
+- suivi du statut (terminé ou non), du format (physique / digital), de l'état (complet, boîte, livret, loose…) et de l'édition.
+- recherche, filtres et bascule grille / liste.
 
-En production, laisse `VITE_API_URL` vide : le front et l’API sont sur le même domaine.
+💫 __Envies__ : une wishlist pour les jeux à acquérir, sur le même modèle que la collection.
 
-## Scripts
+🕹️ __Consoles__ : une barre latérale pour filtrer par hardware, avec compteurs et possibilité d'ajouter une console.
 
-- `npm run dev` — front Vite
-- `npm run build` — build production
+🔍 __Catalogue__ : recherche de jeux et de jaquettes via [RAWG](https://rawg.io/apidocs) pour préremplir les fiches.
+
+## Les outils de création 🛠️
+
+### 💻 Front-end
+
+VGC est une __single page application__ (SPA) construite avec __React 19__ et bundlée via __Vite__.
+
+- __React Router__ gère la navigation (accueil, collection, wishlist, auth).
+- __TypeScript__ type l'ensemble de l'interface et des modèles métier.
+- __Tailwind CSS__ assure le styling des composants.
+- __Clerk__ gère l'authentification (connexion, inscription, routes protégées).
+
+### ⚡ Back-end (serverless)
+
+Il n'y a pas de serveur Node.js permanent : l'API repose sur des __Serverless Functions Vercel__ situées dans le dossier `api/`.
+
+Chaque fichier de ce dossier devient un endpoint HTTP autonome, démarré à la demande puis arrêté une fois la requête traitée :
+
+- `/api/games` — CRUD des jeux de la collection / wishlist
+- `/api/consoles` — lecture et écriture des consoles
+- `/api/catalog/games` — recherche et détail de jeux (RAWG)
+- `/api/catalog/platforms` — plateformes du catalogue
+- `/api/catalog/covers` — jaquettes alternatives
+
+Les routes sensibles passent par une vérification Clerk côté API.
+
+### 🗄️ Base de données
+
+Les données sont stockées dans __MongoDB Atlas__, accessible via le driver officiel `mongodb`.
+
+Collections principales :
+
+- `games` — jeux possédés et envies
+- `consoles` — hardwares de la collection
+
+## Le Déploiement 🚀
+
+### ☁️ Coté Front & API
+
+Le projet est déployé sur [vercel.com](https://vercel.com) à l'adresse [https://video-game-collection-six.vercel.app/](https://video-game-collection-six.vercel.app/) (projet Vercel **dédié**, distinct du blog).
+
+Une fois lié au compte GitHub, Vercel redéploie automatiquement à chaque mise à jour : le build Vite du front et les fonctions serverless de `api/` sont publiés ensemble.
