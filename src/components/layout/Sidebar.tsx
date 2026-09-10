@@ -77,7 +77,10 @@ export function Sidebar({
   const totalCount = consoles.reduce((sum, c) => sum + c.count, 0)
 
   const content = (
-    <aside className="flex h-full min-h-0 w-64 shrink-0 flex-col border-r border-line bg-bg/50 backdrop-blur-xl">
+    <aside
+      data-chrome
+      className="flex h-full min-h-0 w-64 shrink-0 flex-col border-r border-line bg-bg/75 backdrop-blur-xl"
+    >
       <div className="flex shrink-0 items-center justify-between px-4 py-4">
         <h2 className="font-display text-sm tracking-wide text-amber uppercase">
           {wishlistMode ? 'Envies' : 'Consoles'}
@@ -103,7 +106,7 @@ export function Sidebar({
             className={`flex min-w-0 flex-1 items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
               selectedHardware === null
                 ? 'bg-accent-soft font-medium text-accent'
-                : 'text-ink-muted hover:bg-white/5 hover:text-ink'
+                : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
             }`}
           >
             <span>Toutes</span>
@@ -123,7 +126,7 @@ export function Sidebar({
               className={`flex min-w-0 flex-1 items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                 selectedHardware === c.name
                   ? 'bg-accent-soft font-medium text-accent'
-                  : 'text-ink-muted hover:bg-white/5 hover:text-ink'
+                  : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
               }`}
             >
               <span className="truncate">{c.name}</span>

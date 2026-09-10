@@ -4,8 +4,10 @@ import { Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { consolesApi } from '@/lib/api'
+import { applyColorTheme, readColorTheme, writeColorTheme } from '@/lib/colorTheme'
 import { readViewMode, writeViewMode } from '@/lib/viewMode'
 import type { ConsoleItem } from '@/types'
+import type { ColorTheme } from '@/types/theme'
 import type { GamesViewMode } from '@/types/view'
 
 export type AppOutletContext = {
@@ -20,6 +22,7 @@ export function AppLayout() {
   const [consoles, setConsoles] = useState<ConsoleItem[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [viewMode, setViewMode] = useState<GamesViewMode>(readViewMode)
+  const [colorTheme, setColorTheme] = useState<ColorTheme>(readColorTheme)
 
   const search = searchParams.get('q') ?? ''
   const selectedHardware = searchParams.get('hardware')
@@ -36,9 +39,18 @@ export function AppLayout() {
     void refreshConsoles().catch(console.error)
   }, [refreshConsoles])
 
+  useEffect(() => {
+    applyColorTheme(colorTheme)
+  }, [colorTheme])
+
   function changeViewMode(value: GamesViewMode) {
     setViewMode(value)
     writeViewMode(value)
+  }
+
+  function changeColorTheme(value: ColorTheme) {
+    setColorTheme(value)
+    writeColorTheme(value)
   }
 
   function setSearch(value: string) {
@@ -84,6 +96,8 @@ export function AppLayout() {
         onSearchChange={setSearch}
         viewMode={viewMode}
         onViewModeChange={changeViewMode}
+        colorTheme={colorTheme}
+        onColorThemeChange={changeColorTheme}
         onToggleSidebar={() => setSidebarOpen(true)}
       />
       <div className="flex min-h-0 flex-1">

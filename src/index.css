@@ -16,6 +16,78 @@
   --color-danger: #e8a87c;
 }
 
+:root,
+[data-theme="dark"] {
+  --color-ink: #e8eef8;
+  --color-ink-muted: #9aabc4;
+  --color-bg: #080c1b;
+  --color-surface: rgb(18 24 44 / 0.72);
+  --color-surface-elevated: rgb(28 36 64 / 0.82);
+  --color-line: rgb(125 201 232 / 0.22);
+  --color-accent: #7dc9e8;
+  --color-accent-strong: #4a89d8;
+  --color-accent-soft: rgb(125 201 232 / 0.16);
+  --color-amber: #f3e098;
+  --color-danger: #e8a87c;
+  --bg-overlay: linear-gradient(
+    180deg,
+    rgb(8 12 27 / 0.28) 0%,
+    rgb(8 12 27 / 0.38) 50%,
+    rgb(8 12 27 / 0.55) 100%
+  );
+  --bg-image: url("/night_city.jpg");
+  --field-bg: rgb(8 12 27 / 0.65);
+  --field-placeholder: rgb(154 171 196 / 0.7);
+  --field-focus-ring: rgb(125 201 232 / 0.2);
+  --scrollbar-thumb: rgb(125 201 232 / 0.75);
+  --scrollbar-track: rgb(18 24 44 / 0.55);
+}
+
+[data-theme="light"] {
+  --color-ink: #122018;
+  --color-ink-muted: #3a4f42;
+  --color-bg: #e4f0e8;
+  --color-surface: rgb(245 252 247 / 0.86);
+  --color-surface-elevated: rgb(255 255 255 / 0.93);
+  --color-line: rgb(35 110 65 / 0.22);
+  --color-accent: #2f9e4f;
+  --color-accent-strong: #218040;
+  --color-accent-soft: rgb(47 158 79 / 0.18);
+  --color-amber: #d4a017;
+  --color-danger: #d46845;
+  --bg-overlay: linear-gradient(
+    180deg,
+    rgb(228 240 232 / 0.4) 0%,
+    rgb(228 240 232 / 0.55) 50%,
+    rgb(228 240 232 / 0.75) 100%
+  );
+  --bg-image: url("/light_forest.png");
+  --field-bg: rgb(255 255 255 / 0.9);
+  --field-placeholder: rgb(58 79 66 / 0.6);
+  --field-focus-ring: rgb(47 158 79 / 0.3);
+  --scrollbar-thumb: rgb(47 158 79 / 0.7);
+  --scrollbar-track: rgb(210 228 216 / 0.8);
+}
+
+/* Chrome sombre (header / sidebar) — contraste type “glade” */
+[data-theme="light"] [data-chrome] {
+  --color-ink: #eef7f0;
+  --color-ink-muted: #a7cbb4;
+  --color-bg: #0f2418;
+  --color-surface: rgb(255 255 255 / 0.08);
+  --color-surface-elevated: rgb(255 255 255 / 0.14);
+  --color-line: rgb(130 220 150 / 0.24);
+  --color-accent: #7ad45c;
+  --color-accent-strong: #5fbf42;
+  --color-accent-soft: rgb(122 212 92 / 0.24);
+  --color-amber: #f0d078;
+  --field-bg: rgb(8 28 16 / 0.55);
+  --field-placeholder: rgb(167 203 180 / 0.7);
+  --field-focus-ring: rgb(122 212 92 / 0.32);
+  background-color: rgb(12 36 22 / 0.9);
+  color: var(--color-ink);
+}
+
 @layer base {
   *,
   *::before,
@@ -33,14 +105,7 @@
     font-family: var(--font-sans);
     color: var(--color-ink);
     background-color: var(--color-bg);
-    background-image:
-      linear-gradient(
-        180deg,
-        rgb(8 12 27 / 0.28) 0%,
-        rgb(8 12 27 / 0.38) 50%,
-        rgb(8 12 27 / 0.55) 100%
-      ),
-      url("/night_city.jpg");
+    background-image: var(--bg-overlay), var(--bg-image);
     background-size: cover;
     background-position: center bottom;
     background-repeat: no-repeat;
@@ -73,7 +138,7 @@
     width: 100%;
     border-radius: 0.5rem;
     border: 1px solid var(--color-line);
-    background: rgb(8 12 27 / 0.65);
+    background: var(--field-bg);
     color: var(--color-ink);
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
@@ -81,17 +146,17 @@
   }
 
   .field::placeholder {
-    color: rgb(154 171 196 / 0.7);
+    color: var(--field-placeholder);
   }
 
   .field:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgb(125 201 232 / 0.2);
+    box-shadow: 0 0 0 3px var(--field-focus-ring);
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgb(125 201 232 / 0.75) rgb(18 24 44 / 0.55);
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   }
 
   *::-webkit-scrollbar {
@@ -100,18 +165,18 @@
   }
 
   *::-webkit-scrollbar-track {
-    background: rgb(18 24 44 / 0.55);
+    background: var(--scrollbar-track);
   }
 
   *::-webkit-scrollbar-thumb {
     border-radius: 999px;
     border: 2px solid transparent;
     background-clip: padding-box;
-    background-color: rgb(125 201 232 / 0.7);
+    background-color: var(--scrollbar-thumb);
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(125 201 232 / 0.95);
+    filter: brightness(1.15);
   }
 
   *::-webkit-scrollbar-corner {

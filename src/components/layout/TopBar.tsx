@@ -1,7 +1,9 @@
 import { UserButton } from '@clerk/clerk-react'
 import { NavLink } from 'react-router-dom'
-import { Button } from '@/components/ui/Button'
 import { ViewModeToggle } from '@/components/games/ViewModeToggle'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { Button } from '@/components/ui/Button'
+import type { ColorTheme } from '@/types/theme'
 import type { GamesViewMode } from '@/types/view'
 
 type Props = {
@@ -9,6 +11,8 @@ type Props = {
   onSearchChange: (value: string) => void
   viewMode: GamesViewMode
   onViewModeChange: (value: GamesViewMode) => void
+  colorTheme: ColorTheme
+  onColorThemeChange: (value: ColorTheme) => void
   onToggleSidebar: () => void
 }
 
@@ -16,7 +20,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-lg px-3 py-1.5 text-sm font-medium transition ${
     isActive
       ? 'bg-accent-soft text-accent'
-      : 'text-ink-muted hover:bg-white/5 hover:text-ink'
+      : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
   }`
 
 export function TopBar({
@@ -24,10 +28,15 @@ export function TopBar({
   onSearchChange,
   viewMode,
   onViewModeChange,
+  colorTheme,
+  onColorThemeChange,
   onToggleSidebar,
 }: Props) {
   return (
-    <header className="sticky top-0 z-30 shrink-0 border-b border-line bg-bg/55 backdrop-blur-xl">
+    <header
+      data-chrome
+      className="sticky top-0 z-30 shrink-0 border-b border-line bg-bg/75 backdrop-blur-xl"
+    >
       <div className="flex w-full items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Button
           variant="ghost"
@@ -88,6 +97,7 @@ export function TopBar({
             />
           </label>
           <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
+          <ThemeToggle value={colorTheme} onChange={onColorThemeChange} />
           <UserButton afterSignOutUrl="/" />
         </div>
       </div>

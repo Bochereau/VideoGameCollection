@@ -12,6 +12,15 @@
       rel="stylesheet"
     />
     <title>VGC — Video Game Collection</title>
+    <script>
+      try {
+        var t = localStorage.getItem('vgc-color-theme')
+        document.documentElement.dataset.theme =
+          t === 'light' || t === 'dark' ? t : 'dark'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

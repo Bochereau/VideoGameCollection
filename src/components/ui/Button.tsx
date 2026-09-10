@@ -6,8 +6,8 @@ const styles: Record<Variant, string> = {
   primary:
     'bg-accent text-bg hover:bg-accent-strong shadow-sm shadow-cyan-500/20',
   secondary:
-    'bg-surface-elevated text-ink border border-line hover:border-accent/50 hover:bg-white/5',
-  ghost: 'bg-transparent text-ink-muted hover:text-ink hover:bg-white/5',
+    'bg-surface-elevated text-ink border border-line hover:border-accent/50 hover:bg-ink/5',
+  ghost: 'bg-transparent text-ink-muted hover:text-ink hover:bg-ink/5',
   danger: 'bg-danger/40 text-danger border border-danger/60 hover:bg-danger/55',
 }
 
