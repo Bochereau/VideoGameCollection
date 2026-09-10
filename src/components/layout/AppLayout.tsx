@@ -4,7 +4,14 @@ import { Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { consolesApi } from '@/lib/api'
+import { readViewMode, writeViewMode } from '@/lib/viewMode'
 import type { ConsoleItem } from '@/types'
+import type { GamesViewMode } from '@/types/view'
+
+export type AppOutletContext = {
+  refreshConsoles: () => Promise<void>
+  viewMode: GamesViewMode
+}
 
 export function AppLayout() {
   const { getToken } = useAuth()
@@ -12,6 +19,7 @@ export function AppLayout() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [consoles, setConsoles] = useState<ConsoleItem[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<GamesViewMode>(readViewMode)
 
   const search = searchParams.get('q') ?? ''
   const selectedHardware = searchParams.get('hardware')
@@ -27,6 +35,11 @@ export function AppLayout() {
   useEffect(() => {
     void refreshConsoles().catch(console.error)
   }, [refreshConsoles])
+
+  function changeViewMode(value: GamesViewMode) {
+    setViewMode(value)
+    writeViewMode(value)
+  }
 
   function setSearch(value: string) {
     setSearchParams((prev) => {
@@ -69,6 +82,8 @@ export function AppLayout() {
       <TopBar
         search={search}
         onSearchChange={setSearch}
+        viewMode={viewMode}
+        onViewModeChange={changeViewMode}
         onToggleSidebar={() => setSidebarOpen(true)}
       />
       <div className="flex min-h-0 flex-1">
@@ -83,7 +98,7 @@ export function AppLayout() {
           wishlistMode={wishlistMode}
         />
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <Outlet context={{ refreshConsoles }} />
+          <Outlet context={{ refreshConsoles, viewMode } satisfies AppOutletContext} />
         </main>
       </div>
     </div>

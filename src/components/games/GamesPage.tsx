@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
+import type { AppOutletContext } from '@/components/layout/AppLayout'
 import { GameFormModal } from '@/components/games/GameFormModal'
 import { GameGrid } from '@/components/games/GameGrid'
 import { StatusFilters } from '@/components/games/StatusFilters'
@@ -14,8 +15,7 @@ import type {
   Game,
   GameInput,
 } from '@/types'
-
-type OutletCtx = { refreshConsoles: () => Promise<void> }
+import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 
 type Props = {
   wishlist: boolean
@@ -35,7 +35,7 @@ export function GamesPage({
   addLabel,
 }: Props) {
   const { getToken } = useAuth()
-  const { refreshConsoles } = useOutletContext<OutletCtx>()
+  const { refreshConsoles, viewMode } = useOutletContext<AppOutletContext>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [games, setGames] = useState<Game[]>([])
   const [consoleNames, setConsoleNames] = useState<string[]>([])
@@ -190,6 +190,22 @@ export function GamesPage({
     await load()
   }
 
+  async function addToCollection(game: Game) {
+    try {
+      await withToken((token) =>
+        gamesApi.update(token, game.id, { wishlist: false }),
+      )
+      await load()
+      await refreshConsoles()
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Impossible d’ajouter à la collection',
+      )
+    }
+  }
+
   async function removeGame(game: Game) {
     if (!window.confirm(`Supprimer « ${game.name} » ?`)) return
     try {
@@ -204,11 +220,37 @@ export function GamesPage({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8">
-        <div className="animate-fade-up">
+        <div className="animate-fade-up flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h1 className="font-display text-4xl tracking-wide text-ink sm:text-5xl">
             {title}
           </h1>
-          <p className="mt-1 text-ink-muted">{subtitle}</p>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm text-ink-muted">
+            <p>{subtitle}</p>
+            {!loading ? (
+              <p className="rounded-lg border border-ink-muted/30 bg-ink-muted/10 px-2 py-1 text-sm text-ink">
+                <span className="font-medium text-ink tabular-nums">
+                  {games.length}
+                </span>
+                {games.length === 1 ? ' jeu' : ' jeux'}
+                {hardware ? (
+                  <>
+                    {' '}
+                    · <span className="text-ink">{hardware}</span>
+                  </>
+                ) : null}
+                {finishedFilter === 'finished' ? ' · Terminés' : null}
+                {finishedFilter === 'todo' ? ' · À faire' : null}
+                {formatFilter === 'physical' ? ' · Physique' : null}
+                {formatFilter === 'digital' ? ' · Numérique' : null}
+                {conditionFilter !== 'all'
+                  ? ` · ${CONDITION_LABELS[conditionFilter]}`
+                  : null}
+                {editionFilter !== 'all'
+                  ? ` · ${EDITION_LABELS[editionFilter]}`
+                  : null}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <StatusFilters
@@ -241,6 +283,8 @@ export function GamesPage({
           ) : (
             <GameGrid
               games={games}
+              viewMode={viewMode}
+              wishlist={wishlist}
               emptyTitle={emptyTitle}
               emptyDescription={emptyDescription}
               onAdd={() => {
@@ -252,6 +296,7 @@ export function GamesPage({
                 setModalOpen(true)
               }}
               onToggleFinished={toggleFinished}
+              onAddToCollection={addToCollection}
               onDelete={removeGame}
             />
           )}

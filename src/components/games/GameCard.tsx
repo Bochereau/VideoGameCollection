@@ -1,23 +1,32 @@
 import type { Game } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
+import {
+  AddToCollectionButton,
+  FinishedButton,
+  gameCopyMeta,
+} from '@/components/games/gameActions'
 
 type Props = {
   game: Game
   index: number
+  wishlist: boolean
   onEdit: (game: Game) => void
   onToggleFinished: (game: Game) => void
+  onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
 }
 
-export function GameCard({ game, index, onEdit, onToggleFinished, onDelete }: Props) {
-  const format = game.format === 'digital' ? 'digital' : 'physical'
-  const condition =
-    format === 'physical' && game.condition && game.condition in CONDITION_LABELS
-      ? game.condition
-      : 'none'
-  const edition =
-    game.edition && game.edition in EDITION_LABELS ? game.edition : 'standard'
+export function GameCard({
+  game,
+  index,
+  wishlist,
+  onEdit,
+  onToggleFinished,
+  onAddToCollection,
+  onDelete,
+}: Props) {
+  const { format, condition, edition } = gameCopyMeta(game)
 
   return (
     <article
@@ -67,20 +76,9 @@ export function GameCard({ game, index, onEdit, onToggleFinished, onDelete }: Pr
       </div>
 
       <div className="flex flex-1 flex-col p-3">
-        <div className="mb-1.5 flex items-start justify-between gap-2">
-          <h3 className="line-clamp-2 text-sm leading-snug font-semibold text-ink">
-            {game.name}
-          </h3>
-          <label className="flex shrink-0 cursor-pointer items-center gap-1 text-[0.65rem] text-ink-muted">
-            <input
-              type="checkbox"
-              checked={game.finished}
-              onChange={() => onToggleFinished(game)}
-              className="size-3 rounded border-line text-accent accent-accent"
-            />
-            OK
-          </label>
-        </div>
+        <h3 className="mb-1.5 line-clamp-2 text-sm leading-snug font-semibold text-ink">
+          {game.name}
+        </h3>
 
         <dl className="space-y-0.5 text-xs text-ink-muted">
           {game.developer ? (
@@ -109,6 +107,17 @@ export function GameCard({ game, index, onEdit, onToggleFinished, onDelete }: Pr
           <span className="rounded bg-amber/20 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber">
             {EDITION_LABELS[edition]}
           </span>
+        </div>
+
+        <div className="mt-auto pt-2.5">
+          {wishlist ? (
+            <AddToCollectionButton onClick={() => onAddToCollection(game)} />
+          ) : (
+            <FinishedButton
+              finished={game.finished}
+              onClick={() => onToggleFinished(game)}
+            />
+          )}
         </div>
       </div>
     </article>

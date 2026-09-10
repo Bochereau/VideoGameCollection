@@ -1,10 +1,14 @@
 import { UserButton } from '@clerk/clerk-react'
 import { NavLink } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
+import { ViewModeToggle } from '@/components/games/ViewModeToggle'
+import type { GamesViewMode } from '@/types/view'
 
 type Props = {
   search: string
   onSearchChange: (value: string) => void
+  viewMode: GamesViewMode
+  onViewModeChange: (value: GamesViewMode) => void
   onToggleSidebar: () => void
 }
 
@@ -15,7 +19,13 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-ink-muted hover:bg-white/5 hover:text-ink'
   }`
 
-export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
+export function TopBar({
+  search,
+  onSearchChange,
+  viewMode,
+  onViewModeChange,
+  onToggleSidebar,
+}: Props) {
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-line bg-bg/55 backdrop-blur-xl">
       <div className="flex w-full items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
@@ -51,7 +61,7 @@ export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
           </NavLink>
         </nav>
 
-        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-3 sm:max-w-md">
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2 sm:max-w-lg sm:gap-3">
           <label className="relative min-w-0 flex-1">
             <span className="sr-only">Rechercher</span>
             <svg
@@ -77,6 +87,7 @@ export function TopBar({ search, onSearchChange, onToggleSidebar }: Props) {
               className="field w-full !rounded-lg !py-2 !pr-3 !pl-9"
             />
           </label>
+          <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
           <UserButton afterSignOutUrl="/" />
         </div>
       </div>
