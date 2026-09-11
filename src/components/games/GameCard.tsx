@@ -6,6 +6,7 @@ import {
   FinishedButton,
   gameCopyMeta,
 } from '@/components/games/gameActions'
+import { cardCoverUrl } from '@/lib/coverUrl'
 
 type Props = {
   game: Game
@@ -36,8 +37,10 @@ export function GameCard({
       <div className="relative h-36 overflow-hidden bg-bg sm:h-40">
         {game.cover ? (
           <img
-            src={game.cover}
+            src={cardCoverUrl(game.cover) ?? game.cover}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover object-top"
           />
         ) : (
