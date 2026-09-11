@@ -16,6 +16,7 @@ export interface Game {
   release: number | null
   finished: boolean
   wishlist: boolean
+  favorite: boolean
   cover?: string | null
   rawgId?: number | null
   format: GameFormat
@@ -40,6 +41,7 @@ export type GameInput = {
   release?: number | null
   finished?: boolean
   wishlist?: boolean
+  favorite?: boolean
   cover?: string | null
   rawgId?: number | null
   format?: GameFormat
@@ -75,6 +77,7 @@ export type CatalogPlatform = {
 }
 
 export type FinishedFilter = 'all' | 'finished' | 'todo'
+export type FavoriteFilter = 'all' | 'yes'
 export type FormatFilter = 'all' | GameFormat
 export type ConditionFilter = 'all' | GameCondition
 export type EditionFilter = 'all' | GameEdition
@@ -83,6 +86,7 @@ export type GamesQuery = {
   wishlist?: boolean
   hardware?: string
   finished?: boolean
+  favorite?: boolean
   q?: string
   format?: GameFormat
   condition?: GameCondition

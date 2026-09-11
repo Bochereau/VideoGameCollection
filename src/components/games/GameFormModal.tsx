@@ -24,6 +24,7 @@ const empty: GameInput = {
   release: null,
   finished: false,
   wishlist: false,
+  favorite: false,
   cover: null,
   rawgId: null,
   format: 'physical',
@@ -83,6 +84,7 @@ export function GameFormModal({
         release: initial.release,
         finished: initial.finished,
         wishlist: initial.wishlist,
+        favorite: initial.favorite,
         cover: initial.cover ?? null,
         rawgId: initial.rawgId ?? null,
         format: initial.format ?? 'physical',
@@ -597,11 +599,31 @@ export function GameFormModal({
               />
               Terminé
             </label>
+            {!defaultWishlist ? (
+              <label className="flex items-center gap-2 text-ink-muted">
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.favorite) && !form.wishlist}
+                  disabled={Boolean(form.wishlist)}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, favorite: e.target.checked }))
+                  }
+                  className="accent-rose-400"
+                />
+                Coup de cœur
+              </label>
+            ) : null}
             <label className="flex items-center gap-2 text-ink-muted">
               <input
                 type="checkbox"
                 checked={Boolean(form.wishlist)}
-                onChange={(e) => setForm((f) => ({ ...f, wishlist: e.target.checked }))}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    wishlist: e.target.checked,
+                    favorite: e.target.checked ? false : f.favorite,
+                  }))
+                }
                 className="accent-accent"
               />
               Liste d&apos;envies

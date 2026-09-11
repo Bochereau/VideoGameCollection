@@ -146,6 +146,14 @@ export default async function handler(req, res) {
       if (req.query.finished === 'true') filter.finished = true
       else if (req.query.finished === 'false') filter.finished = false
 
+      if (req.query.favorite === 'true') {
+        filter.favorite = true
+      } else if (req.query.favorite === 'false') {
+        and.push({
+          $nor: [{ favorite: true }, { favorite: 'true' }],
+        })
+      }
+
       if (req.query.format === 'digital') {
         filter.format = 'digital'
       } else if (req.query.format === 'physical') {
@@ -211,6 +219,9 @@ export default async function handler(req, res) {
             : Number(body.release),
         finished: Boolean(body?.finished),
         wishlist: body?.wishlist === true || body?.wishlist === 'true',
+        favorite:
+          !(body?.wishlist === true || body?.wishlist === 'true') &&
+          (body?.favorite === true || body?.favorite === 'true'),
         cover: body?.cover ? String(body.cover) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
         ...copy,
@@ -250,6 +261,16 @@ export default async function handler(req, res) {
       if (body?.finished !== undefined) $set.finished = Boolean(body.finished)
       if (body?.wishlist !== undefined) {
         $set.wishlist = body.wishlist === true || body.wishlist === 'true'
+      }
+      // Wishlist games cannot be favorites (only when the game is / becomes wishlist)
+      const willBeWishlist =
+        body?.wishlist !== undefined
+          ? body.wishlist === true || body.wishlist === 'true'
+          : existing.wishlist === true || existing.wishlist === 'true'
+      if (willBeWishlist) {
+        $set.favorite = false
+      } else if (body?.favorite !== undefined) {
+        $set.favorite = body.favorite === true || body.favorite === 'true'
       }
       if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
       if (body?.rawgId !== undefined) {

@@ -3,6 +3,7 @@ import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
   AddToCollectionButton,
+  FavoriteButton,
   FinishedButton,
   gameCopyMeta,
 } from '@/components/games/gameActions'
@@ -12,6 +13,7 @@ type Props = {
   wishlist: boolean
   onEdit: (game: Game) => void
   onToggleFinished: (game: Game) => void
+  onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
 }
@@ -34,6 +36,7 @@ export function GameList({
   wishlist,
   onEdit,
   onToggleFinished,
+  onToggleFavorite,
   onAddToCollection,
   onDelete,
 }: Props) {
@@ -84,6 +87,12 @@ export function GameList({
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="flex items-center justify-end gap-1.5">
+                    {!wishlist ? (
+                      <FavoriteButton
+                        favorite={game.favorite}
+                        onClick={() => onToggleFavorite(game)}
+                      />
+                    ) : null}
                     {wishlist ? (
                       <AddToCollectionButton
                         compact

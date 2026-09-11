@@ -3,6 +3,7 @@ import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
   AddToCollectionButton,
+  FavoriteButton,
   FinishedButton,
   gameCopyMeta,
 } from '@/components/games/gameActions'
@@ -14,6 +15,7 @@ type Props = {
   wishlist: boolean
   onEdit: (game: Game) => void
   onToggleFinished: (game: Game) => void
+  onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
 }
@@ -24,6 +26,7 @@ export function GameCard({
   wishlist,
   onEdit,
   onToggleFinished,
+  onToggleFavorite,
   onAddToCollection,
   onDelete,
 }: Props) {
@@ -51,6 +54,14 @@ export function GameCard({
         <span className="absolute top-2 left-2 rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
           {game.hardware}
         </span>
+
+        {!wishlist ? (
+          <FavoriteButton
+            favorite={game.favorite}
+            onClick={() => onToggleFavorite(game)}
+            className="absolute top-2 right-2"
+          />
+        ) : null}
 
         <div className="absolute inset-x-0 bottom-0 flex gap-1.5 bg-gradient-to-t from-bg/90 via-bg/55 to-transparent p-2 pt-8 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
           <Button

@@ -53,6 +53,9 @@ function toQuery(params: GamesQuery): string {
   if (params.finished !== undefined) {
     search.set('finished', String(params.finished))
   }
+  if (params.favorite !== undefined) {
+    search.set('favorite', String(params.favorite))
+  }
   if (params.q) search.set('q', params.q)
   if (params.format) search.set('format', params.format)
   if (params.condition) search.set('condition', params.condition)

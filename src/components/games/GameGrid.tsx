@@ -16,6 +16,7 @@ type Props = {
   onAdd: () => void
   onEdit: (game: Game) => void
   onToggleFinished: (game: Game) => void
+  onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
 }
@@ -29,6 +30,7 @@ export function GameGrid({
   onAdd,
   onEdit,
   onToggleFinished,
+  onToggleFavorite,
   onAddToCollection,
   onDelete,
 }: Props) {
@@ -49,6 +51,7 @@ export function GameGrid({
         wishlist={wishlist}
         onEdit={onEdit}
         onToggleFinished={onToggleFinished}
+        onToggleFavorite={onToggleFavorite}
         onAddToCollection={onAddToCollection}
         onDelete={onDelete}
       />
@@ -65,6 +68,7 @@ export function GameGrid({
           wishlist={wishlist}
           onEdit={onEdit}
           onToggleFinished={onToggleFinished}
+          onToggleFavorite={onToggleFavorite}
           onAddToCollection={onAddToCollection}
           onDelete={onDelete}
         />

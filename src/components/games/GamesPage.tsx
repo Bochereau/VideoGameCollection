@@ -10,6 +10,7 @@ import { gamesApi, consolesApi } from '@/lib/api'
 import type {
   ConditionFilter,
   EditionFilter,
+  FavoriteFilter,
   FinishedFilter,
   FormatFilter,
   Game,
@@ -51,12 +52,16 @@ export function GamesPage({
   const conditionFilter =
     (searchParams.get('condition') as ConditionFilter) || 'all'
   const editionFilter = (searchParams.get('edition') as EditionFilter) || 'all'
+  const favoriteParam = searchParams.get('favorite')
+  const favoriteFilter: FavoriteFilter =
+    favoriteParam === 'yes' || favoriteParam === 'true' ? 'yes' : 'all'
 
   const query = useMemo(() => {
     const base: {
       wishlist: boolean
       hardware?: string
       finished?: boolean
+      favorite?: boolean
       q?: string
       format?: 'physical' | 'digital'
       condition?: 'complete' | 'box' | 'manual' | 'loose' | 'none'
@@ -66,6 +71,7 @@ export function GamesPage({
     if (q) base.q = q
     if (finishedFilter === 'finished') base.finished = true
     if (finishedFilter === 'todo') base.finished = false
+    if (!wishlist && favoriteFilter === 'yes') base.favorite = true
     if (formatFilter === 'physical' || formatFilter === 'digital') {
       base.format = formatFilter
     }
@@ -95,6 +101,7 @@ export function GamesPage({
     hardware,
     q,
     finishedFilter,
+    favoriteFilter,
     formatFilter,
     conditionFilter,
     editionFilter,
@@ -160,6 +167,13 @@ export function GamesPage({
     })
   }
 
+  function setFavorite(value: FavoriteFilter) {
+    patchParams((next) => {
+      if (value === 'all') next.delete('favorite')
+      else next.set('favorite', 'yes')
+    })
+  }
+
   async function withToken<T>(fn: (token: string) => Promise<T>) {
     const token = await getToken()
     if (!token) throw new Error('Non authentifié')
@@ -169,14 +183,16 @@ export function GamesPage({
   async function handleSubmit(data: GameInput) {
     // Wishlist page always creates envies; collection page respects the form checkbox
     const asWishlist = wishlist ? true : Boolean(data.wishlist)
+    const payload = {
+      ...data,
+      wishlist: asWishlist,
+      favorite: asWishlist ? false : Boolean(data.favorite),
+    }
     await withToken(async (token) => {
       if (editing) {
-        await gamesApi.update(token, editing.id, {
-          ...data,
-          wishlist: Boolean(data.wishlist),
-        })
+        await gamesApi.update(token, editing.id, payload)
       } else {
-        await gamesApi.create(token, { ...data, wishlist: asWishlist })
+        await gamesApi.create(token, payload)
       }
     })
     await load()
@@ -188,6 +204,42 @@ export function GamesPage({
       gamesApi.update(token, game.id, { finished: !game.finished }),
     )
     await load()
+  }
+
+  async function toggleFavorite(game: Game) {
+    const next = !game.favorite
+    setGames((prev) => {
+      const updated = prev.map((g) =>
+        g.id === game.id ? { ...g, favorite: next } : g,
+      )
+      if (favoriteFilter === 'yes' && !next) {
+        return updated.filter((g) => g.id !== game.id)
+      }
+      return updated
+    })
+    try {
+      await withToken((token) =>
+        gamesApi.update(token, game.id, { favorite: next }),
+      )
+    } catch (err) {
+      setGames((prev) => {
+        const restored = prev.some((g) => g.id === game.id)
+          ? prev.map((g) =>
+              g.id === game.id
+                ? { ...g, favorite: Boolean(game.favorite) }
+                : g,
+            )
+          : [...prev, game].sort((a, b) =>
+              a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
+            )
+        return restored
+      })
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Impossible de mettre à jour le coup de cœur',
+      )
+    }
   }
 
   async function addToCollection(game: Game) {
@@ -240,6 +292,7 @@ export function GamesPage({
                 ) : null}
                 {finishedFilter === 'finished' ? ' · Terminés' : null}
                 {finishedFilter === 'todo' ? ' · À faire' : null}
+                {favoriteFilter === 'yes' ? ' · Coups de cœur' : null}
                 {formatFilter === 'physical' ? ' · Physique' : null}
                 {formatFilter === 'digital' ? ' · Numérique' : null}
                 {conditionFilter !== 'all'
@@ -262,6 +315,9 @@ export function GamesPage({
           onConditionChange={setCondition}
           edition={editionFilter}
           onEditionChange={setEdition}
+          favorite={favoriteFilter}
+          onFavoriteChange={setFavorite}
+          showFavoriteFilter={!wishlist}
           onAdd={() => {
             setEditing(null)
             setModalOpen(true)
@@ -296,6 +352,7 @@ export function GamesPage({
                 setModalOpen(true)
               }}
               onToggleFinished={toggleFinished}
+              onToggleFavorite={toggleFavorite}
               onAddToCollection={addToCollection}
               onDelete={removeGame}
             />

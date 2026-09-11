@@ -1,11 +1,13 @@
 import type {
   ConditionFilter,
   EditionFilter,
+  FavoriteFilter,
   FinishedFilter,
   FormatFilter,
 } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { FavoriteButton } from '@/components/games/gameActions'
 
 type Props = {
   status: FinishedFilter
@@ -16,6 +18,9 @@ type Props = {
   onConditionChange: (value: ConditionFilter) => void
   edition: EditionFilter
   onEditionChange: (value: EditionFilter) => void
+  favorite: FavoriteFilter
+  onFavoriteChange: (value: FavoriteFilter) => void
+  showFavoriteFilter?: boolean
   onAdd: () => void
   addLabel: string
 }
@@ -64,9 +69,14 @@ export function StatusFilters({
   onConditionChange,
   edition,
   onEditionChange,
+  favorite,
+  onFavoriteChange,
+  showFavoriteFilter = true,
   onAdd,
   addLabel,
 }: Props) {
+  const favoritesOnly = favorite === 'yes'
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Button onClick={onAdd}>{addLabel}</Button>
@@ -119,6 +129,17 @@ export function StatusFilters({
           })),
         ]}
       />
+
+      {showFavoriteFilter ? (
+        <FavoriteButton
+          favorite={favoritesOnly}
+          onClick={() => onFavoriteChange(favoritesOnly ? 'all' : 'yes')}
+          labelOn="Afficher tous les jeux"
+          labelOff="Afficher les coups de cœur"
+          title="Filtrer les coups de cœur"
+          className="ml-auto !bg-surface/80 !backdrop-blur-md border border-line"
+        />
+      ) : null}
     </div>
   )
 }
