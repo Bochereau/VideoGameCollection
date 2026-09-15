@@ -195,7 +195,7 @@ function PortalMenu({
         left: pos.left,
         minWidth: pos.minWidth,
       }}
-      className="z-[100] overflow-hidden rounded-lg border border-line bg-surface-elevated py-1 shadow-lg shadow-black/40"
+      className="z-[100] overflow-hidden rounded-lg border border-line bg-bg py-1 shadow-lg shadow-black/50"
     >
       {children}
     </ul>,
@@ -251,8 +251,10 @@ export function StatusSelect({
             <li key={id} role="option" aria-selected={id === status}>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition hover:bg-accent-soft ${
-                  id === status ? 'text-accent' : 'text-ink'
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition hover:bg-surface ${
+                  id === status
+                    ? 'bg-surface font-medium text-accent'
+                    : 'text-ink'
                 }`}
                 onClick={(e) => {
                   e.stopPropagation()
@@ -392,7 +394,7 @@ export function PriorityButton({
   const value: GamePriority = priority ?? 3
 
   return (
-    <div ref={rootRef} className={`relative ${className}`}>
+    <div ref={rootRef} className={className || 'relative inline-flex'}>
       <button
         ref={triggerRef}
         type="button"
@@ -421,8 +423,10 @@ export function PriorityButton({
             <li key={id} role="option" aria-selected={id === value}>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-xs transition hover:bg-accent-soft ${
-                  id === value ? 'font-semibold text-ink' : 'text-ink-muted'
+                className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-xs transition hover:bg-surface ${
+                  id === value
+                    ? 'bg-surface font-semibold text-ink'
+                    : 'text-ink-muted'
                 }`}
                 onClick={(e) => {
                   e.stopPropagation()
