@@ -1,10 +1,11 @@
-import type { Game } from '@/types'
+import type { Game, GamePriority, GameStatus } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
   AddToCollectionButton,
   FavoriteButton,
-  FinishedButton,
+  PriorityButton,
+  StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
 
@@ -12,7 +13,8 @@ type Props = {
   games: Game[]
   wishlist: boolean
   onEdit: (game: Game) => void
-  onToggleFinished: (game: Game) => void
+  onStatusChange: (game: Game, status: GameStatus) => void
+  onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
@@ -35,7 +37,8 @@ export function GameList({
   games,
   wishlist,
   onEdit,
-  onToggleFinished,
+  onStatusChange,
+  onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
   onDelete,
@@ -50,7 +53,9 @@ export function GameList({
             <th className="hidden px-3 py-2.5 font-medium md:table-cell">Studio</th>
             <th className="px-3 py-2.5 font-medium">Année</th>
             <th className="px-3 py-2.5 font-medium">Format</th>
-            <th className="hidden px-3 py-2.5 font-medium lg:table-cell">État</th>
+            {!wishlist ? (
+              <th className="hidden px-3 py-2.5 font-medium lg:table-cell">État</th>
+            ) : null}
             <th className="hidden px-3 py-2.5 font-medium lg:table-cell">Édition</th>
             <th className="px-3 py-2.5 font-medium">
               <span className="sr-only">Actions</span>
@@ -60,6 +65,8 @@ export function GameList({
         <tbody>
           {games.map((game, index) => {
             const { format, condition, edition } = gameCopyMeta(game)
+            const showPriority = wishlist || game.status === 'todo'
+            const showFavorite = !wishlist && game.status === 'finished'
             return (
               <tr
                 key={game.id}
@@ -79,15 +86,22 @@ export function GameList({
                 <td className="px-3 py-2.5 whitespace-nowrap text-ink-muted">
                   {format === 'digital' ? 'Numérique' : 'Physique'}
                 </td>
-                <td className="hidden px-3 py-2.5 whitespace-nowrap text-accent lg:table-cell">
-                  {format === 'physical' ? CONDITION_LABELS[condition] : '—'}
-                </td>
+                {!wishlist ? (
+                  <td className="hidden px-3 py-2.5 whitespace-nowrap text-accent lg:table-cell">
+                    {format === 'physical' ? CONDITION_LABELS[condition] : '—'}
+                  </td>
+                ) : null}
                 <td className="hidden px-3 py-2.5 whitespace-nowrap text-amber lg:table-cell">
                   {EDITION_LABELS[edition]}
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="flex items-center justify-end gap-1.5">
-                    {!wishlist ? (
+                    {showPriority ? (
+                      <PriorityButton
+                        priority={game.priority}
+                        onChange={(p) => onPriorityChange(game, p)}
+                      />
+                    ) : showFavorite ? (
                       <FavoriteButton
                         favorite={game.favorite}
                         onClick={() => onToggleFavorite(game)}
@@ -99,10 +113,10 @@ export function GameList({
                         onClick={() => onAddToCollection(game)}
                       />
                     ) : (
-                      <FinishedButton
+                      <StatusSelect
                         compact
-                        finished={game.finished}
-                        onClick={() => onToggleFinished(game)}
+                        status={game.status}
+                        onChange={(status) => onStatusChange(game, status)}
                       />
                     )}
                     <Button

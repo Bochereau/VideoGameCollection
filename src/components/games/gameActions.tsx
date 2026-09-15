@@ -1,5 +1,11 @@
-import type { Game } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
+import type { Game, GamePriority, GameStatus } from '@/types'
+import {
+  CONDITION_LABELS,
+  EDITION_LABELS,
+  PRIORITY_COLORS,
+  PRIORITY_LABELS,
+  STATUS_LABELS,
+} from '@/types'
 
 export function gameCopyMeta(game: Game) {
   const format = game.format === 'digital' ? 'digital' : 'physical'
@@ -12,87 +18,42 @@ export function gameCopyMeta(game: Game) {
   return { format, condition, edition }
 }
 
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className={className}
-    >
-      <path
-        d="M5 13l4 4L19 7"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+const STATUS_STYLES: Record<GameStatus, string> = {
+  todo: 'bg-ink-muted/15 text-ink-muted',
+  playing: 'bg-sky-500/20 text-sky-400',
+  finished: 'bg-emerald-500 text-bg shadow-sm shadow-emerald-500/25',
+  abandoned: 'bg-rose-500/20 text-rose-400',
 }
 
-function CrossIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className={className}
-    >
-      <path
-        d="M6 6l12 12M18 6L6 18"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-export function FinishedButton({
-  finished,
-  onClick,
+export function StatusSelect({
+  status,
+  onChange,
   compact = false,
 }: {
-  finished: boolean
-  onClick: () => void
+  status: GameStatus
+  onChange: (status: GameStatus) => void
   compact?: boolean
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={finished}
-      className={`group/done inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition ${
-        compact ? 'px-2.5 py-1 text-[0.65rem]' : 'w-full px-2.5 py-1.5 text-[0.7rem]'
-      } ${
-        finished
-          ? 'bg-emerald-500 text-bg shadow-sm shadow-emerald-500/25'
-          : 'bg-ink-muted/15 text-ink-muted hover:bg-ink-muted/25 hover:text-ink'
-      }`}
-    >
-      {finished ? (
-        <CheckIcon />
-      ) : (
-        <span className="relative size-3">
-          <CrossIcon className="absolute inset-0 transition group-hover/done:opacity-0" />
-          <CheckIcon className="absolute inset-0 opacity-0 transition group-hover/done:opacity-100" />
-        </span>
-      )}
-      <span>
-        Terminé
-        {!finished ? (
-          <span className="hidden group-hover/done:inline" aria-hidden>
-            {' '}
-            ?
-          </span>
-        ) : null}
-      </span>
-    </button>
+    <label className={compact ? 'inline-block' : 'block w-full'}>
+      <span className="sr-only">Statut</span>
+      <select
+        className={`field cursor-pointer appearance-none border-0 font-medium transition ${
+          compact
+            ? '!w-auto !min-w-[6.5rem] !rounded-full !px-2.5 !py-1 !pr-7 !text-[0.65rem]'
+            : 'w-full !rounded-full !px-2.5 !py-1.5 !pr-8 !text-[0.7rem]'
+        } ${STATUS_STYLES[status]}`}
+        value={status}
+        onChange={(e) => onChange(e.target.value as GameStatus)}
+        aria-label="Statut du jeu"
+      >
+        {(Object.keys(STATUS_LABELS) as GameStatus[]).map((id) => (
+          <option key={id} value={id} className="bg-surface text-ink">
+            {STATUS_LABELS[id]}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }
 
@@ -139,6 +100,27 @@ function HeartIcon({ filled }: { filled: boolean }) {
   )
 }
 
+function BookmarkIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"
+        fill={filled ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function FavoriteButton({
   favorite,
   onClick,
@@ -171,6 +153,35 @@ export function FavoriteButton({
       } ${className}`}
     >
       <HeartIcon filled={favorite} />
+    </button>
+  )
+}
+
+export function PriorityButton({
+  priority,
+  onChange,
+  className = '',
+}: {
+  priority: GamePriority | null
+  onChange: (priority: GamePriority) => void
+  className?: string
+}) {
+  const value: GamePriority = priority ?? 3
+  // Cycle high → low: 5 → 4 → 3 → 2 → 1 → 5
+  const cycleDown = (value === 1 ? 5 : value - 1) as GamePriority
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        onChange(cycleDown)
+      }}
+      aria-label={`Priorité : ${PRIORITY_LABELS[value]}. Cliquer pour changer.`}
+      title={`Priorité : ${PRIORITY_LABELS[value]}`}
+      className={`inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm transition hover:opacity-90 ${PRIORITY_COLORS[value]} ${className}`}
+    >
+      <BookmarkIcon filled />
     </button>
   )
 }

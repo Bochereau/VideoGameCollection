@@ -1,10 +1,11 @@
-import type { Game } from '@/types'
+import type { Game, GamePriority, GameStatus } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
   AddToCollectionButton,
   FavoriteButton,
-  FinishedButton,
+  PriorityButton,
+  StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
 import { cardCoverUrl } from '@/lib/coverUrl'
@@ -14,7 +15,8 @@ type Props = {
   index: number
   wishlist: boolean
   onEdit: (game: Game) => void
-  onToggleFinished: (game: Game) => void
+  onStatusChange: (game: Game, status: GameStatus) => void
+  onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
@@ -25,12 +27,15 @@ export function GameCard({
   index,
   wishlist,
   onEdit,
-  onToggleFinished,
+  onStatusChange,
+  onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
   onDelete,
 }: Props) {
   const { format, condition, edition } = gameCopyMeta(game)
+  const showPriority = wishlist || game.status === 'todo'
+  const showFavorite = !wishlist && game.status === 'finished'
 
   return (
     <article
@@ -55,7 +60,13 @@ export function GameCard({
           {game.hardware}
         </span>
 
-        {!wishlist ? (
+        {showPriority ? (
+          <PriorityButton
+            priority={game.priority}
+            onChange={(p) => onPriorityChange(game, p)}
+            className="absolute top-2 right-2"
+          />
+        ) : showFavorite ? (
           <FavoriteButton
             favorite={game.favorite}
             onClick={() => onToggleFavorite(game)}
@@ -113,7 +124,7 @@ export function GameCard({
           <span className="rounded bg-bg/70 px-1.5 py-0.5 text-[0.65rem] font-medium text-ink-muted">
             {format === 'digital' ? 'Numérique' : 'Physique'}
           </span>
-          {format === 'physical' ? (
+          {format === 'physical' && !wishlist ? (
             <span className="rounded bg-accent-soft px-1.5 py-0.5 text-[0.65rem] font-medium text-accent">
               {CONDITION_LABELS[condition]}
             </span>
@@ -127,9 +138,9 @@ export function GameCard({
           {wishlist ? (
             <AddToCollectionButton onClick={() => onAddToCollection(game)} />
           ) : (
-            <FinishedButton
-              finished={game.finished}
-              onClick={() => onToggleFinished(game)}
+            <StatusSelect
+              status={game.status}
+              onChange={(status) => onStatusChange(game, status)}
             />
           )}
         </div>

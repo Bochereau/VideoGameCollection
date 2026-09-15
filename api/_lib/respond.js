@@ -11,6 +11,7 @@ export function errorResponse(res, err) {
 
 const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
 const EDITIONS = new Set(['standard', 'steelbook', 'special', 'deluxe', 'collector'])
+export const STATUSES = new Set(['todo', 'playing', 'finished', 'abandoned'])
 
 export function resolveCondition(doc) {
   if (CONDITIONS.has(doc.condition)) return doc.condition
@@ -29,9 +30,33 @@ export function resolveEdition(doc) {
   return 'standard'
 }
 
+export function resolveStatus(doc) {
+  if (STATUSES.has(doc.status)) return doc.status
+  // Legacy boolean finished
+  return doc.finished === true || doc.finished === 'true' ? 'finished' : 'todo'
+}
+
+export function resolvePriority(doc, status, wishlist) {
+  const raw = Number(doc.priority)
+  if (Number.isInteger(raw) && raw >= 1 && raw <= 5) {
+    return raw
+  }
+  // Default medium when priority applies
+  if (wishlist || status === 'todo') return 3
+  return null
+}
+
 export function serializeGame(doc) {
   const format = doc.format === 'digital' ? 'digital' : 'physical'
   const condition = format === 'physical' ? resolveCondition(doc) : 'none'
+  const wishlist = doc.wishlist === true || doc.wishlist === 'true'
+  const status = resolveStatus(doc)
+  const priority = resolvePriority(doc, status, wishlist)
+  const favorite =
+    !wishlist &&
+    status === 'finished' &&
+    (doc.favorite === true || doc.favorite === 'true')
+
   return {
     id: String(doc._id),
     name: doc.name,
@@ -39,9 +64,10 @@ export function serializeGame(doc) {
     developer: doc.developer ?? '',
     editor: doc.editor ?? '',
     release: doc.release ?? null,
-    finished: Boolean(doc.finished),
-    wishlist: doc.wishlist === true || doc.wishlist === 'true',
-    favorite: doc.favorite === true || doc.favorite === 'true',
+    status,
+    priority,
+    wishlist,
+    favorite,
     cover: doc.cover ?? null,
     rawgId: doc.rawgId ?? null,
     format,

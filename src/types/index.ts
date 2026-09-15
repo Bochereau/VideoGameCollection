@@ -7,6 +7,9 @@ export type GameEdition =
   | 'deluxe'
   | 'collector'
 
+export type GameStatus = 'todo' | 'playing' | 'finished' | 'abandoned'
+export type GamePriority = 1 | 2 | 3 | 4 | 5
+
 export interface Game {
   id: string
   name: string
@@ -14,7 +17,8 @@ export interface Game {
   developer: string
   editor: string
   release: number | null
-  finished: boolean
+  status: GameStatus
+  priority: GamePriority | null
   wishlist: boolean
   favorite: boolean
   cover?: string | null
@@ -39,7 +43,8 @@ export type GameInput = {
   developer?: string
   editor?: string
   release?: number | null
-  finished?: boolean
+  status?: GameStatus
+  priority?: GamePriority | null
   wishlist?: boolean
   favorite?: boolean
   cover?: string | null
@@ -76,22 +81,49 @@ export type CatalogPlatform = {
   gamesCount: number
 }
 
-export type FinishedFilter = 'all' | 'finished' | 'todo'
+export type StatusFilter = 'all' | GameStatus
 export type FavoriteFilter = 'all' | 'yes'
 export type FormatFilter = 'all' | GameFormat
 export type ConditionFilter = 'all' | GameCondition
 export type EditionFilter = 'all' | GameEdition
+export type SortKey = 'name' | 'priority'
 
 export type GamesQuery = {
   wishlist?: boolean
   hardware?: string
-  finished?: boolean
+  status?: GameStatus
   favorite?: boolean
   q?: string
   format?: GameFormat
   condition?: GameCondition
   edition?: GameEdition
 }
+
+export const STATUS_LABELS: Record<GameStatus, string> = {
+  todo: 'À faire',
+  playing: 'En cours',
+  finished: 'Terminé',
+  abandoned: 'Abandonné',
+}
+
+export const PRIORITY_LABELS: Record<GamePriority, string> = {
+  5: 'Très haute',
+  4: 'Haute',
+  3: 'Moyenne',
+  2: 'Basse',
+  1: 'Très basse',
+}
+
+/** Tailwind-ish color classes for priority bookmark */
+export const PRIORITY_COLORS: Record<GamePriority, string> = {
+  5: 'text-red-500',
+  4: 'text-orange-500',
+  3: 'text-amber-400',
+  2: 'text-sky-500',
+  1: 'text-ink-muted',
+}
+
+export const DEFAULT_PRIORITY: GamePriority = 3
 
 export const CONDITION_LABELS: Record<GameCondition, string> = {
   complete: 'Complet',

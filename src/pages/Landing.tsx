@@ -30,8 +30,7 @@ export function LandingPage() {
               className="animate-fade-up mt-5 max-w-xl text-lg text-ink-muted sm:text-xl"
               style={{ animationDelay: '80ms' }}
             >
-              Une collection claire, filtrable, à portée de main — consoles, progression
-              et liste d&apos;envies, sous les lumières de la ville.
+              Gérez votre collection de jeux vidéo en quelques clics seulement. C'est facile, intuitif et rapide.
             </p>
             <div
               className="animate-fade-up mt-10 flex flex-wrap gap-3"
@@ -45,26 +44,6 @@ export function LandingPage() {
                   Créer un compte
                 </Button>
               </Link>
-            </div>
-
-            <div
-              className="animate-fade-up relative mt-20 overflow-hidden rounded-3xl border border-line bg-surface shadow-xl shadow-black/30 backdrop-blur-md"
-              style={{ animationDelay: '200ms' }}
-            >
-              <div className="relative grid gap-px bg-line/40 sm:grid-cols-3">
-                {[
-                  { label: 'Collection', value: 'Filtrez par console & statut' },
-                  { label: 'Envies', value: 'Gardez ce que vous visez' },
-                  { label: 'Catalogue', value: 'Recherche RAWG + jaquettes' },
-                ].map((item) => (
-                  <div key={item.label} className="bg-surface-elevated p-6 sm:p-8">
-                    <p className="font-display text-lg tracking-wide text-accent">
-                      {item.label}
-                    </p>
-                    <p className="mt-2 text-ink-muted">{item.value}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           </main>
         </div>

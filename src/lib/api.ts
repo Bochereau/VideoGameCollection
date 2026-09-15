@@ -50,9 +50,7 @@ function toQuery(params: GamesQuery): string {
     search.set('wishlist', String(params.wishlist))
   }
   if (params.hardware) search.set('hardware', params.hardware)
-  if (params.finished !== undefined) {
-    search.set('finished', String(params.finished))
-  }
+  if (params.status) search.set('status', params.status)
   if (params.favorite !== undefined) {
     search.set('favorite', String(params.favorite))
   }

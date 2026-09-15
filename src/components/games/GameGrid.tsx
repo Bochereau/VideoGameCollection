@@ -1,4 +1,4 @@
-import type { Game } from '@/types'
+import type { Game, GamePriority, GameStatus } from '@/types'
 import type { GamesViewMode } from '@/types/view'
 import { GameCard } from '@/components/games/GameCard'
 import { GameList } from '@/components/games/GameList'
@@ -15,7 +15,8 @@ type Props = {
   emptyDescription: string
   onAdd: () => void
   onEdit: (game: Game) => void
-  onToggleFinished: (game: Game) => void
+  onStatusChange: (game: Game, status: GameStatus) => void
+  onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
@@ -29,7 +30,8 @@ export function GameGrid({
   emptyDescription,
   onAdd,
   onEdit,
-  onToggleFinished,
+  onStatusChange,
+  onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
   onDelete,
@@ -50,7 +52,8 @@ export function GameGrid({
         games={games}
         wishlist={wishlist}
         onEdit={onEdit}
-        onToggleFinished={onToggleFinished}
+        onStatusChange={onStatusChange}
+        onPriorityChange={onPriorityChange}
         onToggleFavorite={onToggleFavorite}
         onAddToCollection={onAddToCollection}
         onDelete={onDelete}
@@ -67,7 +70,8 @@ export function GameGrid({
           index={index}
           wishlist={wishlist}
           onEdit={onEdit}
-          onToggleFinished={onToggleFinished}
+          onStatusChange={onStatusChange}
+          onPriorityChange={onPriorityChange}
           onToggleFavorite={onToggleFavorite}
           onAddToCollection={onAddToCollection}
           onDelete={onDelete}

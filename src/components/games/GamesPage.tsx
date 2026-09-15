@@ -11,12 +11,15 @@ import type {
   ConditionFilter,
   EditionFilter,
   FavoriteFilter,
-  FinishedFilter,
   FormatFilter,
   Game,
   GameInput,
+  GamePriority,
+  GameStatus,
+  SortKey,
+  StatusFilter,
 } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
+import { CONDITION_LABELS, EDITION_LABELS, STATUS_LABELS } from '@/types'
 
 type Props = {
   wishlist: boolean
@@ -25,6 +28,23 @@ type Props = {
   emptyTitle: string
   emptyDescription: string
   addLabel: string
+}
+
+function sortGames(list: Game[], sort: SortKey): Game[] {
+  const copy = [...list]
+  if (sort === 'priority') {
+    copy.sort((a, b) => {
+      const pa = a.priority ?? 0
+      const pb = b.priority ?? 0
+      if (pb !== pa) return pb - pa
+      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+    })
+  } else {
+    copy.sort((a, b) =>
+      a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
+    )
+  }
+  return copy
 }
 
 export function GamesPage({
@@ -47,7 +67,14 @@ export function GamesPage({
 
   const q = searchParams.get('q') ?? ''
   const hardware = searchParams.get('hardware') ?? undefined
-  const finishedFilter = (searchParams.get('status') as FinishedFilter) || 'all'
+  const rawStatus = searchParams.get('status')
+  const statusFilter: StatusFilter =
+    rawStatus === 'todo' ||
+    rawStatus === 'playing' ||
+    rawStatus === 'finished' ||
+    rawStatus === 'abandoned'
+      ? rawStatus
+      : 'all'
   const formatFilter = (searchParams.get('format') as FormatFilter) || 'all'
   const conditionFilter =
     (searchParams.get('condition') as ConditionFilter) || 'all'
@@ -55,12 +82,16 @@ export function GamesPage({
   const favoriteParam = searchParams.get('favorite')
   const favoriteFilter: FavoriteFilter =
     favoriteParam === 'yes' || favoriteParam === 'true' ? 'yes' : 'all'
+  const sortParam = searchParams.get('sort')
+  const sortKey: SortKey = sortParam === 'priority' ? 'priority' : 'name'
+
+  const showSort = wishlist || statusFilter === 'todo'
 
   const query = useMemo(() => {
     const base: {
       wishlist: boolean
       hardware?: string
-      finished?: boolean
+      status?: GameStatus
       favorite?: boolean
       q?: string
       format?: 'physical' | 'digital'
@@ -69,13 +100,13 @@ export function GamesPage({
     } = { wishlist }
     if (hardware) base.hardware = hardware
     if (q) base.q = q
-    if (finishedFilter === 'finished') base.finished = true
-    if (finishedFilter === 'todo') base.finished = false
+    if (!wishlist && statusFilter !== 'all') base.status = statusFilter
     if (!wishlist && favoriteFilter === 'yes') base.favorite = true
     if (formatFilter === 'physical' || formatFilter === 'digital') {
       base.format = formatFilter
     }
     if (
+      !wishlist &&
       conditionFilter !== 'all' &&
       formatFilter !== 'digital' &&
       (conditionFilter === 'complete' ||
@@ -100,7 +131,7 @@ export function GamesPage({
     wishlist,
     hardware,
     q,
-    finishedFilter,
+    statusFilter,
     favoriteFilter,
     formatFilter,
     conditionFilter,
@@ -130,6 +161,11 @@ export function GamesPage({
     void load()
   }, [load])
 
+  const displayedGames = useMemo(
+    () => sortGames(games, showSort ? sortKey : 'name'),
+    [games, showSort, sortKey],
+  )
+
   function patchParams(mutate: (next: URLSearchParams) => void) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
@@ -138,10 +174,18 @@ export function GamesPage({
     })
   }
 
-  function setStatus(value: FinishedFilter) {
+  function setStatus(value: StatusFilter) {
     patchParams((next) => {
       if (value === 'all') next.delete('status')
       else next.set('status', value)
+      if (value !== 'todo') next.delete('sort')
+    })
+  }
+
+  function setSort(value: SortKey) {
+    patchParams((next) => {
+      if (value === 'name') next.delete('sort')
+      else next.set('sort', value)
     })
   }
 
@@ -181,12 +225,16 @@ export function GamesPage({
   }
 
   async function handleSubmit(data: GameInput) {
-    // Wishlist page always creates envies; collection page respects the form checkbox
     const asWishlist = wishlist ? true : Boolean(data.wishlist)
-    const payload = {
+    const status = data.status ?? 'todo'
+    const payload: GameInput = {
       ...data,
       wishlist: asWishlist,
-      favorite: asWishlist ? false : Boolean(data.favorite),
+      status: asWishlist ? data.status ?? 'todo' : status,
+      favorite:
+        !asWishlist && status === 'finished' ? Boolean(data.favorite) : false,
+      priority:
+        asWishlist || status === 'todo' ? (data.priority ?? 3) : null,
     }
     await withToken(async (token) => {
       if (editing) {
@@ -199,14 +247,41 @@ export function GamesPage({
     await refreshConsoles()
   }
 
-  async function toggleFinished(game: Game) {
+  async function updateStatus(game: Game, status: GameStatus) {
     await withToken((token) =>
-      gamesApi.update(token, game.id, { finished: !game.finished }),
+      gamesApi.update(token, game.id, {
+        status,
+        favorite: status === 'finished' ? game.favorite : false,
+        priority: status === 'todo' ? (game.priority ?? 3) : null,
+      }),
     )
     await load()
   }
 
+  async function updatePriority(game: Game, priority: GamePriority) {
+    setGames((prev) =>
+      prev.map((g) => (g.id === game.id ? { ...g, priority } : g)),
+    )
+    try {
+      await withToken((token) =>
+        gamesApi.update(token, game.id, { priority }),
+      )
+    } catch (err) {
+      setGames((prev) =>
+        prev.map((g) =>
+          g.id === game.id ? { ...g, priority: game.priority } : g,
+        ),
+      )
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Impossible de mettre à jour la priorité',
+      )
+    }
+  }
+
   async function toggleFavorite(game: Game) {
+    if (game.status !== 'finished') return
     const next = !game.favorite
     setGames((prev) => {
       const updated = prev.map((g) =>
@@ -245,7 +320,12 @@ export function GamesPage({
   async function addToCollection(game: Game) {
     try {
       await withToken((token) =>
-        gamesApi.update(token, game.id, { wishlist: false }),
+        gamesApi.update(token, game.id, {
+          wishlist: false,
+          status: 'todo',
+          priority: null,
+          favorite: false,
+        }),
       )
       await load()
       await refreshConsoles()
@@ -281,33 +361,36 @@ export function GamesPage({
             {!loading ? (
               <p className="rounded-lg border border-ink-muted/30 bg-ink-muted/10 px-2 py-1 text-sm text-ink">
                 <span className="font-medium text-ink tabular-nums">
-                  {games.length}
+                  {displayedGames.length}
                 </span>
-                {games.length === 1 ? ' jeu' : ' jeux'}
+                {displayedGames.length === 1 ? ' jeu' : ' jeux'}
                 {hardware ? (
                   <>
                     {' '}
                     · <span className="text-ink">{hardware}</span>
                   </>
                 ) : null}
-                {finishedFilter === 'finished' ? ' · Terminés' : null}
-                {finishedFilter === 'todo' ? ' · À faire' : null}
+                {!wishlist && statusFilter !== 'all'
+                  ? ` · ${STATUS_LABELS[statusFilter]}`
+                  : null}
                 {favoriteFilter === 'yes' ? ' · Coups de cœur' : null}
                 {formatFilter === 'physical' ? ' · Physique' : null}
                 {formatFilter === 'digital' ? ' · Numérique' : null}
-                {conditionFilter !== 'all'
+                {!wishlist && conditionFilter !== 'all'
                   ? ` · ${CONDITION_LABELS[conditionFilter]}`
                   : null}
                 {editionFilter !== 'all'
                   ? ` · ${EDITION_LABELS[editionFilter]}`
                   : null}
+                {showSort && sortKey === 'priority' ? ' · Priorité' : null}
               </p>
             ) : null}
           </div>
         </div>
 
         <StatusFilters
-          status={finishedFilter}
+          wishlist={wishlist}
+          status={statusFilter}
           onStatusChange={setStatus}
           format={formatFilter}
           onFormatChange={setFormat}
@@ -317,7 +400,9 @@ export function GamesPage({
           onEditionChange={setEdition}
           favorite={favoriteFilter}
           onFavoriteChange={setFavorite}
-          showFavoriteFilter={!wishlist}
+          showSort={showSort}
+          sort={sortKey}
+          onSortChange={setSort}
           onAdd={() => {
             setEditing(null)
             setModalOpen(true)
@@ -338,7 +423,7 @@ export function GamesPage({
             <Loading />
           ) : (
             <GameGrid
-              games={games}
+              games={displayedGames}
               viewMode={viewMode}
               wishlist={wishlist}
               emptyTitle={emptyTitle}
@@ -351,7 +436,8 @@ export function GamesPage({
                 setEditing(game)
                 setModalOpen(true)
               }}
-              onToggleFinished={toggleFinished}
+              onStatusChange={updateStatus}
+              onPriorityChange={updatePriority}
               onToggleFavorite={toggleFavorite}
               onAddToCollection={addToCollection}
               onDelete={removeGame}

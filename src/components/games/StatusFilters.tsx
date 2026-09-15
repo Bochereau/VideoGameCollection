@@ -2,16 +2,18 @@ import type {
   ConditionFilter,
   EditionFilter,
   FavoriteFilter,
-  FinishedFilter,
   FormatFilter,
+  SortKey,
+  StatusFilter,
 } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
+import { CONDITION_LABELS, EDITION_LABELS, STATUS_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { FavoriteButton } from '@/components/games/gameActions'
 
 type Props = {
-  status: FinishedFilter
-  onStatusChange: (value: FinishedFilter) => void
+  wishlist: boolean
+  status: StatusFilter
+  onStatusChange: (value: StatusFilter) => void
   format: FormatFilter
   onFormatChange: (value: FormatFilter) => void
   condition: ConditionFilter
@@ -20,7 +22,9 @@ type Props = {
   onEditionChange: (value: EditionFilter) => void
   favorite: FavoriteFilter
   onFavoriteChange: (value: FavoriteFilter) => void
-  showFavoriteFilter?: boolean
+  showSort: boolean
+  sort: SortKey
+  onSortChange: (value: SortKey) => void
   onAdd: () => void
   addLabel: string
 }
@@ -61,6 +65,7 @@ function FilterSelect({
 }
 
 export function StatusFilters({
+  wishlist,
   status,
   onStatusChange,
   format,
@@ -71,7 +76,9 @@ export function StatusFilters({
   onEditionChange,
   favorite,
   onFavoriteChange,
-  showFavoriteFilter = true,
+  showSort,
+  sort,
+  onSortChange,
   onAdd,
   addLabel,
 }: Props) {
@@ -81,16 +88,32 @@ export function StatusFilters({
     <div className="flex flex-wrap items-center gap-3">
       <Button onClick={onAdd}>{addLabel}</Button>
 
-      <FilterSelect
-        label="Statut"
-        value={status}
-        onChange={(v) => onStatusChange(v as FinishedFilter)}
-        options={[
-          { id: 'all', label: 'Statut : tous' },
-          { id: 'finished', label: 'Statut : terminés' },
-          { id: 'todo', label: 'Statut : à faire' },
-        ]}
-      />
+      {!wishlist ? (
+        <FilterSelect
+          label="Statut"
+          value={status}
+          onChange={(v) => onStatusChange(v as StatusFilter)}
+          options={[
+            { id: 'all', label: 'Statut : tous' },
+            ...Object.entries(STATUS_LABELS).map(([id, label]) => ({
+              id,
+              label: `Statut : ${label.toLowerCase()}`,
+            })),
+          ]}
+        />
+      ) : null}
+
+      {showSort ? (
+        <FilterSelect
+          label="Tri"
+          value={sort}
+          onChange={(v) => onSortChange(v as SortKey)}
+          options={[
+            { id: 'name', label: 'Tri : A→Z' },
+            { id: 'priority', label: 'Tri : Priorité' },
+          ]}
+        />
+      ) : null}
 
       <FilterSelect
         label="Format"
@@ -103,19 +126,21 @@ export function StatusFilters({
         ]}
       />
 
-      <FilterSelect
-        label="État"
-        value={condition}
-        disabled={format === 'digital'}
-        onChange={(v) => onConditionChange(v as ConditionFilter)}
-        options={[
-          { id: 'all', label: 'État : tous' },
-          ...Object.entries(CONDITION_LABELS).map(([id, label]) => ({
-            id,
-            label: `État : ${label}`,
-          })),
-        ]}
-      />
+      {!wishlist ? (
+        <FilterSelect
+          label="État"
+          value={condition}
+          disabled={format === 'digital'}
+          onChange={(v) => onConditionChange(v as ConditionFilter)}
+          options={[
+            { id: 'all', label: 'État : tous' },
+            ...Object.entries(CONDITION_LABELS).map(([id, label]) => ({
+              id,
+              label: `État : ${label}`,
+            })),
+          ]}
+        />
+      ) : null}
 
       <FilterSelect
         label="Édition"
@@ -130,7 +155,7 @@ export function StatusFilters({
         ]}
       />
 
-      {showFavoriteFilter ? (
+      {!wishlist ? (
         <FavoriteButton
           favorite={favoritesOnly}
           onClick={() => onFavoriteChange(favoritesOnly ? 'all' : 'yes')}

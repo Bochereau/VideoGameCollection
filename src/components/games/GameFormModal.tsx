@@ -1,7 +1,20 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
-import type { CatalogCover, CatalogGame, Game, GameInput } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
+import type {
+  CatalogCover,
+  CatalogGame,
+  Game,
+  GameInput,
+  GamePriority,
+  GameStatus,
+} from '@/types'
+import {
+  CONDITION_LABELS,
+  DEFAULT_PRIORITY,
+  EDITION_LABELS,
+  PRIORITY_LABELS,
+  STATUS_LABELS,
+} from '@/types'
 import { catalogApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 
@@ -22,7 +35,8 @@ const empty: GameInput = {
   developer: '',
   editor: '',
   release: null,
-  finished: false,
+  status: 'todo',
+  priority: DEFAULT_PRIORITY,
   wishlist: false,
   favorite: false,
   cover: null,
@@ -82,7 +96,8 @@ export function GameFormModal({
         developer: initial.developer,
         editor: initial.editor,
         release: initial.release,
-        finished: initial.finished,
+        status: initial.status ?? 'todo',
+        priority: initial.priority ?? DEFAULT_PRIORITY,
         wishlist: initial.wishlist,
         favorite: initial.favorite,
         cover: initial.cover ?? null,
@@ -589,22 +604,60 @@ export function GameFormModal({
             </Field>
           </div>
 
-          <div className="flex flex-wrap gap-4 pt-1 text-sm">
-            <label className="flex items-center gap-2 text-ink-muted">
-              <input
-                type="checkbox"
-                checked={Boolean(form.finished)}
-                onChange={(e) => setForm((f) => ({ ...f, finished: e.target.checked }))}
-                className="accent-accent"
-              />
-              Terminé
-            </label>
-            {!defaultWishlist ? (
-              <label className="flex items-center gap-2 text-ink-muted">
+          <div className="flex flex-col gap-4 pt-1 text-sm sm:flex-row sm:flex-wrap sm:items-end">
+            {!defaultWishlist && !form.wishlist ? (
+              <Field label="Statut">
+                <select
+                  className="field"
+                  value={form.status ?? 'todo'}
+                  onChange={(e) => {
+                    const status = e.target.value as GameStatus
+                    setForm((f) => ({
+                      ...f,
+                      status,
+                      favorite: status === 'finished' ? f.favorite : false,
+                      priority:
+                        status === 'todo'
+                          ? (f.priority ?? DEFAULT_PRIORITY)
+                          : null,
+                    }))
+                  }}
+                >
+                  {(Object.keys(STATUS_LABELS) as GameStatus[]).map((id) => (
+                    <option key={id} value={id}>
+                      {STATUS_LABELS[id]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ) : null}
+
+            {form.wishlist || form.status === 'todo' ? (
+              <Field label="Priorité">
+                <select
+                  className="field"
+                  value={form.priority ?? DEFAULT_PRIORITY}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      priority: Number(e.target.value) as GamePriority,
+                    }))
+                  }
+                >
+                  {([5, 4, 3, 2, 1] as GamePriority[]).map((id) => (
+                    <option key={id} value={id}>
+                      {PRIORITY_LABELS[id]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ) : null}
+
+            {!defaultWishlist && !form.wishlist && form.status === 'finished' ? (
+              <label className="flex items-center gap-2 pb-2 text-ink-muted">
                 <input
                   type="checkbox"
-                  checked={Boolean(form.favorite) && !form.wishlist}
-                  disabled={Boolean(form.wishlist)}
+                  checked={Boolean(form.favorite)}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, favorite: e.target.checked }))
                   }
@@ -613,21 +666,29 @@ export function GameFormModal({
                 Coup de cœur
               </label>
             ) : null}
-            <label className="flex items-center gap-2 text-ink-muted">
-              <input
-                type="checkbox"
-                checked={Boolean(form.wishlist)}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    wishlist: e.target.checked,
-                    favorite: e.target.checked ? false : f.favorite,
-                  }))
-                }
-                className="accent-accent"
-              />
-              Liste d&apos;envies
-            </label>
+
+            {!defaultWishlist ? (
+              <label className="flex items-center gap-2 pb-2 text-ink-muted">
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.wishlist)}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      wishlist: e.target.checked,
+                      favorite: false,
+                      priority: e.target.checked
+                        ? (f.priority ?? DEFAULT_PRIORITY)
+                        : f.status === 'todo'
+                          ? (f.priority ?? DEFAULT_PRIORITY)
+                          : null,
+                    }))
+                  }
+                  className="accent-accent"
+                />
+                Liste d&apos;envies
+              </label>
+            ) : null}
           </div>
         </div>
 

@@ -1,7 +1,13 @@
 import { ObjectId } from 'mongodb'
 import { requireUserId } from '../_lib/auth.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
-import { errorResponse, json, serializeGame } from '../_lib/respond.js'
+import {
+  errorResponse,
+  json,
+  resolveStatus,
+  serializeGame,
+  STATUSES,
+} from '../_lib/respond.js'
 
 function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
@@ -9,6 +15,25 @@ function parseBody(req) {
 
 const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
 const EDITIONS = new Set(['standard', 'steelbook', 'special', 'deluxe', 'collector'])
+
+function parsePriority(value) {
+  if (value === null || value === '' || value === undefined) return null
+  const n = Number(value)
+  if (!Number.isInteger(n) || n < 1 || n > 5) return null
+  return n
+}
+
+function parseStatus(body, existing) {
+  if (body?.status !== undefined) {
+    if (STATUSES.has(body.status)) return body.status
+  }
+  // Legacy finished boolean on write
+  if (body?.finished !== undefined) {
+    return body.finished === true || body.finished === 'true' ? 'finished' : 'todo'
+  }
+  if (existing) return resolveStatus(existing)
+  return 'todo'
+}
 
 function parseCopyFields(body, existing = {}) {
   const rawFormat = body?.format ?? existing.format
@@ -118,6 +143,30 @@ function editionFilterClause(value) {
   }
 }
 
+function statusFilterClause(status) {
+  if (status === 'finished') {
+    return {
+      $or: [
+        { status: 'finished' },
+        { status: { $exists: false }, finished: true },
+        { status: { $exists: false }, finished: 'true' },
+      ],
+    }
+  }
+  if (status === 'todo') {
+    return {
+      $or: [
+        { status: 'todo' },
+        {
+          status: { $exists: false },
+          finished: { $nin: [true, 'true'] },
+        },
+      ],
+    }
+  }
+  return { status }
+}
+
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return
 
@@ -143,8 +192,17 @@ export default async function handler(req, res) {
         filter.hardware = req.query.hardware
       }
 
-      if (req.query.finished === 'true') filter.finished = true
-      else if (req.query.finished === 'false') filter.finished = false
+      let statusQuery = null
+      if (STATUSES.has(req.query.status)) {
+        statusQuery = req.query.status
+      } else if (req.query.finished === 'true') {
+        statusQuery = 'finished'
+      } else if (req.query.finished === 'false') {
+        statusQuery = 'todo'
+      }
+      if (statusQuery) {
+        and.push(statusFilterClause(statusQuery))
+      }
 
       if (req.query.favorite === 'true') {
         filter.favorite = true
@@ -207,6 +265,19 @@ export default async function handler(req, res) {
 
       const now = new Date()
       const copy = parseCopyFields(body)
+      const wishlist = body?.wishlist === true || body?.wishlist === 'true'
+      const status = parseStatus(body, null)
+      let priority = parsePriority(body?.priority)
+      if (wishlist || status === 'todo') {
+        priority = priority ?? 3
+      } else {
+        priority = null
+      }
+      const favorite =
+        !wishlist &&
+        status === 'finished' &&
+        (body?.favorite === true || body?.favorite === 'true')
+
       const doc = {
         userId,
         name,
@@ -217,11 +288,12 @@ export default async function handler(req, res) {
           body?.release === null || body?.release === '' || body?.release === undefined
             ? null
             : Number(body.release),
-        finished: Boolean(body?.finished),
-        wishlist: body?.wishlist === true || body?.wishlist === 'true',
-        favorite:
-          !(body?.wishlist === true || body?.wishlist === 'true') &&
-          (body?.favorite === true || body?.favorite === 'true'),
+        status,
+        priority,
+        // Keep legacy finished in sync for older docs / tooling
+        finished: status === 'finished',
+        wishlist,
+        favorite,
         cover: body?.cover ? String(body.cover) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
         ...copy,
@@ -250,6 +322,8 @@ export default async function handler(req, res) {
       }
 
       const $set = { updatedAt: new Date() }
+      const $unset = {}
+
       if (body?.name !== undefined) $set.name = String(body.name).trim()
       if (body?.hardware !== undefined) $set.hardware = String(body.hardware).trim()
       if (body?.developer !== undefined) $set.developer = String(body.developer).trim()
@@ -258,20 +332,64 @@ export default async function handler(req, res) {
         $set.release =
           body.release === null || body.release === '' ? null : Number(body.release)
       }
-      if (body?.finished !== undefined) $set.finished = Boolean(body.finished)
+
       if (body?.wishlist !== undefined) {
         $set.wishlist = body.wishlist === true || body.wishlist === 'true'
       }
-      // Wishlist games cannot be favorites (only when the game is / becomes wishlist)
+
       const willBeWishlist =
         body?.wishlist !== undefined
           ? body.wishlist === true || body.wishlist === 'true'
           : existing.wishlist === true || existing.wishlist === 'true'
-      if (willBeWishlist) {
+
+      const statusTouched =
+        body?.status !== undefined || body?.finished !== undefined
+      const nextStatus = statusTouched
+        ? parseStatus(body, existing)
+        : resolveStatus(existing)
+
+      if (statusTouched) {
+        $set.status = nextStatus
+        $set.finished = nextStatus === 'finished'
+      }
+
+      // Moving from wishlist to collection: clear priority, default status todo
+      const leavingWishlist =
+        body?.wishlist !== undefined &&
+        !(body.wishlist === true || body.wishlist === 'true') &&
+        (existing.wishlist === true || existing.wishlist === 'true')
+
+      if (leavingWishlist) {
+        $set.wishlist = false
+        $set.status = body?.status && STATUSES.has(body.status) ? body.status : 'todo'
+        $set.finished = $set.status === 'finished'
+        $unset.priority = ''
+      }
+
+      // Priority rules
+      if (!leavingWishlist) {
+        if (willBeWishlist || nextStatus === 'todo') {
+          if (body?.priority !== undefined) {
+            $set.priority = parsePriority(body.priority) ?? 3
+          } else if (
+            statusTouched &&
+            nextStatus === 'todo' &&
+            (existing.priority == null || existing.priority === undefined)
+          ) {
+            $set.priority = 3
+          }
+        } else if (statusTouched || body?.priority !== undefined) {
+          $unset.priority = ''
+        }
+      }
+
+      // Favorite only when finished and not wishlist
+      if (willBeWishlist || nextStatus !== 'finished') {
         $set.favorite = false
       } else if (body?.favorite !== undefined) {
         $set.favorite = body.favorite === true || body.favorite === 'true'
       }
+
       if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
       if (body?.rawgId !== undefined) {
         $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null
@@ -291,7 +409,10 @@ export default async function handler(req, res) {
         return json(res, 400, { error: 'name and hardware are required' })
       }
 
-      await games.updateOne({ _id, userId }, { $set })
+      const update = { $set }
+      if (Object.keys($unset).length) update.$unset = $unset
+
+      await games.updateOne({ _id, userId }, update)
       const updated = await games.findOne({ _id, userId })
       return json(res, 200, serializeGame(updated))
     }
