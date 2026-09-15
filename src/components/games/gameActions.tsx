@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef, useState } from 'react'
 import type { Game, GamePriority, GameStatus } from '@/types'
 import {
   CONDITION_LABELS,
@@ -25,6 +26,87 @@ const STATUS_STYLES: Record<GameStatus, string> = {
   abandoned: 'bg-rose-500/20 text-rose-400',
 }
 
+const STATUS_ORDER: GameStatus[] = ['todo', 'playing', 'finished', 'abandoned']
+const PRIORITY_ORDER: GamePriority[] = [5, 4, 3, 2, 1]
+
+function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }) {
+  const common = {
+    width: size,
+    height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none' as const,
+    'aria-hidden': true as const,
+  }
+  if (status === 'finished') {
+    return (
+      <svg {...common}>
+        <path
+          d="M5 13l4 4L19 7"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+  if (status === 'playing') {
+    return (
+      <svg {...common}>
+        <path d="M8 5v14l12-7L8 5z" fill="currentColor" />
+      </svg>
+    )
+  }
+  if (status === 'abandoned') {
+    return (
+      <svg {...common}>
+        <path
+          d="M6 6l12 12M18 6L6 18"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    )
+  }
+  // todo — cercle en attente
+  return (
+    <svg {...common}>
+      <circle
+        cx="12"
+        cy="12"
+        r="8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeDasharray="4 3"
+      />
+    </svg>
+  )
+}
+
+function useMenu() {
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onPointerDown(e: PointerEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  return { open, setOpen, rootRef }
+}
+
 export function StatusSelect({
   status,
   onChange,
@@ -34,26 +116,63 @@ export function StatusSelect({
   onChange: (status: GameStatus) => void
   compact?: boolean
 }) {
+  const { open, setOpen, rootRef } = useMenu()
+  const menuId = useId()
+
   return (
-    <label className={compact ? 'inline-block' : 'block w-full'}>
-      <span className="sr-only">Statut</span>
-      <select
-        className={`field cursor-pointer appearance-none border-0 font-medium transition ${
+    <div ref={rootRef} className={`relative ${compact ? 'inline-block' : 'block w-full'}`}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={menuId}
+        aria-label={`Statut : ${STATUS_LABELS[status]}`}
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen((v) => !v)
+        }}
+        className={`inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition ${
           compact
-            ? '!w-auto !min-w-[6.5rem] !rounded-full !px-2.5 !py-1 !pr-7 !text-[0.65rem]'
-            : 'w-full !rounded-full !px-2.5 !py-1.5 !pr-8 !text-[0.7rem]'
+            ? 'px-2.5 py-1 text-[0.65rem]'
+            : 'w-full px-2.5 py-1.5 text-[0.7rem]'
         } ${STATUS_STYLES[status]}`}
-        value={status}
-        onChange={(e) => onChange(e.target.value as GameStatus)}
-        aria-label="Statut du jeu"
       >
-        {(Object.keys(STATUS_LABELS) as GameStatus[]).map((id) => (
-          <option key={id} value={id} className="bg-surface text-ink">
-            {STATUS_LABELS[id]}
-          </option>
-        ))}
-      </select>
-    </label>
+        <StatusIcon status={status} size={compact ? 11 : 12} />
+        <span>{STATUS_LABELS[status]}</span>
+      </button>
+
+      {open ? (
+        <ul
+          id={menuId}
+          role="listbox"
+          aria-label="Choisir un statut"
+          className={`absolute z-30 min-w-full overflow-hidden rounded-lg border border-line bg-surface-elevated py-1 shadow-lg shadow-black/40 ${
+            compact
+              ? 'top-full right-0 mt-1'
+              : 'bottom-full left-0 mb-1'
+          }`}
+        >
+          {STATUS_ORDER.map((id) => (
+            <li key={id} role="option" aria-selected={id === status}>
+              <button
+                type="button"
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition hover:bg-accent-soft ${
+                  id === status ? 'text-accent' : 'text-ink'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onChange(id)
+                  setOpen(false)
+                }}
+              >
+                <StatusIcon status={id} size={12} />
+                {STATUS_LABELS[id]}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   )
 }
 
@@ -100,11 +219,17 @@ function HeartIcon({ filled }: { filled: boolean }) {
   )
 }
 
-function BookmarkIcon({ filled }: { filled: boolean }) {
+function BookmarkIcon({
+  filled,
+  size = 16,
+}: {
+  filled: boolean
+  size?: number
+}) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden
@@ -166,22 +291,57 @@ export function PriorityButton({
   onChange: (priority: GamePriority) => void
   className?: string
 }) {
+  const { open, setOpen, rootRef } = useMenu()
+  const menuId = useId()
   const value: GamePriority = priority ?? 3
-  // Cycle high → low: 5 → 4 → 3 → 2 → 1 → 5
-  const cycleDown = (value === 1 ? 5 : value - 1) as GamePriority
 
   return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation()
-        onChange(cycleDown)
-      }}
-      aria-label={`Priorité : ${PRIORITY_LABELS[value]}. Cliquer pour changer.`}
-      title={`Priorité : ${PRIORITY_LABELS[value]}`}
-      className={`inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm transition hover:opacity-90 ${PRIORITY_COLORS[value]} ${className}`}
-    >
-      <BookmarkIcon filled />
-    </button>
+    <div ref={rootRef} className={`relative ${className}`}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={menuId}
+        aria-label={`Priorité : ${PRIORITY_LABELS[value]}`}
+        title={`Priorité : ${PRIORITY_LABELS[value]}`}
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen((v) => !v)
+        }}
+        className={`inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm transition hover:opacity-90 ${PRIORITY_COLORS[value]}`}
+      >
+        <BookmarkIcon filled />
+      </button>
+
+      {open ? (
+        <ul
+          id={menuId}
+          role="listbox"
+          aria-label="Choisir une priorité"
+          className="absolute top-full right-0 z-30 mt-1 min-w-[10rem] overflow-hidden rounded-lg border border-line bg-surface-elevated py-1 shadow-lg shadow-black/40"
+        >
+          {PRIORITY_ORDER.map((id) => (
+            <li key={id} role="option" aria-selected={id === value}>
+              <button
+                type="button"
+                className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-xs transition hover:bg-accent-soft ${
+                  id === value ? 'font-semibold text-ink' : 'text-ink-muted'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onChange(id)
+                  setOpen(false)
+                }}
+              >
+                <span className={PRIORITY_COLORS[id]}>
+                  <BookmarkIcon filled size={14} />
+                </span>
+                {PRIORITY_LABELS[id]}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   )
 }
