@@ -1,4 +1,13 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react'
+import { createPortal } from 'react-dom'
 import type { Game, GamePriority, GameStatus } from '@/types'
 import {
   CONDITION_LABELS,
@@ -28,6 +37,8 @@ const STATUS_STYLES: Record<GameStatus, string> = {
 
 const STATUS_ORDER: GameStatus[] = ['todo', 'playing', 'finished', 'abandoned']
 const PRIORITY_ORDER: GamePriority[] = [5, 4, 3, 2, 1]
+
+type MenuPos = { top: number; left: number; minWidth: number }
 
 function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }) {
   const common = {
@@ -84,14 +95,66 @@ function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }
   )
 }
 
-function useMenu() {
+function usePortalMenu(align: 'left' | 'right' = 'right') {
   const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState<MenuPos | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLUListElement>(null)
+
+  function updatePos() {
+    const el = triggerRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const minWidth = Math.max(rect.width, 160)
+    let left =
+      align === 'right' ? rect.right - minWidth : rect.left
+    left = Math.min(Math.max(8, left), window.innerWidth - minWidth - 8)
+    const spaceBelow = window.innerHeight - rect.bottom
+    const openUp = spaceBelow < 180 && rect.top > spaceBelow
+    setPos({
+      top: openUp ? rect.top - 4 : rect.bottom + 4,
+      left,
+      minWidth,
+    })
+  }
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPos(null)
+      return
+    }
+    updatePos()
+    function onScroll() {
+      updatePos()
+    }
+    window.addEventListener('resize', updatePos)
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      window.removeEventListener('resize', updatePos)
+      window.removeEventListener('scroll', onScroll, true)
+    }
+  }, [open, align])
+
+  useLayoutEffect(() => {
+    if (!open || !pos || !menuRef.current || !triggerRef.current) return
+    const menu = menuRef.current
+    const trigger = triggerRef.current.getBoundingClientRect()
+    const height = menu.getBoundingClientRect().height
+    const spaceBelow = window.innerHeight - trigger.bottom
+    if (spaceBelow < height + 8 && trigger.top > spaceBelow) {
+      setPos((p) =>
+        p ? { ...p, top: trigger.top - height - 4 } : p,
+      )
+    }
+  }, [open, pos?.minWidth])
 
   useEffect(() => {
     if (!open) return
     function onPointerDown(e: PointerEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (rootRef.current?.contains(t) || menuRef.current?.contains(t)) return
+      setOpen(false)
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false)
@@ -104,7 +167,40 @@ function useMenu() {
     }
   }, [open])
 
-  return { open, setOpen, rootRef }
+  return { open, setOpen, rootRef, triggerRef, menuRef, pos }
+}
+
+function PortalMenu({
+  id,
+  label,
+  pos,
+  menuRef,
+  children,
+}: {
+  id: string
+  label: string
+  pos: MenuPos
+  menuRef: RefObject<HTMLUListElement | null>
+  children: ReactNode
+}) {
+  return createPortal(
+    <ul
+      ref={menuRef}
+      id={id}
+      role="listbox"
+      aria-label={label}
+      style={{
+        position: 'fixed',
+        top: pos.top,
+        left: pos.left,
+        minWidth: pos.minWidth,
+      }}
+      className="z-[100] overflow-hidden rounded-lg border border-line bg-surface-elevated py-1 shadow-lg shadow-black/40"
+    >
+      {children}
+    </ul>,
+    document.body,
+  )
 }
 
 export function StatusSelect({
@@ -116,12 +212,15 @@ export function StatusSelect({
   onChange: (status: GameStatus) => void
   compact?: boolean
 }) {
-  const { open, setOpen, rootRef } = useMenu()
+  const { open, setOpen, rootRef, triggerRef, menuRef, pos } = usePortalMenu(
+    compact ? 'right' : 'left',
+  )
   const menuId = useId()
 
   return (
-    <div ref={rootRef} className={`relative ${compact ? 'inline-block' : 'block w-full'}`}>
+    <div ref={rootRef} className={compact ? 'inline-block' : 'block w-full'}>
       <button
+        ref={triggerRef}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -141,16 +240,12 @@ export function StatusSelect({
         <span>{STATUS_LABELS[status]}</span>
       </button>
 
-      {open ? (
-        <ul
+      {open && pos ? (
+        <PortalMenu
           id={menuId}
-          role="listbox"
-          aria-label="Choisir un statut"
-          className={`absolute z-30 min-w-full overflow-hidden rounded-lg border border-line bg-surface-elevated py-1 shadow-lg shadow-black/40 ${
-            compact
-              ? 'top-full right-0 mt-1'
-              : 'bottom-full left-0 mb-1'
-          }`}
+          label="Choisir un statut"
+          pos={pos}
+          menuRef={menuRef}
         >
           {STATUS_ORDER.map((id) => (
             <li key={id} role="option" aria-selected={id === status}>
@@ -170,7 +265,7 @@ export function StatusSelect({
               </button>
             </li>
           ))}
-        </ul>
+        </PortalMenu>
       ) : null}
     </div>
   )
@@ -291,13 +386,15 @@ export function PriorityButton({
   onChange: (priority: GamePriority) => void
   className?: string
 }) {
-  const { open, setOpen, rootRef } = useMenu()
+  const { open, setOpen, rootRef, triggerRef, menuRef, pos } =
+    usePortalMenu('right')
   const menuId = useId()
   const value: GamePriority = priority ?? 3
 
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -313,12 +410,12 @@ export function PriorityButton({
         <BookmarkIcon filled />
       </button>
 
-      {open ? (
-        <ul
+      {open && pos ? (
+        <PortalMenu
           id={menuId}
-          role="listbox"
-          aria-label="Choisir une priorité"
-          className="absolute top-full right-0 z-30 mt-1 min-w-[10rem] overflow-hidden rounded-lg border border-line bg-surface-elevated py-1 shadow-lg shadow-black/40"
+          label="Choisir une priorité"
+          pos={pos}
+          menuRef={menuRef}
         >
           {PRIORITY_ORDER.map((id) => (
             <li key={id} role="option" aria-selected={id === value}>
@@ -340,7 +437,7 @@ export function PriorityButton({
               </button>
             </li>
           ))}
-        </ul>
+        </PortalMenu>
       ) : null}
     </div>
   )

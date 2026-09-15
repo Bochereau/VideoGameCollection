@@ -39,10 +39,10 @@ export function GameCard({
 
   return (
     <article
-      className="animate-fade-up group relative flex flex-col overflow-hidden rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 backdrop-blur-md transition duration-300 hover:border-accent/40 hover:shadow-cyan-500/10"
+      className="animate-fade-up group relative flex flex-col rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 backdrop-blur-md transition duration-300 hover:border-accent/40 hover:shadow-cyan-500/10"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <div className="relative h-36 overflow-hidden bg-bg sm:h-40">
+      <div className="relative h-36 overflow-hidden rounded-t-xl bg-bg sm:h-40">
         {game.cover ? (
           <img
             src={cardCoverUrl(game.cover) ?? game.cover}
@@ -56,25 +56,11 @@ export function GameCard({
             <span className="font-display text-xl tracking-wide text-accent/30">VGC</span>
           </div>
         )}
-        <span className="absolute top-2 left-2 rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
+        <span className="absolute top-2 left-2 z-10 rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
           {game.hardware}
         </span>
 
-        {showPriority ? (
-          <PriorityButton
-            priority={game.priority}
-            onChange={(p) => onPriorityChange(game, p)}
-            className="absolute top-2 right-2"
-          />
-        ) : showFavorite ? (
-          <FavoriteButton
-            favorite={game.favorite}
-            onClick={() => onToggleFavorite(game)}
-            className="absolute top-2 right-2"
-          />
-        ) : null}
-
-        <div className="absolute inset-x-0 bottom-0 flex gap-1.5 bg-gradient-to-t from-bg/90 via-bg/55 to-transparent p-2 pt-8 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-1.5 bg-gradient-to-t from-bg/90 via-bg/55 to-transparent p-2 pt-8 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">
           <Button
             variant="secondary"
             className="flex-1 !px-2 !py-1 !text-xs"
@@ -99,6 +85,20 @@ export function GameCard({
           </Button>
         </div>
       </div>
+
+      {showPriority ? (
+        <PriorityButton
+          priority={game.priority}
+          onChange={(p) => onPriorityChange(game, p)}
+          className="absolute top-2 right-2 z-20"
+        />
+      ) : showFavorite ? (
+        <FavoriteButton
+          favorite={game.favorite}
+          onClick={() => onToggleFavorite(game)}
+          className="absolute top-2 right-2 z-20"
+        />
+      ) : null}
 
       <div className="flex flex-1 flex-col p-3">
         <h3 className="mb-1.5 line-clamp-2 text-sm leading-snug font-semibold text-ink">
