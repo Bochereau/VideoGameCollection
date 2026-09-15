@@ -1,6 +1,9 @@
 import type { TopEntry } from '@/types'
 
-/** Swap entry from fromRank into toRank (works with empty targets). */
+/**
+ * Move entry from fromRank to toRank, shifting the in-between ranks
+ * (insert, not swap). Empty slots participate in the shift.
+ */
 export function reorderSlots(
   size: number,
   entries: TopEntry[],
@@ -17,11 +20,13 @@ export function reorderSlots(
 
   const fromIdx = fromRank - 1
   const toIdx = toRank - 1
-  const moving = slots[fromIdx]
-  if (!moving) return entries
+  if (fromIdx < 0 || fromIdx >= size || toIdx < 0 || toIdx >= size) {
+    return entries
+  }
 
-  slots[fromIdx] = slots[toIdx]
-  slots[toIdx] = moving
+  const [moving] = slots.splice(fromIdx, 1)
+  if (!moving) return entries
+  slots.splice(toIdx, 0, moving)
 
   return slots
     .map((entry, idx) =>

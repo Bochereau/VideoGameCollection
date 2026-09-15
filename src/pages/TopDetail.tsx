@@ -57,6 +57,12 @@ export function TopDetailPage() {
     return ids
   }, [top?.entries, pickerRank])
 
+  const previewEntries = useMemo(() => {
+    if (!top || draggingRank == null || dropTargetRank == null) return null
+    if (draggingRank === dropTargetRank) return null
+    return reorderSlots(top.size, top.entries, draggingRank, dropTargetRank)
+  }, [top, draggingRank, dropTargetRank])
+
   async function persistEntries(entries: TopEntry[]) {
     if (!topId || !top) return
     setSaving(true)
@@ -202,6 +208,7 @@ export function TopDetailPage() {
           entries={top.entries}
           draggingRank={draggingRank}
           dropTargetRank={dropTargetRank}
+          previewEntries={previewEntries}
           onPick={setPickerRank}
           onClear={handleClear}
           onDragStart={setDraggingRank}
