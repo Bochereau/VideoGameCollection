@@ -100,6 +100,48 @@ export type GamesQuery = {
   edition?: GameEdition
 }
 
+export type TopEntry = {
+  rank: number
+  gameId?: string | null
+  name: string
+  cover?: string | null
+  release?: number | null
+  rawgId?: number | null
+}
+
+export type Top = {
+  id: string
+  name: string
+  size: number
+  filledCount: number
+  entries: TopEntry[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type TopSummary = {
+  id: string
+  name: string
+  size: number
+  filledCount: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type TopInput = {
+  name: string
+  size: number
+}
+
+export type TopUpdate = {
+  name?: string
+  size?: number
+  entries?: TopEntry[]
+}
+
+export const DEFAULT_TOP_SIZE = 10
+export const MAX_TOP_SIZE = 100
+
 export const STATUS_LABELS: Record<GameStatus, string> = {
   todo: 'À faire',
   playing: 'En cours',

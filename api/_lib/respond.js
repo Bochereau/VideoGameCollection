@@ -86,3 +86,31 @@ export function serializeConsole(doc, count = 0) {
     createdAt: doc.createdAt,
   }
 }
+
+export function serializeTopEntry(entry) {
+  return {
+    rank: Number(entry.rank),
+    gameId: entry.gameId ? String(entry.gameId) : null,
+    name: entry.name ?? '',
+    cover: entry.cover ?? null,
+    release: entry.release ?? null,
+    rawgId: entry.rawgId ?? null,
+  }
+}
+
+export function serializeTop(doc, { summary = false } = {}) {
+  const entries = Array.isArray(doc.entries) ? doc.entries : []
+  const base = {
+    id: String(doc._id),
+    name: doc.name,
+    size: Number(doc.size) || 10,
+    filledCount: entries.length,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+  }
+  if (summary) return base
+  return {
+    ...base,
+    entries: entries.map(serializeTopEntry),
+  }
+}

@@ -6,6 +6,10 @@ import type {
   Game,
   GameInput,
   GamesQuery,
+  Top,
+  TopInput,
+  TopSummary,
+  TopUpdate,
 } from '@/types'
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
@@ -105,6 +109,30 @@ export const consolesApi = {
       token,
       { method: 'DELETE' },
     ),
+}
+
+export const topsApi = {
+  list: (token: string) => apiFetch<TopSummary[]>('/api/tops', token),
+
+  get: (token: string, id: string) =>
+    apiFetch<Top>(`/api/tops?id=${encodeURIComponent(id)}`, token),
+
+  create: (token: string, body: TopInput) =>
+    apiFetch<Top>('/api/tops', token, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  update: (token: string, id: string, body: TopUpdate) =>
+    apiFetch<Top>(`/api/tops?id=${encodeURIComponent(id)}`, token, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  remove: (token: string, id: string) =>
+    apiFetch<{ ok: boolean }>(`/api/tops?id=${encodeURIComponent(id)}`, token, {
+      method: 'DELETE',
+    }),
 }
 
 export const catalogApi = {

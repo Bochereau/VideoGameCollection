@@ -5,6 +5,8 @@ import { CollectionPage } from '@/pages/Collection'
 import { LandingPage } from '@/pages/Landing'
 import { SignInPage } from '@/pages/SignIn'
 import { SignUpPage } from '@/pages/SignUp'
+import { TopDetailPage } from '@/pages/TopDetail'
+import { TopsPage } from '@/pages/Tops'
 import { WishlistPage } from '@/pages/Wishlist'
 
 export default function App() {
@@ -23,6 +25,8 @@ export default function App() {
         >
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/tops" element={<TopsPage />} />
+          <Route path="/tops/:topId" element={<TopDetailPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

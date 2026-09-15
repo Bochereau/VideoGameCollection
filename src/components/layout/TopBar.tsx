@@ -14,6 +14,8 @@ type Props = {
   colorTheme: ColorTheme
   onColorThemeChange: (value: ColorTheme) => void
   onToggleSidebar: () => void
+  hideSearch?: boolean
+  hideViewMode?: boolean
 }
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -31,6 +33,8 @@ export function TopBar({
   colorTheme,
   onColorThemeChange,
   onToggleSidebar,
+  hideSearch = false,
+  hideViewMode = false,
 }: Props) {
   return (
     <header
@@ -68,35 +72,44 @@ export function TopBar({
           <NavLink to="/wishlist" className={linkClass}>
             Envies
           </NavLink>
+          <NavLink to="/tops" className={linkClass}>
+            Tops
+          </NavLink>
         </nav>
 
         <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2 sm:max-w-lg sm:gap-3">
-          <label className="relative min-w-0 flex-1">
-            <span className="sr-only">Rechercher</span>
-            <svg
-              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-muted"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden
-            >
-              <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.75" />
-              <path
-                d="M16 16l4 4"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
+          {!hideSearch ? (
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">Rechercher</span>
+              <svg
+                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-muted"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden
+              >
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.75" />
+                <path
+                  d="M16 16l4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <input
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Rechercher un jeu…"
+                className="field w-full !rounded-lg !py-2 !pr-3 !pl-9"
               />
-            </svg>
-            <input
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Rechercher un jeu…"
-              className="field w-full !rounded-lg !py-2 !pr-3 !pl-9"
-            />
-          </label>
-          <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
+            </label>
+          ) : (
+            <div className="min-w-0 flex-1" />
+          )}
+          {!hideViewMode ? (
+            <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
+          ) : null}
           <ThemeToggle value={colorTheme} onChange={onColorThemeChange} />
           <UserButton afterSignOutUrl="/" />
         </div>
@@ -108,6 +121,9 @@ export function TopBar({
         </NavLink>
         <NavLink to="/wishlist" className={linkClass}>
           Envies
+        </NavLink>
+        <NavLink to="/tops" className={linkClass}>
+          Tops
         </NavLink>
       </nav>
     </header>
