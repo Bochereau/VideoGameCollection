@@ -5,6 +5,7 @@ import type { AppOutletContext } from '@/components/layout/AppLayout'
 import { GameFormModal } from '@/components/games/GameFormModal'
 import { GameGrid } from '@/components/games/GameGrid'
 import { StatusFilters } from '@/components/games/StatusFilters'
+import { AddToCollectionModal } from '@/components/games/AddToCollectionModal'
 import { Loading } from '@/components/ui/Loading'
 import { gamesApi, consolesApi } from '@/lib/api'
 import type {
@@ -16,6 +17,7 @@ import type {
   GameInput,
   GamePriority,
   GameStatus,
+  GroupBy,
   SortKey,
   StatusFilter,
 } from '@/types'
@@ -24,7 +26,6 @@ import { CONDITION_LABELS, EDITION_LABELS, STATUS_LABELS } from '@/types'
 type Props = {
   wishlist: boolean
   title: string
-  subtitle: string
   emptyTitle: string
   emptyDescription: string
   addLabel: string
@@ -39,6 +40,18 @@ function sortGames(list: Game[], sort: SortKey): Game[] {
       if (pb !== pa) return pb - pa
       return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
     })
+  } else if (sort === 'year') {
+    copy.sort((a, b) => {
+      const ya = a.release
+      const yb = b.release
+      if (ya == null && yb == null) {
+        return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+      }
+      if (ya == null) return 1
+      if (yb == null) return -1
+      if (yb !== ya) return yb - ya
+      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+    })
   } else {
     copy.sort((a, b) =>
       a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
@@ -50,7 +63,6 @@ function sortGames(list: Game[], sort: SortKey): Game[] {
 export function GamesPage({
   wishlist,
   title,
-  subtitle,
   emptyTitle,
   emptyDescription,
   addLabel,
@@ -64,6 +76,8 @@ export function GamesPage({
   const [error, setError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Game | null>(null)
+  const [addingGame, setAddingGame] = useState<Game | null>(null)
+  const [addingBusy, setAddingBusy] = useState(false)
 
   const q = searchParams.get('q') ?? ''
   const hardware = searchParams.get('hardware') ?? undefined
@@ -83,9 +97,16 @@ export function GamesPage({
   const favoriteFilter: FavoriteFilter =
     favoriteParam === 'yes' || favoriteParam === 'true' ? 'yes' : 'all'
   const sortParam = searchParams.get('sort')
-  const sortKey: SortKey = sortParam === 'priority' ? 'priority' : 'name'
+  const showPrioritySort = wishlist || statusFilter === 'todo'
+  const sortKey: SortKey =
+    sortParam === 'year'
+      ? 'year'
+      : sortParam === 'priority' && showPrioritySort
+        ? 'priority'
+        : 'name'
 
-  const showSort = wishlist || statusFilter === 'todo'
+  const groupBy: GroupBy =
+    sortKey === 'priority' ? 'priority' : sortKey === 'year' ? 'year' : 'none'
 
   const query = useMemo(() => {
     const base: {
@@ -162,8 +183,8 @@ export function GamesPage({
   }, [load])
 
   const displayedGames = useMemo(
-    () => sortGames(games, showSort ? sortKey : 'name'),
-    [games, showSort, sortKey],
+    () => sortGames(games, sortKey),
+    [games, sortKey],
   )
 
   function patchParams(mutate: (next: URLSearchParams) => void) {
@@ -178,7 +199,10 @@ export function GamesPage({
     patchParams((next) => {
       if (value === 'all') next.delete('status')
       else next.set('status', value)
-      if (value !== 'todo') next.delete('sort')
+      // Priority sort only applies to wishlist / todo — fall back otherwise
+      if (value !== 'todo' && !wishlist && next.get('sort') === 'priority') {
+        next.delete('sort')
+      }
     })
   }
 
@@ -318,15 +342,23 @@ export function GamesPage({
   }
 
   async function addToCollection(game: Game) {
+    setAddingGame(game)
+  }
+
+  async function confirmAddToCollection(priority: GamePriority) {
+    if (!addingGame) return
+    setAddingBusy(true)
+    setError(null)
     try {
       await withToken((token) =>
-        gamesApi.update(token, game.id, {
+        gamesApi.update(token, addingGame.id, {
           wishlist: false,
           status: 'todo',
-          priority: null,
+          priority,
           favorite: false,
         }),
       )
+      setAddingGame(null)
       await load()
       await refreshConsoles()
     } catch (err) {
@@ -335,6 +367,8 @@ export function GamesPage({
           ? err.message
           : 'Impossible d’ajouter à la collection',
       )
+    } finally {
+      setAddingBusy(false)
     }
   }
 
@@ -357,9 +391,8 @@ export function GamesPage({
             {title}
           </h1>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm text-ink-muted">
-            <p>{subtitle}</p>
             {!loading ? (
-              <p className="rounded-lg border border-ink-muted/30 bg-ink-muted/10 px-2 py-1 text-sm text-ink">
+              <p className="rounded-lg border border-line bg-bg px-2.5 py-1 text-sm text-ink shadow-sm">
                 <span className="font-medium text-ink tabular-nums">
                   {displayedGames.length}
                 </span>
@@ -382,7 +415,8 @@ export function GamesPage({
                 {editionFilter !== 'all'
                   ? ` · ${EDITION_LABELS[editionFilter]}`
                   : null}
-                {showSort && sortKey === 'priority' ? ' · Priorité' : null}
+                {sortKey === 'priority' ? ' · Priorité' : null}
+                {sortKey === 'year' ? ' · Année' : null}
               </p>
             ) : null}
           </div>
@@ -400,7 +434,7 @@ export function GamesPage({
           onEditionChange={setEdition}
           favorite={favoriteFilter}
           onFavoriteChange={setFavorite}
-          showSort={showSort}
+          showPrioritySort={showPrioritySort}
           sort={sortKey}
           onSortChange={setSort}
           onAdd={() => {
@@ -426,6 +460,7 @@ export function GamesPage({
               games={displayedGames}
               viewMode={viewMode}
               wishlist={wishlist}
+              groupBy={groupBy}
               emptyTitle={emptyTitle}
               emptyDescription={emptyDescription}
               onAdd={() => {
@@ -456,6 +491,17 @@ export function GamesPage({
           setEditing(null)
         }}
         onSubmit={handleSubmit}
+      />
+
+      <AddToCollectionModal
+        open={addingGame != null}
+        game={addingGame}
+        busy={addingBusy}
+        onClose={() => {
+          if (addingBusy) return
+          setAddingGame(null)
+        }}
+        onConfirm={confirmAddToCollection}
       />
     </div>
   )

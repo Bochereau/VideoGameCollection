@@ -86,7 +86,8 @@ export type FavoriteFilter = 'all' | 'yes'
 export type FormatFilter = 'all' | GameFormat
 export type ConditionFilter = 'all' | GameCondition
 export type EditionFilter = 'all' | GameEdition
-export type SortKey = 'name' | 'priority'
+export type SortKey = 'name' | 'year' | 'priority'
+export type GroupBy = 'none' | 'priority' | 'year'
 
 export type GamesQuery = {
   wishlist?: boolean

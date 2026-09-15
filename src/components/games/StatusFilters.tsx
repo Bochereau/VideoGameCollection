@@ -22,7 +22,7 @@ type Props = {
   onEditionChange: (value: EditionFilter) => void
   favorite: FavoriteFilter
   onFavoriteChange: (value: FavoriteFilter) => void
-  showSort: boolean
+  showPrioritySort: boolean
   sort: SortKey
   onSortChange: (value: SortKey) => void
   onAdd: () => void
@@ -76,13 +76,21 @@ export function StatusFilters({
   onEditionChange,
   favorite,
   onFavoriteChange,
-  showSort,
+  showPrioritySort,
   sort,
   onSortChange,
   onAdd,
   addLabel,
 }: Props) {
   const favoritesOnly = favorite === 'yes'
+
+  const sortOptions = [
+    { id: 'name', label: 'Tri : A→Z' },
+    { id: 'year', label: 'Tri : Année' },
+    ...(showPrioritySort
+      ? [{ id: 'priority', label: 'Tri : Priorité' }]
+      : []),
+  ]
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -103,17 +111,12 @@ export function StatusFilters({
         />
       ) : null}
 
-      {showSort ? (
-        <FilterSelect
-          label="Tri"
-          value={sort}
-          onChange={(v) => onSortChange(v as SortKey)}
-          options={[
-            { id: 'name', label: 'Tri : A→Z' },
-            { id: 'priority', label: 'Tri : Priorité' },
-          ]}
-        />
-      ) : null}
+      <FilterSelect
+        label="Tri"
+        value={sort}
+        onChange={(v) => onSortChange(v as SortKey)}
+        options={sortOptions}
+      />
 
       <FilterSelect
         label="Format"

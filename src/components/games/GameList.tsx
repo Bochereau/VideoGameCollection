@@ -1,4 +1,5 @@
-import type { Game, GamePriority, GameStatus } from '@/types'
+import { Fragment } from 'react'
+import type { Game, GamePriority, GameStatus, GroupBy } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
@@ -8,10 +9,16 @@ import {
   StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
+import {
+  groupGamesByPriority,
+  groupGamesByYear,
+  SegmentHeading,
+} from '@/components/games/priorityGroups'
 
 type Props = {
   games: Game[]
   wishlist: boolean
+  groupBy?: GroupBy
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
@@ -33,8 +40,9 @@ function TrashIcon() {
   )
 }
 
-export function GameList({
-  games,
+function GameRow({
+  game,
+  index,
   wishlist,
   onEdit,
   onStatusChange,
@@ -42,7 +50,123 @@ export function GameList({
   onToggleFavorite,
   onAddToCollection,
   onDelete,
+}: {
+  game: Game
+  index: number
+  wishlist: boolean
+  onEdit: (game: Game) => void
+  onStatusChange: (game: Game, status: GameStatus) => void
+  onPriorityChange: (game: Game, priority: GamePriority) => void
+  onToggleFavorite: (game: Game) => void
+  onAddToCollection: (game: Game) => void
+  onDelete: (game: Game) => void
+}) {
+  const { format, condition, edition } = gameCopyMeta(game)
+  const showPriority = wishlist || game.status === 'todo'
+  const showFavorite = !wishlist && game.status === 'finished'
+
+  return (
+    <tr
+      className="animate-fade-up border-b border-line/60 last:border-b-0 transition hover:bg-accent-soft/40"
+      style={{ animationDelay: `${Math.min(index, 20) * 20}ms` }}
+    >
+      <td className="px-3 py-2.5 font-semibold text-ink">{game.name}</td>
+      <td className="px-3 py-2.5 whitespace-nowrap text-amber">
+        {game.hardware}
+      </td>
+      <td className="hidden max-w-[10rem] truncate px-3 py-2.5 text-ink-muted md:table-cell">
+        {game.developer || '—'}
+      </td>
+      <td className="px-3 py-2.5 tabular-nums text-ink-muted">
+        {game.release || '—'}
+      </td>
+      <td className="px-3 py-2.5 whitespace-nowrap text-ink-muted">
+        {format === 'digital' ? 'Numérique' : 'Physique'}
+      </td>
+      {!wishlist ? (
+        <td className="hidden px-3 py-2.5 whitespace-nowrap text-accent lg:table-cell">
+          {format === 'physical' ? CONDITION_LABELS[condition] : '—'}
+        </td>
+      ) : null}
+      <td className="hidden px-3 py-2.5 whitespace-nowrap text-amber lg:table-cell">
+        {EDITION_LABELS[edition]}
+      </td>
+      <td className="px-3 py-2.5">
+        <div className="flex items-center justify-end gap-1.5">
+          {showPriority ? (
+            <PriorityButton
+              priority={game.priority}
+              onChange={(p) => onPriorityChange(game, p)}
+            />
+          ) : showFavorite ? (
+            <FavoriteButton
+              favorite={game.favorite}
+              onClick={() => onToggleFavorite(game)}
+            />
+          ) : null}
+          {wishlist ? (
+            <AddToCollectionButton
+              compact
+              onClick={() => onAddToCollection(game)}
+            />
+          ) : (
+            <StatusSelect
+              compact
+              status={game.status}
+              onChange={(status) => onStatusChange(game, status)}
+            />
+          )}
+          <Button
+            variant="secondary"
+            className="!px-2 !py-1 !text-xs"
+            onClick={() => onEdit(game)}
+          >
+            Modifier
+          </Button>
+          <Button
+            variant="danger"
+            className="!bg-danger/80 !px-2 !py-1 !text-bg hover:!bg-danger"
+            onClick={() => onDelete(game)}
+            aria-label="Supprimer"
+          >
+            <TrashIcon />
+          </Button>
+        </div>
+      </td>
+    </tr>
+  )
+}
+
+export function GameList({
+  games,
+  wishlist,
+  groupBy = 'none',
+  onEdit,
+  onStatusChange,
+  onPriorityChange,
+  onToggleFavorite,
+  onAddToCollection,
+  onDelete,
 }: Props) {
+  const colCount = wishlist ? 7 : 8
+  const rowProps = {
+    wishlist,
+    onEdit,
+    onStatusChange,
+    onPriorityChange,
+    onToggleFavorite,
+    onAddToCollection,
+    onDelete,
+  }
+
+  let rowIndex = 0
+  const segments =
+    groupBy === 'priority'
+      ? groupGamesByPriority(games)
+      : groupBy === 'year'
+        ? groupGamesByYear(games)
+        : null
+
   return (
     <div className="overflow-x-auto rounded-xl border border-line bg-surface/60 backdrop-blur-md">
       <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
@@ -63,82 +187,40 @@ export function GameList({
           </tr>
         </thead>
         <tbody>
-          {games.map((game, index) => {
-            const { format, condition, edition } = gameCopyMeta(game)
-            const showPriority = wishlist || game.status === 'todo'
-            const showFavorite = !wishlist && game.status === 'finished'
-            return (
-              <tr
-                key={game.id}
-                className="animate-fade-up border-b border-line/60 last:border-b-0 transition hover:bg-accent-soft/40"
-                style={{ animationDelay: `${Math.min(index, 20) * 20}ms` }}
-              >
-                <td className="px-3 py-2.5 font-semibold text-ink">{game.name}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-amber">
-                  {game.hardware}
-                </td>
-                <td className="hidden max-w-[10rem] truncate px-3 py-2.5 text-ink-muted md:table-cell">
-                  {game.developer || '—'}
-                </td>
-                <td className="px-3 py-2.5 tabular-nums text-ink-muted">
-                  {game.release || '—'}
-                </td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-ink-muted">
-                  {format === 'digital' ? 'Numérique' : 'Physique'}
-                </td>
-                {!wishlist ? (
-                  <td className="hidden px-3 py-2.5 whitespace-nowrap text-accent lg:table-cell">
-                    {format === 'physical' ? CONDITION_LABELS[condition] : '—'}
-                  </td>
-                ) : null}
-                <td className="hidden px-3 py-2.5 whitespace-nowrap text-amber lg:table-cell">
-                  {EDITION_LABELS[edition]}
-                </td>
-                <td className="px-3 py-2.5">
-                  <div className="flex items-center justify-end gap-1.5">
-                    {showPriority ? (
-                      <PriorityButton
-                        priority={game.priority}
-                        onChange={(p) => onPriorityChange(game, p)}
+          {segments
+            ? segments.map((segment) => (
+                <Fragment key={segment.key}>
+                  <tr className="bg-bg/50">
+                    <td colSpan={colCount} className="px-3 py-2.5">
+                      <SegmentHeading
+                        label={segment.label}
+                        count={segment.games.length}
+                        accentClass={segment.accentClass}
+                        dotClass={segment.dotClass}
                       />
-                    ) : showFavorite ? (
-                      <FavoriteButton
-                        favorite={game.favorite}
-                        onClick={() => onToggleFavorite(game)}
+                    </td>
+                  </tr>
+                  {segment.games.map((game) => {
+                    const index = rowIndex++
+                    return (
+                      <GameRow
+                        key={game.id}
+                        game={game}
+                        index={index}
+                        {...rowProps}
                       />
-                    ) : null}
-                    {wishlist ? (
-                      <AddToCollectionButton
-                        compact
-                        onClick={() => onAddToCollection(game)}
-                      />
-                    ) : (
-                      <StatusSelect
-                        compact
-                        status={game.status}
-                        onChange={(status) => onStatusChange(game, status)}
-                      />
-                    )}
-                    <Button
-                      variant="secondary"
-                      className="!px-2 !py-1 !text-xs"
-                      onClick={() => onEdit(game)}
-                    >
-                      Modifier
-                    </Button>
-                    <Button
-                      variant="danger"
-                      className="!bg-danger/80 !px-2 !py-1 !text-bg hover:!bg-danger"
-                      onClick={() => onDelete(game)}
-                      aria-label="Supprimer"
-                    >
-                      <TrashIcon />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            )
-          })}
+                    )
+                  })}
+                </Fragment>
+              ))
+            : games.map((game, index) => (
+                <GameRow
+                  key={game.id}
+                  game={game}
+                  index={index}
+                  {...rowProps}
+                />
+              ))}
         </tbody>
       </table>
     </div>

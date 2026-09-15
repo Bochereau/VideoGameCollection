@@ -363,7 +363,13 @@ export default async function handler(req, res) {
         $set.wishlist = false
         $set.status = body?.status && STATUSES.has(body.status) ? body.status : 'todo'
         $set.finished = $set.status === 'finished'
-        $unset.priority = ''
+        if (body?.priority !== undefined) {
+          $set.priority = parsePriority(body.priority) ?? 3
+        } else if ($set.status === 'todo') {
+          $set.priority = 3
+        } else {
+          $unset.priority = ''
+        }
       }
 
       // Priority rules
