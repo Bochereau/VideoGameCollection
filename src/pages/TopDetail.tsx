@@ -156,7 +156,7 @@ export function TopDetailPage() {
 
   if (!top) {
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6">
+      <div className="mx-auto flex w-full flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
         <p className="text-sm text-danger">{error ?? 'Top introuvable'}</p>
         <Link to="/tops" className="text-sm text-accent hover:underline">
           Retour aux tops
@@ -167,7 +167,7 @@ export function TopDetailPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <Link
@@ -176,7 +176,7 @@ export function TopDetailPage() {
             >
               ← Tops
             </Link>
-            <h1 className="font-display mt-1 text-3xl tracking-wide text-ink">
+            <h1 className="font-display mt-1 text-4xl tracking-wide text-ink sm:text-5xl">
               {top.name}
             </h1>
             <p className="mt-1 text-sm text-ink-muted">

@@ -103,7 +103,11 @@ export function GamesPage({
       ? 'year'
       : sortParam === 'priority' && showPrioritySort
         ? 'priority'
-        : 'name'
+        : sortParam === 'name'
+          ? 'name'
+          : wishlist && showPrioritySort
+            ? 'priority'
+            : 'name'
 
   const groupBy: GroupBy =
     sortKey === 'priority' ? 'priority' : sortKey === 'year' ? 'year' : 'none'
@@ -208,7 +212,8 @@ export function GamesPage({
 
   function setSort(value: SortKey) {
     patchParams((next) => {
-      if (value === 'name') next.delete('sort')
+      // Wishlist defaults to priority when sort is absent — keep name explicit
+      if (value === 'name' && !wishlist) next.delete('sort')
       else next.set('sort', value)
     })
   }

@@ -9,10 +9,10 @@ export function TopsPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-3xl tracking-wide text-ink">Tops</h1>
+            <h1 className="font-display text-4xl tracking-wide text-ink sm:text-5xl">Tops</h1>
             <p className="mt-1 text-sm text-ink-muted">
               Créez des classements à partir de votre collection ou du catalogue.
             </p>

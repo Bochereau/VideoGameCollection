@@ -171,8 +171,8 @@ export function TopGrid({
 
   const dense = size > 15
   const gridClass = dense
-    ? 'grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10'
-    : 'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+    ? 'grid w-full grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10'
+    : 'mx-auto grid w-full max-w-6xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
 
   return (
     <div className={gridClass}>
