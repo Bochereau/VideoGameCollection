@@ -253,7 +253,7 @@ export function TopEntryPickerModal({
         aria-label="Fermer"
         onClick={onClose}
       />
-      <div className="animate-fade-up relative z-10 flex max-h-[90dvh] w-full max-w-2xl flex-col rounded-t-2xl border border-line bg-surface shadow-xl sm:rounded-2xl">
+      <div className="animate-fade-up relative z-10 flex h-[min(90dvh,40rem)] w-full max-w-2xl flex-col rounded-t-2xl border border-line bg-surface shadow-xl sm:rounded-2xl">
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-line px-5 py-4">
           <div>
             <h2 className="font-display text-xl tracking-wide text-ink">
@@ -295,12 +295,12 @@ export function TopEntryPickerModal({
           ))}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          {error ? <p className="mb-3 text-sm text-danger">{error}</p> : null}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 py-4">
+          {error ? <p className="mb-3 shrink-0 text-sm text-danger">{error}</p> : null}
 
           {tab === 'collection' ? (
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-h-0 flex-1 flex-col gap-3">
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
                 <label className="relative min-w-[10rem] flex-1">
                   <span className="sr-only">Rechercher</span>
                   <input
@@ -308,6 +308,7 @@ export function TopEntryPickerModal({
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Rechercher…"
+                    autoFocus
                   />
                 </label>
                 <FilterSelect
@@ -378,51 +379,55 @@ export function TopEntryPickerModal({
                 />
               </div>
 
-              {loadingGames ? (
-                <Loading label="Chargement des jeux…" />
-              ) : visibleGames.length === 0 ? (
-                <p className="py-8 text-center text-sm text-ink-muted">
-                  Aucun jeu ne correspond aux filtres.
-                </p>
-              ) : (
-                <ul className="divide-y divide-line rounded-xl border border-line">
-                  {visibleGames.map((game) => (
-                    <li key={game.id}>
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-accent-soft/60"
-                        onClick={() => {
-                          onSelect(gameToEntry(game))
-                          onClose()
-                        }}
-                      >
-                        <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-bg">
-                          {game.cover ? (
-                            <img
-                              src={cardCoverUrl(game.cover) ?? game.cover}
-                              alt=""
-                              className="h-full w-full object-cover object-top"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-ink">
-                            {game.name}
-                          </p>
-                          <p className="truncate text-xs text-ink-muted">
-                            {game.release ?? 'Année inconnue'}
-                            {game.hardware ? ` · ${game.hardware}` : ''}
-                          </p>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="relative min-h-0 flex-1 overflow-y-auto rounded-xl border border-line">
+                {loadingGames ? (
+                  <div className="flex h-full min-h-[12rem] items-center justify-center">
+                    <Loading label="Chargement des jeux…" />
+                  </div>
+                ) : visibleGames.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-ink-muted">
+                    Aucun jeu ne correspond aux filtres.
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-line">
+                    {visibleGames.map((game) => (
+                      <li key={game.id}>
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-accent-soft/60"
+                          onClick={() => {
+                            onSelect(gameToEntry(game))
+                            onClose()
+                          }}
+                        >
+                          <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-bg">
+                            {game.cover ? (
+                              <img
+                                src={cardCoverUrl(game.cover) ?? game.cover}
+                                alt=""
+                                className="h-full w-full object-cover object-top"
+                              />
+                            ) : null}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-ink">
+                              {game.name}
+                            </p>
+                            <p className="truncate text-xs text-ink-muted">
+                              {game.release ?? 'Année inconnue'}
+                              {game.hardware ? ` · ${game.hardware}` : ''}
+                            </p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           ) : (
-            <div className="space-y-3">
-              <label className="block space-y-1.5">
+            <div className="flex min-h-0 flex-1 flex-col gap-3">
+              <label className="block shrink-0 space-y-1.5">
                 <span className="text-xs font-medium text-ink-muted">
                   Recherche catalogue
                 </span>
@@ -434,46 +439,50 @@ export function TopEntryPickerModal({
                   placeholder="Nom du jeu…"
                 />
               </label>
-              {catalogSearching ? (
-                <Loading label="Recherche…" />
-              ) : catalogResults.length === 0 ? (
-                <p className="py-8 text-center text-sm text-ink-muted">
-                  {catalogQuery.trim().length < 2
-                    ? 'Tapez au moins 2 caractères.'
-                    : 'Aucun résultat.'}
-                </p>
-              ) : (
-                <ul className="divide-y divide-line rounded-xl border border-line">
-                  {catalogResults.map((item) => (
-                    <li key={item.rawgId}>
-                      <button
-                        type="button"
-                        disabled={catalogBusy}
-                        className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-accent-soft/60 disabled:opacity-50"
-                        onClick={() => void pickCatalog(item)}
-                      >
-                        <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-bg">
-                          {item.cover ? (
-                            <img
-                              src={cardCoverUrl(item.cover) ?? item.cover}
-                              alt=""
-                              className="h-full w-full object-cover object-top"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-ink">
-                            {item.name}
-                          </p>
-                          <p className="truncate text-xs text-ink-muted">
-                            {item.release ?? 'Année inconnue'}
-                          </p>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="relative min-h-0 flex-1 overflow-y-auto rounded-xl border border-line">
+                {catalogSearching ? (
+                  <div className="flex h-full min-h-[12rem] items-center justify-center">
+                    <Loading label="Recherche…" />
+                  </div>
+                ) : catalogResults.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-ink-muted">
+                    {catalogQuery.trim().length < 2
+                      ? 'Tapez au moins 2 caractères.'
+                      : 'Aucun résultat.'}
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-line">
+                    {catalogResults.map((item) => (
+                      <li key={item.rawgId}>
+                        <button
+                          type="button"
+                          disabled={catalogBusy}
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-accent-soft/60 disabled:opacity-50"
+                          onClick={() => void pickCatalog(item)}
+                        >
+                          <div className="h-12 w-9 shrink-0 overflow-hidden rounded bg-bg">
+                            {item.cover ? (
+                              <img
+                                src={cardCoverUrl(item.cover) ?? item.cover}
+                                alt=""
+                                className="h-full w-full object-cover object-top"
+                              />
+                            ) : null}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-ink">
+                              {item.name}
+                            </p>
+                            <p className="truncate text-xs text-ink-muted">
+                              {item.release ?? 'Année inconnue'}
+                            </p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
         </div>
