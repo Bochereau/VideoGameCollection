@@ -106,6 +106,192 @@ export function pickCompanies(involved = []) {
   }
 }
 
+const GAME_FIELDS =
+  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating'
+
+export function hardwareKey(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '')
+}
+
+/** More specific consoles first — "ps3" must not fall through to PlayStation 1. */
+const IGDB_PLATFORM_RULES = [
+  { re: /(switch2|nintendoswitch2)/, ids: [508], names: ['Nintendo Switch 2'] },
+  { re: /(nintendoswitch|switch)/, ids: [130], names: ['Nintendo Switch'] },
+  { re: /(playstation5|ps5)/, ids: [167], names: ['PlayStation 5'] },
+  { re: /(playstation4|ps4)/, ids: [48], names: ['PlayStation 4'] },
+  { re: /(playstation3|ps3)/, ids: [9], names: ['PlayStation 3'] },
+  { re: /(playstation2|ps2)/, ids: [8], names: ['PlayStation 2'] },
+  { re: /(playstationportable|^psp$|sonypsp)/, ids: [38], names: ['PlayStation Portable'] },
+  { re: /(psvita|vita)/, ids: [46], names: ['PlayStation Vita'] },
+  { re: /(playstationvr2|psvr2)/, ids: [390], names: ['PlayStation VR2'] },
+  { re: /(playstationvr|psvr)/, ids: [165], names: ['PlayStation VR'] },
+  { re: /(playstation|psx|ps1|psone)/, ids: [7], names: ['PlayStation'] },
+  { re: /(xboxseries|seriesx|seriesxs)/, ids: [169], names: ['Xbox Series X|S'] },
+  { re: /(xboxone)/, ids: [49], names: ['Xbox One'] },
+  { re: /(xbox360)/, ids: [12], names: ['Xbox 360'] },
+  { re: /(^xbox|microsoftxbox)/, ids: [11], names: ['Xbox'] },
+  { re: /(wiiu)/, ids: [41], names: ['Wii U'] },
+  { re: /(^wii|nintendowii)/, ids: [5], names: ['Wii'] },
+  { re: /(gamecube|ngc|^gc$)/, ids: [21], names: ['Nintendo GameCube'] },
+  { re: /(n64|nintendo64)/, ids: [4], names: ['Nintendo 64'] },
+  { re: /(3ds|nintendo3ds)/, ids: [37, 137], names: ['Nintendo 3DS', 'New Nintendo 3DS'] },
+  { re: /(nds|nintendods)/, ids: [20], names: ['Nintendo DS'] },
+  { re: /(snes|supernintendo|superfamicom)/, ids: [19], names: ['Super Nintendo Entertainment System'] },
+  { re: /(^nes$|famicom|nintendoentertainment)/, ids: [18], names: ['Nintendo Entertainment System'] },
+  { re: /(gameboyadvance|gba)/, ids: [24], names: ['Game Boy Advance'] },
+  { re: /(gameboycolor|gbc)/, ids: [22], names: ['Game Boy Color'] },
+  { re: /(gameboy|^gb$)/, ids: [33], names: ['Game Boy'] },
+  { re: /(virtualboy)/, ids: [87], names: ['Virtual Boy'] },
+  { re: /(dreamcast|^dc$)/, ids: [23], names: ['Dreamcast'] },
+  { re: /(saturn)/, ids: [32], names: ['Sega Saturn'] },
+  { re: /(megadrive|genesis)/, ids: [29], names: ['Sega Mega Drive/Genesis'] },
+  { re: /(mastersystem|^sms$)/, ids: [64], names: ['Sega Master System/Mark III'] },
+  { re: /(gamegear|^gg$)/, ids: [35], names: ['Sega Game Gear'] },
+  { re: /(32x)/, ids: [30], names: ['Sega 32X'] },
+  { re: /(segacd|megacd)/, ids: [78], names: ['Sega CD'] },
+  { re: /(neogeocd)/, ids: [136], names: ['Neo Geo CD'] },
+  { re: /(neogeo)/, ids: [80], names: ['Neo Geo AES'] },
+  { re: /(pcengine|turbografx)/, ids: [86], names: ['TurboGrafx-16/PC Engine'] },
+  { re: /(^pc$|windows|steam)/, ids: [6], names: ['PC (Microsoft Windows)'] },
+]
+
+export function resolveIgdbPlatforms(hardware = '') {
+  const key = hardwareKey(hardware)
+  if (!key) return { ids: [], names: [] }
+
+  for (const rule of IGDB_PLATFORM_RULES) {
+    if (rule.re.test(key)) return { ids: rule.ids, names: rule.names }
+  }
+
+  return { ids: [], names: [] }
+}
+
+function platformKeys(game) {
+  return (game.platforms || [])
+    .map((p) => hardwareKey(typeof p === 'string' ? p : p?.name))
+    .filter(Boolean)
+}
+
+export function gameMatchesHardware(game, hardware) {
+  const { names } = resolveIgdbPlatforms(hardware)
+  if (!names.length) return true
+  const accepted = new Set(names.map(hardwareKey))
+  return platformKeys(game).some((key) => accepted.has(key))
+}
+
+export function preferredPlatformName(game, hardware) {
+  const { names } = resolveIgdbPlatforms(hardware)
+  const list = (game.platforms || [])
+    .map((p) => (typeof p === 'string' ? p : p?.name))
+    .filter(Boolean)
+  if (names.length) {
+    const accepted = new Set(names.map(hardwareKey))
+    const hit = list.find((name) => accepted.has(hardwareKey(name)))
+    if (hit) return hit
+  }
+  return list[0] || ''
+}
+
+function normalizeTitle(value) {
+  let s = String(value || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['’]/g, '')
+
+  const romans = [
+    ['xviii', '18'],
+    ['xvii', '17'],
+    ['xvi', '16'],
+    ['xv', '15'],
+    ['xiv', '14'],
+    ['xiii', '13'],
+    ['xii', '12'],
+    ['xi', '11'],
+    ['viii', '8'],
+    ['vii', '7'],
+    ['iii', '3'],
+    ['ii', '2'],
+    ['iv', '4'],
+    ['vi', '6'],
+    ['ix', '9'],
+    ['x', '10'],
+  ]
+  for (const [r, n] of romans) {
+    s = s.replace(new RegExp(`\\b${r}\\b`, 'g'), n)
+  }
+
+  return s.replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+export function scoreTitleMatch(name, query) {
+  const n = normalizeTitle(name)
+  const q = normalizeTitle(query)
+  if (!n || !q) return 0
+  if (n === q) return 400
+  if (n.startsWith(`${q} `)) return 300
+  if (n.startsWith(q)) return 260
+  if (n.includes(` ${q} `) || n.endsWith(` ${q}`)) return 180
+  if (n.includes(q)) return 120
+  return 0
+}
+
+function sortGamesByQuery(rows, query) {
+  return [...rows].sort((a, b) => {
+    const score =
+      scoreTitleMatch(b.name, query) - scoreTitleMatch(a.name, query)
+    if (score) return score
+    const coverA = Number(Boolean(a.cover?.image_id))
+    const coverB = Number(Boolean(b.cover?.image_id))
+    if (coverB !== coverA) return coverB - coverA
+    const dateA = Number(a.first_release_date) || 0
+    const dateB = Number(b.first_release_date) || 0
+    if (dateA && dateB && dateA !== dateB) return dateA - dateB
+    return String(a.name || '').localeCompare(String(b.name || ''), 'fr')
+  })
+}
+
+export async function searchIgdbGames(q, { hardware = '', limit = 8 } = {}) {
+  const query = sanitizeQuery(q)
+  if (query.length < 2) return []
+
+  const { ids, names } = resolveIgdbPlatforms(hardware)
+  const pool = Math.min(50, Math.max(24, limit * 6))
+  const whereQ = query.toLowerCase().replace(/['’]/g, '')
+
+  const requests = [
+    igdbQuery('games', `search "${query}"; fields ${GAME_FIELDS}; limit ${pool};`),
+  ]
+  if (ids.length) {
+    requests.push(
+      igdbQuery(
+        'games',
+        `fields ${GAME_FIELDS}; where name ~ *"${whereQ}"* & platforms = (${ids.join(',')}); limit ${pool};`,
+      ).catch(() => []),
+    )
+  }
+
+  const chunks = await Promise.all(requests)
+  const byId = new Map()
+  for (const chunk of chunks) {
+    for (const row of Array.isArray(chunk) ? chunk : []) {
+      if (row?.id != null && !byId.has(row.id)) byId.set(row.id, row)
+    }
+  }
+
+  let rows = [...byId.values()]
+  if (names.length) {
+    const filtered = rows.filter((g) => gameMatchesHardware(g, hardware))
+    if (filtered.length) rows = filtered
+  }
+
+  return sortGamesByQuery(rows, query).slice(0, limit)
+}
+
 export function mapIgdbGame(g) {
   return {
     igdbId: g.id,

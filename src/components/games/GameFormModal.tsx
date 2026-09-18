@@ -24,6 +24,7 @@ type Props = {
   open: boolean
   initial?: Game | null
   defaultWishlist?: boolean
+  defaultHardware?: string | null
   consoleNames: string[]
   onClose: () => void
   onSubmit: (data: GameInput) => Promise<void>
@@ -87,6 +88,7 @@ export function GameFormModal({
   open,
   initial,
   defaultWishlist = false,
+  defaultHardware = null,
   consoleNames,
   onClose,
   onSubmit,
@@ -137,10 +139,18 @@ export function GameFormModal({
         setCustomHardware(initial.hardware)
       }
     } else {
-      setForm({ ...empty, wishlist: defaultWishlist })
+      const preset =
+        defaultHardware && consoleNames.includes(defaultHardware)
+          ? defaultHardware
+          : (consoleNames[0] ?? OTHER)
       setQuery('')
-      setConsoleChoice(consoleNames[0] ?? OTHER)
-      setCustomHardware('')
+      setConsoleChoice(preset)
+      setCustomHardware(preset === OTHER ? defaultHardware || '' : '')
+      setForm({
+        ...empty,
+        wishlist: defaultWishlist,
+        hardware: preset === OTHER ? defaultHardware || '' : preset,
+      })
     }
     setResults([])
     setCatalogLocked(false)
@@ -148,7 +158,7 @@ export function GameFormModal({
     setCoverPickerOpen(false)
     setCoverSource(detectCoverSource(initial?.cover))
     setError(null)
-  }, [open, initial, defaultWishlist, consoleNames])
+  }, [open, initial, defaultWishlist, defaultHardware, consoleNames])
 
   useEffect(() => {
     if (!open || initial || catalogLocked) return
@@ -159,6 +169,9 @@ export function GameFormModal({
       return
     }
 
+    const hardware =
+      (consoleChoice === OTHER ? customHardware : consoleChoice).trim()
+
     let cancelled = false
     setSearching(true)
     const timer = window.setTimeout(() => {
@@ -166,7 +179,7 @@ export function GameFormModal({
         try {
           const token = await getToken()
           if (!token || cancelled) return
-          const list = await catalogApi.searchGames(token, q)
+          const list = await catalogApi.searchGames(token, q, hardware || undefined)
           if (cancelled) return
           setResults(list)
         } catch {
@@ -181,7 +194,7 @@ export function GameFormModal({
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [query, open, initial, catalogLocked, getToken])
+  }, [query, open, initial, catalogLocked, consoleChoice, customHardware, getToken])
 
   if (!open) return null
 
@@ -201,7 +214,11 @@ export function GameFormModal({
       const title = item.name
       const platformList =
         details.platforms.length > 0 ? details.platforms : item.platforms
-      const matched = matchSavedConsole(platformList, consoleNames)
+      const currentHardware =
+        (consoleChoice === OTHER ? customHardware : consoleChoice).trim()
+      const matched =
+        (currentHardware && matchSavedConsole(platformList, [currentHardware])) ||
+        matchSavedConsole(platformList, consoleNames)
 
       if (matched) {
         setConsoleChoice(matched)
@@ -438,7 +455,7 @@ export function GameFormModal({
                             className="aspect-[3/4] w-full object-cover object-top"
                           />
                           <span className="block truncate px-1.5 py-1 text-[0.65rem] text-ink-muted group-hover:text-ink">
-                            {item.source === 'libretro' ? item.region : 'IGDB'}
+                            {item.source === 'libretro' ? item.region : item.name}
                             {item.system
                               ? ` · ${item.system.replace(/^(Sony|Sega|Nintendo|Microsoft|SNK|NEC) - /i, '')}`
                               : ''}

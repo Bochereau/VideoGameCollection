@@ -136,11 +136,11 @@ export const topsApi = {
 }
 
 export const catalogApi = {
-  searchGames: (token: string, q: string) =>
-    apiFetch<CatalogGame[]>(
-      `/api/catalog/games?q=${encodeURIComponent(q)}`,
-      token,
-    ),
+  searchGames: (token: string, q: string, hardware?: string) => {
+    const params = new URLSearchParams({ q })
+    if (hardware) params.set('hardware', hardware)
+    return apiFetch<CatalogGame[]>(`/api/catalog/games?${params}`, token)
+  },
 
   gameDetails: (token: string, igdbId: number) =>
     apiFetch<CatalogGame>(`/api/catalog/games/${igdbId}`, token),

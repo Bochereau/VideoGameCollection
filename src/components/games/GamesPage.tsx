@@ -492,6 +492,7 @@ export function GamesPage({
         initial={editing}
         defaultWishlist={wishlist}
         consoleNames={consoleNames}
+        defaultHardware={hardware}
         onClose={() => {
           setModalOpen(false)
           setEditing(null)
