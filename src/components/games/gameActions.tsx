@@ -31,11 +31,18 @@ export function gameCopyMeta(game: Game) {
 const STATUS_STYLES: Record<GameStatus, string> = {
   todo: 'bg-ink-muted/15 text-ink-muted',
   playing: 'bg-sky-500/20 text-sky-400',
+  paused: 'bg-violet-500/20 text-violet-300',
   finished: 'bg-emerald-500 text-bg shadow-sm shadow-emerald-500/25',
   abandoned: 'bg-rose-500/20 text-rose-400',
 }
 
-const STATUS_ORDER: GameStatus[] = ['todo', 'playing', 'finished', 'abandoned']
+const STATUS_ORDER: GameStatus[] = [
+  'todo',
+  'playing',
+  'paused',
+  'finished',
+  'abandoned',
+]
 const PRIORITY_ORDER: GamePriority[] = [5, 4, 3, 2, 1]
 
 type MenuPos = { top: number; left: number; minWidth: number }
@@ -65,6 +72,16 @@ function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }
     return (
       <svg {...common}>
         <path d="M8 5v14l12-7L8 5z" fill="currentColor" />
+      </svg>
+    )
+  }
+  if (status === 'paused') {
+    return (
+      <svg {...common}>
+        <path
+          d="M8 5h3v14H8V5zm5 0h3v14h-3V5z"
+          fill="currentColor"
+        />
       </svg>
     )
   }
@@ -232,7 +249,7 @@ export function StatusSelect({
         }}
         className={`inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition ${
           compact
-            ? 'px-2.5 py-1 text-[0.65rem]'
+            ? 'min-w-[6.75rem] px-2.5 py-1 text-[0.65rem]'
             : 'w-full px-2.5 py-1.5 text-[0.7rem]'
         } ${STATUS_STYLES[status]}`}
       >

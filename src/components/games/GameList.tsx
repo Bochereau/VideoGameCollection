@@ -93,17 +93,19 @@ function GameRow({
       </td>
       <td className="px-3 py-2.5">
         <div className="flex items-center justify-end gap-1.5">
-          {showPriority ? (
-            <PriorityButton
-              priority={game.priority}
-              onChange={(p) => onPriorityChange(game, p)}
-            />
-          ) : showFavorite ? (
-            <FavoriteButton
-              favorite={game.favorite}
-              onClick={() => onToggleFavorite(game)}
-            />
-          ) : null}
+          <div className="flex w-8 shrink-0 items-center justify-center">
+            {showPriority ? (
+              <PriorityButton
+                priority={game.priority}
+                onChange={(p) => onPriorityChange(game, p)}
+              />
+            ) : showFavorite ? (
+              <FavoriteButton
+                favorite={game.favorite}
+                onClick={() => onToggleFavorite(game)}
+              />
+            ) : null}
+          </div>
           {wishlist ? (
             <AddToCollectionButton
               compact

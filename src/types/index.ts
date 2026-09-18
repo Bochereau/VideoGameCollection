@@ -7,7 +7,12 @@ export type GameEdition =
   | 'deluxe'
   | 'collector'
 
-export type GameStatus = 'todo' | 'playing' | 'finished' | 'abandoned'
+export type GameStatus =
+  | 'todo'
+  | 'playing'
+  | 'paused'
+  | 'finished'
+  | 'abandoned'
 export type GamePriority = 1 | 2 | 3 | 4 | 5
 
 export interface Game {
@@ -145,6 +150,7 @@ export const MAX_TOP_SIZE = 100
 export const STATUS_LABELS: Record<GameStatus, string> = {
   todo: 'À faire',
   playing: 'En cours',
+  paused: 'En pause',
   finished: 'Terminé',
   abandoned: 'Abandonné',
 }

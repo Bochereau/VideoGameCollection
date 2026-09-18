@@ -11,7 +11,13 @@ export function errorResponse(res, err) {
 
 const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
 const EDITIONS = new Set(['standard', 'steelbook', 'special', 'deluxe', 'collector'])
-export const STATUSES = new Set(['todo', 'playing', 'finished', 'abandoned'])
+export const STATUSES = new Set([
+  'todo',
+  'playing',
+  'paused',
+  'finished',
+  'abandoned',
+])
 
 export function resolveCondition(doc) {
   if (CONDITIONS.has(doc.condition)) return doc.condition

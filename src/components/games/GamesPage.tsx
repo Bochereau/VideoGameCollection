@@ -85,6 +85,7 @@ export function GamesPage({
   const statusFilter: StatusFilter =
     rawStatus === 'todo' ||
     rawStatus === 'playing' ||
+    rawStatus === 'paused' ||
     rawStatus === 'finished' ||
     rawStatus === 'abandoned'
       ? rawStatus
