@@ -295,6 +295,7 @@ export default async function handler(req, res) {
         wishlist,
         favorite,
         cover: body?.cover ? String(body.cover) : null,
+        igdbId: body?.igdbId != null ? Number(body.igdbId) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
         ...copy,
         createdAt: now,
@@ -397,6 +398,9 @@ export default async function handler(req, res) {
       }
 
       if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null
+      if (body?.igdbId !== undefined) {
+        $set.igdbId = body.igdbId != null ? Number(body.igdbId) : null
+      }
       if (body?.rawgId !== undefined) {
         $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null
       }

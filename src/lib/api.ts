@@ -142,8 +142,8 @@ export const catalogApi = {
       token,
     ),
 
-  gameDetails: (token: string, rawgId: number) =>
-    apiFetch<CatalogGame>(`/api/catalog/games/${rawgId}`, token),
+  gameDetails: (token: string, igdbId: number) =>
+    apiFetch<CatalogGame>(`/api/catalog/games/${igdbId}`, token),
 
   platforms: (token: string, q = '') =>
     apiFetch<CatalogPlatform[]>(
@@ -151,9 +151,15 @@ export const catalogApi = {
       token,
     ),
 
-  searchCovers: (token: string, q: string, hardware?: string) => {
+  searchCovers: (
+    token: string,
+    q: string,
+    hardware?: string,
+    igdbId?: number | null,
+  ) => {
     const params = new URLSearchParams({ q })
     if (hardware) params.set('hardware', hardware)
+    if (igdbId != null) params.set('igdbId', String(igdbId))
     return apiFetch<{ configured: boolean; results: CatalogCover[] }>(
       `/api/catalog/covers?${params}`,
       token,

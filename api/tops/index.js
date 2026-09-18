@@ -38,6 +38,12 @@ function normalizeEntry(raw, size) {
     if (Number.isInteger(y)) release = y
   }
 
+  let igdbId = null
+  if (raw?.igdbId !== null && raw?.igdbId !== undefined && raw?.igdbId !== '') {
+    const id = Number(raw.igdbId)
+    if (Number.isInteger(id)) igdbId = id
+  }
+
   let rawgId = null
   if (raw?.rawgId !== null && raw?.rawgId !== undefined && raw?.rawgId !== '') {
     const id = Number(raw.rawgId)
@@ -50,6 +56,7 @@ function normalizeEntry(raw, size) {
     name,
     cover: raw?.cover ? String(raw.cover) : null,
     release,
+    igdbId,
     rawgId,
   }
 }
@@ -108,6 +115,7 @@ async function hydrateEntries(db, userId, entries) {
       name: live.name,
       cover: live.cover,
       release: live.release,
+      igdbId: live.igdbId,
       rawgId: live.rawgId,
     }
   })

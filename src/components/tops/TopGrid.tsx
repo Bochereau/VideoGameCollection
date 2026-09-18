@@ -186,6 +186,7 @@ export function TopGrid({
             draggedEntry &&
               entry &&
               ((draggedEntry.gameId && entry.gameId === draggedEntry.gameId) ||
+                (draggedEntry.igdbId && entry.igdbId === draggedEntry.igdbId) ||
                 (draggedEntry.rawgId && entry.rawgId === draggedEntry.rawgId) ||
                 (entry.name === draggedEntry.name &&
                   entry.release === draggedEntry.release &&

@@ -21,7 +21,7 @@ Amoureux de jeux vidéo, j'avais envie de créer un outils de gestion de ma peti
 
 🕹️ __Consoles__ : une barre latérale pour filtrer par hardware, avec compteurs et possibilité d'ajouter une console.
 
-🔍 __Catalogue__ : recherche de jeux et de jaquettes via [RAWG](https://rawg.io/apidocs) pour préremplir les fiches.
+🔍 __Catalogue__ : recherche de jeux et de jaquettes via [IGDB](https://api-docs.igdb.com) pour préremplir les fiches (jaquettes alternatives via Libretro Thumbnails).
 
 ## Les outils de création 🛠️
 
@@ -42,11 +42,13 @@ Chaque fichier de ce dossier devient un endpoint HTTP autonome, démarré à la 
 
 - `/api/games` — CRUD des jeux de la collection / wishlist
 - `/api/consoles` — lecture et écriture des consoles
-- `/api/catalog/games` — recherche et détail de jeux (RAWG)
-- `/api/catalog/platforms` — plateformes du catalogue
-- `/api/catalog/covers` — jaquettes alternatives
+- `/api/catalog/games` — recherche et détail de jeux (IGDB)
+- `/api/catalog/platforms` — plateformes du catalogue (IGDB)
+- `/api/catalog/covers` — jaquettes IGDB + alternatives Libretro
 
 Les routes sensibles passent par une vérification Clerk côté API.
+
+Côté serveur, le catalogue IGDB nécessite `IGDB_CLIENT_ID` et `IGDB_CLIENT_SECRET` (app [Twitch](https://dev.twitch.tv/console/apps), Client Type Confidential).
 
 ### 🗄️ Base de données
 

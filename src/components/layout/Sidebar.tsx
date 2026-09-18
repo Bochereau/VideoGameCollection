@@ -164,13 +164,13 @@ export function Sidebar({
             />
             <datalist id="platform-suggestions">
               {suggestions.map((p) => (
-                <option key={p.rawgId} value={p.name} />
+                <option key={p.igdbId} value={p.name} />
               ))}
             </datalist>
             {suggestions.length > 0 ? (
               <ul className="max-h-28 overflow-y-auto rounded-lg border border-line bg-bg text-xs">
                 {suggestions.map((p) => (
-                  <li key={p.rawgId}>
+                  <li key={p.igdbId}>
                     <button
                       type="button"
                       className="w-full px-2 py-1.5 text-left hover:bg-accent-soft"

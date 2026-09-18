@@ -40,10 +40,29 @@ const empty: GameInput = {
   wishlist: false,
   favorite: false,
   cover: null,
+  igdbId: null,
   rawgId: null,
   format: 'physical',
   condition: 'none',
   edition: 'standard',
+}
+
+function detectCoverSource(
+  url: string | null | undefined,
+): 'igdb' | 'libretro' | 'rawg' | null {
+  if (!url) return null
+  if (url.includes('images.igdb.com')) return 'igdb'
+  if (url.includes('thumbnails.libretro.com')) return 'libretro'
+  if (url.includes('media.rawg.io')) return 'rawg'
+  return null
+}
+
+function coverSourceLabel(source: 'igdb' | 'libretro' | 'rawg' | null, hasCover: boolean) {
+  if (source === 'libretro') return 'Jaquette Libretro Thumbnails'
+  if (source === 'rawg') return 'Jaquette RAWG'
+  if (source === 'igdb') return 'Jaquette IGDB'
+  if (hasCover) return 'Jaquette'
+  return 'Aucune jaquette'
 }
 
 function matchSavedConsole(platforms: string[], saved: string[]): string | null {
@@ -85,7 +104,9 @@ export function GameFormModal({
   const [coverResults, setCoverResults] = useState<CatalogCover[]>([])
   const [coverSearching, setCoverSearching] = useState(false)
   const [coverPickerOpen, setCoverPickerOpen] = useState(false)
-  const [coverSource, setCoverSource] = useState<'rawg' | 'libretro' | null>(null)
+  const [coverSource, setCoverSource] = useState<'igdb' | 'libretro' | 'rawg' | null>(
+    null,
+  )
 
   useEffect(() => {
     if (!open) return
@@ -101,6 +122,7 @@ export function GameFormModal({
         wishlist: initial.wishlist,
         favorite: initial.favorite,
         cover: initial.cover ?? null,
+        igdbId: initial.igdbId ?? null,
         rawgId: initial.rawgId ?? null,
         format: initial.format ?? 'physical',
         condition: initial.condition ?? 'none',
@@ -124,7 +146,7 @@ export function GameFormModal({
     setCatalogLocked(false)
     setCoverResults([])
     setCoverPickerOpen(false)
-    setCoverSource(initial?.cover ? 'rawg' : null)
+    setCoverSource(detectCoverSource(initial?.cover))
     setError(null)
   }, [open, initial, defaultWishlist, consoleNames])
 
@@ -174,8 +196,8 @@ export function GameFormModal({
     try {
       const token = await getToken()
       if (!token) throw new Error('Non authentifié')
-      const details = await catalogApi.gameDetails(token, item.rawgId)
-      // Keep casing from the search hit (RAWG details can alter Roman numerals)
+      const details = await catalogApi.gameDetails(token, item.igdbId)
+      // Keep casing from the search hit (details can alter Roman numerals)
       const title = item.name
       const platformList =
         details.platforms.length > 0 ? details.platforms : item.platforms
@@ -192,7 +214,7 @@ export function GameFormModal({
           editor: details.editor || '',
           release: details.release,
           cover: details.cover,
-          rawgId: details.rawgId,
+          igdbId: details.igdbId,
         }))
       } else {
         const fallback = platformList[0] || ''
@@ -206,11 +228,11 @@ export function GameFormModal({
           editor: details.editor || '',
           release: details.release,
           cover: details.cover,
-          rawgId: details.rawgId,
+          igdbId: details.igdbId,
         }))
       }
 
-      setCoverSource(details.cover ? 'rawg' : null)
+      setCoverSource(details.cover ? 'igdb' : null)
       setQuery(title)
       setResults([])
       setCatalogLocked(true)
@@ -221,7 +243,7 @@ export function GameFormModal({
     }
   }
 
-  async function searchLibretroCovers() {
+  async function searchAlternateCovers() {
     const name = form.name.trim() || query.trim()
     if (name.length < 2) {
       setError('Indique un nom de jeu pour chercher une jaquette.')
@@ -237,22 +259,27 @@ export function GameFormModal({
     try {
       const token = await getToken()
       if (!token) throw new Error('Non authentifié')
-      const data = await catalogApi.searchCovers(token, name, hardware || undefined)
+      const data = await catalogApi.searchCovers(
+        token,
+        name,
+        hardware || undefined,
+        form.igdbId,
+      )
       setCoverResults(data.results)
       if (!data.results.length) {
-        setError('Aucune jaquette Libretro trouvée pour ce titre.')
+        setError('Aucune jaquette trouvée pour ce titre.')
       }
     } catch (err) {
       setCoverResults([])
-      setError(err instanceof Error ? err.message : 'Erreur Libretro Thumbnails')
+      setError(err instanceof Error ? err.message : 'Erreur jaquettes')
     } finally {
       setCoverSearching(false)
     }
   }
 
-  function applyLibretroCover(item: CatalogCover) {
+  function applyCover(item: CatalogCover) {
     setForm((f) => ({ ...f, cover: item.mediaUrl }))
-    setCoverSource('libretro')
+    setCoverSource(item.source === 'libretro' ? 'libretro' : 'igdb')
     setCoverPickerOpen(false)
     setError(null)
   }
@@ -323,7 +350,7 @@ export function GameFormModal({
             {results.length > 0 ? (
               <ul className="max-h-52 divide-y divide-line overflow-y-auto rounded-xl border border-line bg-bg/80">
                 {results.map((item) => (
-                  <li key={item.rawgId}>
+                  <li key={item.igdbId}>
                     <button
                       type="button"
                       onClick={() => void pickCatalogGame(item)}
@@ -377,22 +404,16 @@ export function GameFormModal({
                   {form.name || 'Jaquette'}
                 </p>
                 <p className="mt-1 text-xs text-ink-muted">
-                  {coverSource === 'libretro'
-                    ? 'Jaquette Libretro Thumbnails'
-                    : coverSource === 'rawg' || form.cover
-                      ? 'Jaquette RAWG'
-                      : 'Aucune jaquette'}
+                  {coverSourceLabel(coverSource, Boolean(form.cover))}
                 </p>
                 <Button
                   type="button"
                   variant="secondary"
                   className="mt-3 !text-xs"
                   disabled={busy || coverSearching || !(form.name.trim() || query.trim())}
-                  onClick={() => void searchLibretroCovers()}
+                  onClick={() => void searchAlternateCovers()}
                 >
-                  {coverSearching
-                    ? 'Recherche Libretro…'
-                    : 'Choisir une jaquette Libretro'}
+                  {coverSearching ? 'Recherche des jaquettes…' : 'Choisir une jaquette'}
                 </Button>
               </div>
             </div>
@@ -404,10 +425,10 @@ export function GameFormModal({
                 ) : coverResults.length > 0 ? (
                   <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {coverResults.map((item) => (
-                      <li key={`${item.system}-${item.mediaUrl}`}>
+                      <li key={`${item.source ?? 'igdb'}-${item.system}-${item.mediaUrl}`}>
                         <button
                           type="button"
-                          onClick={() => applyLibretroCover(item)}
+                          onClick={() => applyCover(item)}
                           disabled={busy}
                           className="group w-full overflow-hidden rounded-lg border border-line bg-surface text-left transition hover:border-accent/50"
                         >
@@ -417,7 +438,7 @@ export function GameFormModal({
                             className="aspect-[3/4] w-full object-cover object-top"
                           />
                           <span className="block truncate px-1.5 py-1 text-[0.65rem] text-ink-muted group-hover:text-ink">
-                            {item.region}
+                            {item.source === 'libretro' ? item.region : 'IGDB'}
                             {item.system
                               ? ` · ${item.system.replace(/^(Sony|Sega|Nintendo|Microsoft|SNK|NEC) - /i, '')}`
                               : ''}

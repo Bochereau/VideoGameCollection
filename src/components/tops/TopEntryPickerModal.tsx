@@ -68,6 +68,7 @@ function gameToEntry(game: Game): Omit<TopEntry, 'rank'> {
     name: game.name,
     cover: game.cover ?? null,
     release: game.release,
+    igdbId: game.igdbId ?? null,
     rawgId: game.rawgId ?? null,
   }
 }
@@ -78,7 +79,7 @@ function catalogToEntry(item: CatalogGame): Omit<TopEntry, 'rank'> {
     name: item.name,
     cover: item.cover ?? null,
     release: item.release,
-    rawgId: item.rawgId,
+    igdbId: item.igdbId,
   }
 }
 
@@ -227,7 +228,7 @@ export function TopEntryPickerModal({
     try {
       const token = await getToken()
       if (!token) throw new Error('Non authentifié')
-      const details = await catalogApi.gameDetails(token, item.rawgId)
+      const details = await catalogApi.gameDetails(token, item.igdbId)
       onSelect(
         catalogToEntry({
           ...item,
@@ -453,7 +454,7 @@ export function TopEntryPickerModal({
                 ) : (
                   <ul className="divide-y divide-line">
                     {catalogResults.map((item) => (
-                      <li key={item.rawgId}>
+                      <li key={item.igdbId}>
                         <button
                           type="button"
                           disabled={catalogBusy}

@@ -27,6 +27,7 @@ export interface Game {
   wishlist: boolean
   favorite: boolean
   cover?: string | null
+  igdbId?: number | null
   rawgId?: number | null
   format: GameFormat
   condition: GameCondition
@@ -53,6 +54,7 @@ export type GameInput = {
   wishlist?: boolean
   favorite?: boolean
   cover?: string | null
+  igdbId?: number | null
   rawgId?: number | null
   format?: GameFormat
   condition?: GameCondition
@@ -60,7 +62,7 @@ export type GameInput = {
 }
 
 export type CatalogGame = {
-  rawgId: number
+  igdbId: number
   name: string
   release: number | null
   cover: string | null
@@ -70,6 +72,8 @@ export type CatalogGame = {
   editor?: string
 }
 
+export type CatalogCoverSource = 'igdb' | 'libretro'
+
 export type CatalogCover = {
   id: number
   name: string
@@ -78,10 +82,11 @@ export type CatalogCover = {
   mediaUrl: string
   thumb: string
   alternatives: { region: string; mediaUrl: string }[]
+  source?: CatalogCoverSource
 }
 
 export type CatalogPlatform = {
-  rawgId: number
+  igdbId: number
   name: string
   gamesCount: number
 }
@@ -111,6 +116,7 @@ export type TopEntry = {
   name: string
   cover?: string | null
   release?: number | null
+  igdbId?: number | null
   rawgId?: number | null
 }
 

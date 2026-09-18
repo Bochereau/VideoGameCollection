@@ -1,21 +1,7 @@
 import { requireUserId } from '../../_lib/auth.js'
 import { handleOptions } from '../../_lib/db.js'
-import { rawgFetch } from '../../_lib/rawg.js'
+import { igdbQuery, mapIgdbGame, sanitizeQuery } from '../../_lib/igdb.js'
 import { errorResponse, json } from '../../_lib/respond.js'
-
-function mapGame(g) {
-  const year = g.released ? Number(String(g.released).slice(0, 4)) : null
-  return {
-    rawgId: g.id,
-    name: g.name,
-    release: Number.isFinite(year) ? year : null,
-    cover: g.background_image || null,
-    platforms: (g.platforms || [])
-      .map((p) => p?.platform?.name)
-      .filter(Boolean),
-    rating: g.rating || null,
-  }
-}
 
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return
@@ -27,17 +13,19 @@ export default async function handler(req, res) {
       return json(res, 405, { error: 'Method not allowed' })
     }
 
-    const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
+    const q = sanitizeQuery(typeof req.query.q === 'string' ? req.query.q : '')
     if (q.length < 2) {
       return json(res, 200, [])
     }
 
-    const data = await rawgFetch('/games', {
-      search: q,
-      page_size: 8,
-    })
+    const data = await igdbQuery(
+      'games',
+      `search "${q}"; fields name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating; limit 8;`,
+    )
 
-    return json(res, 200, (data.results || []).map(mapGame))
+    const games = (Array.isArray(data) ? data : []).map(mapIgdbGame)
+    games.sort((a, b) => Number(Boolean(b.cover)) - Number(Boolean(a.cover)))
+    return json(res, 200, games)
   } catch (err) {
     return errorResponse(res, err)
   }

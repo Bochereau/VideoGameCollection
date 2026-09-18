@@ -75,6 +75,7 @@ export function serializeGame(doc) {
     wishlist,
     favorite,
     cover: doc.cover ?? null,
+    igdbId: doc.igdbId ?? null,
     rawgId: doc.rawgId ?? null,
     format,
     condition,
@@ -100,6 +101,7 @@ export function serializeTopEntry(entry) {
     name: entry.name ?? '',
     cover: entry.cover ?? null,
     release: entry.release ?? null,
+    igdbId: entry.igdbId ?? null,
     rawgId: entry.rawgId ?? null,
   }
 }
