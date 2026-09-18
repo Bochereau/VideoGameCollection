@@ -455,7 +455,11 @@ export function GameFormModal({
                             className="aspect-[3/4] w-full object-cover object-top"
                           />
                           <span className="block truncate px-1.5 py-1 text-[0.65rem] text-ink-muted group-hover:text-ink">
-                            {item.source === 'libretro' ? item.region : item.name}
+                            {item.source === 'libretro'
+                              ? item.region
+                              : item.region && item.region !== 'Officielle'
+                                ? `${item.region} · ${item.name}`
+                                : item.name}
                             {item.system
                               ? ` · ${item.system.replace(/^(Sony|Sega|Nintendo|Microsoft|SNK|NEC) - /i, '')}`
                               : ''}

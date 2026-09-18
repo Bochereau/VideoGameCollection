@@ -1,30 +1,19 @@
 import { requireUserId } from '../../_lib/auth.js'
 import { handleOptions } from '../../_lib/db.js'
-import {
-  igdbImageUrl,
-  igdbQuery,
-  IGDB_THUMB_SIZE,
-  preferredPlatformName,
-  sanitizeQuery,
-  searchIgdbGames,
-} from '../../_lib/igdb.js'
+import { fetchIgdbCoverOptions, regionPreference, sanitizeQuery, scoreTitleMatch } from '../../_lib/igdb.js'
 import { searchLibretroBoxarts } from '../../_lib/libretro-thumbnails.js'
 import { errorResponse, json } from '../../_lib/respond.js'
 
-function mapIgdbCover(g, hardware) {
-  const imageId = g.cover?.image_id
-  if (!imageId) return null
-  const system = preferredPlatformName(g, hardware)
-  return {
-    id: g.id,
-    name: g.name,
-    system,
-    region: 'Officielle',
-    mediaUrl: igdbImageUrl(imageId),
-    thumb: igdbImageUrl(imageId, IGDB_THUMB_SIZE),
-    alternatives: [],
-    source: 'igdb',
-  }
+function sortCoverResults(items, q) {
+  return [...items].sort((a, b) => {
+    const score = scoreTitleMatch(b.name, q) - scoreTitleMatch(a.name, q)
+    if (score) return score
+    const region = regionPreference(a.region) - regionPreference(b.region)
+    if (region) return region
+    const source = Number(a.source !== 'igdb') - Number(b.source !== 'igdb')
+    if (source) return source
+    return 0
+  })
 }
 
 export default async function handler(req, res) {
@@ -45,44 +34,27 @@ export default async function handler(req, res) {
     const hardware = typeof req.query.hardware === 'string' ? req.query.hardware : ''
     const igdbId = Number(req.query.igdbId)
 
-    const exactPromise =
-      Number.isInteger(igdbId) && igdbId > 0
-        ? igdbQuery(
-            'games',
-            `fields name, cover.image_id, platforms.name; where id = ${igdbId};`,
-          )
-        : Promise.resolve([])
-
-    const searchPromise = searchIgdbGames(q, { hardware, limit: 16 })
-    const libretroPromise = searchLibretroBoxarts(q, hardware).catch(() => [])
-
-    const [exact, search, libretro] = await Promise.all([
-      exactPromise,
-      searchPromise,
-      libretroPromise,
+    const [igdbResults, libretro] = await Promise.all([
+      fetchIgdbCoverOptions(q, {
+        hardware,
+        igdbId: Number.isInteger(igdbId) && igdbId > 0 ? igdbId : null,
+        limit: 32,
+      }),
+      searchLibretroBoxarts(q, hardware).catch(() => []),
     ])
 
-    const igdbResults = []
-    const seen = new Set()
+    const seen = new Set(igdbResults.map((item) => item.mediaUrl))
+    const libretroResults = (Array.isArray(libretro) ? libretro : [])
+      .filter((item) => item?.mediaUrl && !seen.has(item.mediaUrl))
+      .map((item) => ({
+        ...item,
+        source: 'libretro',
+      }))
 
-    const pushCover = (item) => {
-      if (!item?.mediaUrl || seen.has(item.mediaUrl)) return
-      seen.add(item.mediaUrl)
-      igdbResults.push(item)
-    }
-
-    const exactHit = Array.isArray(exact) ? exact[0] : null
-    if (exactHit) pushCover(mapIgdbCover(exactHit, hardware))
-    for (const g of Array.isArray(search) ? search : []) {
-      pushCover(mapIgdbCover(g, hardware))
-    }
-
-    const libretroResults = (Array.isArray(libretro) ? libretro : []).map((item) => ({
-      ...item,
-      source: 'libretro',
-    }))
-
-    const results = [...igdbResults, ...libretroResults].slice(0, 24)
+    const results = sortCoverResults(
+      [...igdbResults, ...libretroResults],
+      q,
+    ).slice(0, 40)
 
     return json(res, 200, {
       configured: true,

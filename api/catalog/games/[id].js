@@ -1,6 +1,6 @@
 import { requireUserId } from '../../_lib/auth.js'
 import { handleOptions } from '../../_lib/db.js'
-import { igdbQuery, mapIgdbGameDetails } from '../../_lib/igdb.js'
+import { igdbQuery, mapIgdbGameDetails, applyPreferredRegionalCovers } from '../../_lib/igdb.js'
 import { errorResponse, json } from '../../_lib/respond.js'
 
 export default async function handler(req, res) {
@@ -28,7 +28,8 @@ export default async function handler(req, res) {
       return json(res, 404, { error: 'Game not found' })
     }
 
-    return json(res, 200, mapIgdbGameDetails(g))
+    const preferred = (await applyPreferredRegionalCovers([g]))[0]
+    return json(res, 200, mapIgdbGameDetails(preferred))
   } catch (err) {
     return errorResponse(res, err)
   }

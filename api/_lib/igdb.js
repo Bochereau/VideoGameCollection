@@ -107,7 +107,7 @@ export function pickCompanies(involved = []) {
 }
 
 const GAME_FIELDS =
-  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating'
+  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating, version_parent, version_title'
 
 export function hardwareKey(value) {
   return String(value || '')
@@ -255,22 +255,296 @@ function sortGamesByQuery(rows, query) {
   })
 }
 
+function nameWhereClause(query) {
+  const variants = queryNameVariants(query)
+  if (variants.length === 1) return `name ~ *"${variants[0]}"*`
+  return `(${variants.map((v) => `name ~ *"${v}"*`).join(' | ')})`
+}
+
+export function queryNameVariants(query) {
+  const cleaned = sanitizeQuery(query).toLowerCase().replace(/['’]/g, '')
+  const normalized = normalizeTitle(query)
+  const variants = []
+  const add = (value) => {
+    if (value && value.length >= 2 && !variants.includes(value)) variants.push(value)
+  }
+  add(cleaned)
+  add(normalized)
+
+  const arabicToRoman = [
+    [18, 'xviii'],
+    [17, 'xvii'],
+    [16, 'xvi'],
+    [15, 'xv'],
+    [14, 'xiv'],
+    [13, 'xiii'],
+    [12, 'xii'],
+    [11, 'xi'],
+    [10, 'x'],
+    [9, 'ix'],
+    [8, 'viii'],
+    [7, 'vii'],
+    [6, 'vi'],
+    [4, 'iv'],
+    [3, 'iii'],
+    [2, 'ii'],
+  ]
+  let romanized = normalized
+  for (const [n, r] of arabicToRoman) {
+    romanized = romanized.replace(new RegExp(`\\b${n}\\b`, 'g'), r)
+  }
+  add(romanized)
+  return variants
+}
+
+const REGION_LABELS = {
+  1: 'Europe',
+  2: 'Amérique du Nord',
+  3: 'Australie',
+  4: 'Nouvelle-Zélande',
+  5: 'Japon',
+  6: 'Chine',
+  7: 'Asie',
+  8: 'World',
+  9: 'Corée',
+  10: 'Brésil',
+}
+
+/** Lower is better: Europe, then US, then the rest. */
+export function regionPreference(region = '') {
+  const key = String(region)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  if (
+    /europe|france|germany|allemagne|ital|spain|espagne|uk\b|united kingdom|angleterre|en-europe|\bpal\b|sles|sces/.test(
+      key,
+    )
+  ) {
+    return 0
+  }
+  if (
+    /amerique du nord|north america|\busa\b|\bus\b|ntsc-u|slus/.test(key) &&
+    !/japan|ntsc-j/.test(key)
+  ) {
+    return 1
+  }
+  if (/world|worldwide|officielle|official/.test(key)) return 2
+  if (/austral|new zealand|nouvelle-zelande/.test(key)) return 3
+  if (/japon|japan/.test(key)) return 4
+  return 5
+}
+
+function localizationRank(regionEnum) {
+  if (regionEnum === 1) return 0
+  if (regionEnum === 2) return 1
+  if (regionEnum === 8) return 2
+  return 4
+}
+
+export async function applyPreferredRegionalCovers(games) {
+  const ids = (Array.isArray(games) ? games : [])
+    .map((g) => g?.id)
+    .filter((id) => Number.isInteger(id))
+  if (!ids.length) return games
+
+  const locs = await igdbQuery(
+    'game_localizations',
+    `fields region, cover.image_id, game; where game = (${ids.join(',')}) & cover != null; limit 100;`,
+  ).catch(() => [])
+
+  const bestByGame = new Map()
+  for (const loc of Array.isArray(locs) ? locs : []) {
+    const gameId = Number(loc.game?.id || loc.game)
+    const imageId = loc.cover?.image_id
+    if (!gameId || !imageId) continue
+    const rank = localizationRank(loc.region)
+    const prev = bestByGame.get(gameId)
+    if (!prev || rank < prev.rank) bestByGame.set(gameId, { rank, imageId })
+  }
+
+  return games.map((g) => {
+    const best = bestByGame.get(g.id)
+    if (!best || best.rank > 1) return g
+    return {
+      ...g,
+      cover: {
+        ...(g.cover && typeof g.cover === 'object' ? g.cover : {}),
+        image_id: best.imageId,
+      },
+    }
+  })
+}
+
+function collectGameIds(rows, into) {
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (Number.isInteger(row?.id)) into.add(row.id)
+    if (Number.isInteger(row?.version_parent)) into.add(row.version_parent)
+    if (Number.isInteger(row?.game)) into.add(row.game)
+    if (Number.isInteger(row?.game?.id)) into.add(row.game.id)
+  }
+}
+
+export async function fetchIgdbCoverOptions(
+  q,
+  { hardware = '', igdbId = null, limit = 32 } = {},
+) {
+  const games = await searchIgdbGames(q, { hardware, limit: 12 })
+  const focused = games.filter((g) => scoreTitleMatch(g.name, q) >= 260)
+  const seed = focused.length ? focused : games.slice(0, 4)
+  const ids = new Set()
+  if (Number.isInteger(igdbId) && igdbId > 0) ids.add(igdbId)
+  collectGameIds(seed, ids)
+
+  if (!ids.size) return []
+
+  const idList = [...ids].join(',')
+  const [details, versions] = await Promise.all([
+    igdbQuery(
+      'games',
+      `fields name, cover.image_id, platforms.name, version_parent, version_title; where id = (${idList});`,
+    ).catch(() => []),
+    igdbQuery(
+      'games',
+      `fields name, cover.image_id, platforms.name, version_parent, version_title; where version_parent = (${idList}); limit 50;`,
+    ).catch(() => []),
+  ])
+
+  collectGameIds(details, ids)
+  collectGameIds(versions, ids)
+  const allIds = [...ids].join(',')
+
+  const [covers, localizations] = await Promise.all([
+    igdbQuery(
+      'covers',
+      `fields id, image_id, game, game.name, game.platforms.name; where game = (${allIds}); limit 100;`,
+    ).catch(() => []),
+    igdbQuery(
+      'game_localizations',
+      `fields name, region, cover.image_id, game, game.name, game.platforms.name; where game = (${allIds}) & cover != null; limit 100;`,
+    ).catch(() => []),
+  ])
+
+  const gameById = new Map()
+  for (const g of [...games, ...(details || []), ...(versions || [])]) {
+    if (g?.id != null) gameById.set(g.id, g)
+  }
+
+  const results = []
+  const seen = new Set()
+  const push = (item) => {
+    if (!item?.mediaUrl || seen.has(item.mediaUrl)) return
+    seen.add(item.mediaUrl)
+    results.push(item)
+  }
+
+  const coverItem = (imageId, gameLike, region, name) => {
+    if (!imageId) return null
+    const gameId =
+      Number(gameLike?.id) ||
+      Number(gameLike?.game?.id) ||
+      Number(gameLike?.game) ||
+      Number(gameLike)
+    const game =
+      gameById.get(gameId) ||
+      (typeof gameLike === 'object' && gameLike?.name ? gameLike : { id: gameId })
+    return {
+      id: gameId,
+      name: name || game.name || q,
+      system: preferredPlatformName(game, hardware),
+      region,
+      mediaUrl: igdbImageUrl(imageId),
+      thumb: igdbImageUrl(imageId, IGDB_THUMB_SIZE),
+      alternatives: [],
+      source: 'igdb',
+    }
+  }
+
+  const coverById = new Map(
+    (Array.isArray(covers) ? covers : [])
+      .filter((cover) => cover?.id != null && cover.image_id)
+      .map((cover) => [cover.id, cover]),
+  )
+
+  const locImageId = (loc) => {
+    if (loc.cover?.image_id) return loc.cover.image_id
+    const coverId =
+      typeof loc.cover === 'number' ? loc.cover : loc.cover?.id
+    return coverById.get(coverId)?.image_id || null
+  }
+
+  for (const loc of Array.isArray(localizations) ? localizations : []) {
+    const gameId = Number(loc.game?.id || loc.game)
+    push(
+      coverItem(
+        locImageId(loc),
+        loc.game || gameById.get(gameId) || { id: gameId },
+        REGION_LABELS[loc.region] || 'IGDB',
+        loc.name,
+      ),
+    )
+  }
+
+  for (const cover of Array.isArray(covers) ? covers : []) {
+    push(
+      coverItem(
+        cover.image_id,
+        cover.game,
+        'Officielle',
+        cover.game?.name,
+      ),
+    )
+  }
+
+  for (const g of [...(details || []), ...(versions || []), ...games]) {
+    push(
+      coverItem(
+        g.cover?.image_id,
+        g,
+        g.version_title || 'Officielle',
+        g.name,
+      ),
+    )
+  }
+
+  const query = sanitizeQuery(q)
+  results.sort((a, b) => {
+    const score = scoreTitleMatch(b.name, query) - scoreTitleMatch(a.name, query)
+    if (score) return score
+    return regionPreference(a.region) - regionPreference(b.region)
+  })
+
+  return results.slice(0, limit)
+}
+
 export async function searchIgdbGames(q, { hardware = '', limit = 8 } = {}) {
   const query = sanitizeQuery(q)
   if (query.length < 2) return []
 
   const { ids, names } = resolveIgdbPlatforms(hardware)
   const pool = Math.min(50, Math.max(24, limit * 6))
-  const whereQ = query.toLowerCase().replace(/['’]/g, '')
+  const nameWhere = nameWhereClause(query)
 
   const requests = [
     igdbQuery('games', `search "${query}"; fields ${GAME_FIELDS}; limit ${pool};`),
   ]
+  const extraSearch = queryNameVariants(query).find(
+    (variant) => variant !== query.toLowerCase(),
+  )
+  if (extraSearch) {
+    requests.push(
+      igdbQuery(
+        'games',
+        `search "${extraSearch}"; fields ${GAME_FIELDS}; limit ${Math.min(25, pool)};`,
+      ).catch(() => []),
+    )
+  }
   if (ids.length) {
     requests.push(
       igdbQuery(
         'games',
-        `fields ${GAME_FIELDS}; where name ~ *"${whereQ}"* & platforms = (${ids.join(',')}); limit ${pool};`,
+        `fields ${GAME_FIELDS}; where ${nameWhere} & platforms = (${ids.join(',')}); limit ${pool};`,
       ).catch(() => []),
     )
   }
@@ -289,7 +563,7 @@ export async function searchIgdbGames(q, { hardware = '', limit = 8 } = {}) {
     if (filtered.length) rows = filtered
   }
 
-  return sortGamesByQuery(rows, query).slice(0, limit)
+  return applyPreferredRegionalCovers(sortGamesByQuery(rows, query).slice(0, limit))
 }
 
 export function mapIgdbGame(g) {
