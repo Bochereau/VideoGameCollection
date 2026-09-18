@@ -29,11 +29,11 @@ export function gameCopyMeta(game: Game) {
 }
 
 const STATUS_STYLES: Record<GameStatus, string> = {
-  todo: 'bg-ink-muted/15 text-ink-muted',
-  playing: 'bg-sky-500/20 text-sky-400',
-  paused: 'bg-violet-500/20 text-violet-300',
+  todo: 'bg-amber text-bg shadow-sm shadow-amber/25',
+  playing: 'bg-sky-500 text-bg shadow-sm shadow-sky-500/25',
+  paused: 'bg-orange-500 text-bg shadow-sm shadow-orange-500/25',
   finished: 'bg-emerald-500 text-bg shadow-sm shadow-emerald-500/25',
-  abandoned: 'bg-rose-500/20 text-rose-400',
+  abandoned: 'bg-red-500 text-bg shadow-sm shadow-red-500/25',
 }
 
 const STATUS_ORDER: GameStatus[] = [
@@ -54,6 +54,7 @@ function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }
     viewBox: '0 0 24 24',
     fill: 'none' as const,
     'aria-hidden': true as const,
+    className: 'block shrink-0',
   }
   if (status === 'finished') {
     return (
@@ -97,16 +98,28 @@ function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }
       </svg>
     )
   }
-  // todo — cercle en attente
+  // todo — timer / chronomètre
   return (
     <svg {...common}>
-      <circle
-        cx="12"
-        cy="12"
-        r="8"
+      <path
+        d="M10 2h4M12 2v3"
         stroke="currentColor"
         strokeWidth="2"
-        strokeDasharray="4 3"
+        strokeLinecap="round"
+      />
+      <circle
+        cx="12"
+        cy="14"
+        r="7"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <path
+        d="M12 14V10.5M12 14l3 2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   )
@@ -247,14 +260,14 @@ export function StatusSelect({
           e.stopPropagation()
           setOpen((v) => !v)
         }}
-        className={`inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition ${
+        className={`inline-flex items-center justify-center gap-1.5 rounded-full font-medium leading-none transition ${
           compact
             ? 'min-w-[6.75rem] px-2.5 py-1 text-[0.65rem]'
             : 'w-full px-2.5 py-1.5 text-[0.7rem]'
         } ${STATUS_STYLES[status]}`}
       >
         <StatusIcon status={status} size={compact ? 11 : 12} />
-        <span>{STATUS_LABELS[status]}</span>
+        <span className="leading-none">{STATUS_LABELS[status]}</span>
       </button>
 
       {open && pos ? (
@@ -268,7 +281,7 @@ export function StatusSelect({
             <li key={id} role="option" aria-selected={id === status}>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition hover:bg-surface ${
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs leading-none transition hover:bg-surface ${
                   id === status
                     ? 'bg-surface font-medium text-accent'
                     : 'text-ink'
@@ -280,7 +293,7 @@ export function StatusSelect({
                 }}
               >
                 <StatusIcon status={id} size={12} />
-                {STATUS_LABELS[id]}
+                <span className="leading-none">{STATUS_LABELS[id]}</span>
               </button>
             </li>
           ))}
