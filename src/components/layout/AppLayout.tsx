@@ -7,6 +7,7 @@ import { CreateTopModal } from '@/components/tops/CreateTopModal'
 import { TopsSidebar } from '@/components/tops/TopsSidebar'
 import { consolesApi, topsApi } from '@/lib/api'
 import { applyColorTheme, readColorTheme, writeColorTheme } from '@/lib/colorTheme'
+import { readGameColumns, writeGameColumns } from '@/lib/columnsPerRow'
 import { readViewMode, writeViewMode } from '@/lib/viewMode'
 import type { ConsoleItem, TopSummary } from '@/types'
 import type { ColorTheme } from '@/types/theme'
@@ -18,6 +19,8 @@ export type AppOutletContext = {
   tops: TopSummary[]
   topsLoaded: boolean
   viewMode: GamesViewMode
+  columnsPerRow: number
+  onColumnsPerRowChange: (value: number) => void
   topsMode: boolean
   openCreateTop: () => void
 }
@@ -32,6 +35,7 @@ export function AppLayout() {
   const [topsLoaded, setTopsLoaded] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [viewMode, setViewMode] = useState<GamesViewMode>(readViewMode)
+  const [columnsPerRow, setColumnsPerRow] = useState(readGameColumns)
   const [colorTheme, setColorTheme] = useState<ColorTheme>(readColorTheme)
   const [createTopOpen, setCreateTopOpen] = useState(false)
 
@@ -72,6 +76,11 @@ export function AppLayout() {
   function changeViewMode(value: GamesViewMode) {
     setViewMode(value)
     writeViewMode(value)
+  }
+
+  function changeColumnsPerRow(value: number) {
+    setColumnsPerRow(value)
+    writeGameColumns(value)
   }
 
   function changeColorTheme(value: ColorTheme) {
@@ -139,13 +148,15 @@ export function AppLayout() {
       <TopBar
         search={search}
         onSearchChange={setSearch}
+        hideSearch={topsMode}
+        hideLayout={topsMode}
         viewMode={viewMode}
         onViewModeChange={changeViewMode}
+        columnsPerRow={columnsPerRow}
+        onColumnsPerRowChange={changeColumnsPerRow}
         colorTheme={colorTheme}
         onColorThemeChange={changeColorTheme}
         onToggleSidebar={() => setSidebarOpen(true)}
-        hideSearch={topsMode}
-        hideViewMode={topsMode}
       />
       <div className="flex min-h-0 flex-1">
         {topsMode ? (
@@ -178,6 +189,8 @@ export function AppLayout() {
                 tops,
                 topsLoaded,
                 viewMode,
+                columnsPerRow,
+                onColumnsPerRowChange: changeColumnsPerRow,
                 topsMode,
                 openCreateTop: () => setCreateTopOpen(true),
               } satisfies AppOutletContext

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { Game, GamePriority, GameStatus, GroupBy } from '@/types'
 import type { GamesViewMode } from '@/types/view'
 import { GameCard } from '@/components/games/GameCard'
@@ -13,12 +14,12 @@ import { Button } from '@/components/ui/Button'
 
 export type { GamesViewMode }
 
-const CARD_GRID =
-  'grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8'
+const CARD_GRID = 'game-card-grid'
 
 type Props = {
   games: Game[]
   viewMode: GamesViewMode
+  columnsPerRow: number
   wishlist: boolean
   groupBy?: GroupBy
   emptyTitle: string
@@ -41,6 +42,7 @@ function segmentsFor(games: Game[], groupBy: GroupBy): GameSegment[] | null {
 export function GameGrid({
   games,
   viewMode,
+  columnsPerRow,
   wishlist,
   groupBy = 'none',
   emptyTitle,
@@ -78,10 +80,11 @@ export function GameGrid({
   }
 
   const segments = segmentsFor(games, groupBy)
+  const gridStyle = { '--game-cols': columnsPerRow } as CSSProperties
 
   if (!segments) {
     return (
-      <div className={CARD_GRID}>
+      <div className={CARD_GRID} style={gridStyle}>
         {games.map((game, index) => (
           <GameCard key={game.id} game={game} index={index} {...shared} />
         ))}
@@ -101,7 +104,7 @@ export function GameGrid({
             accentClass={segment.accentClass}
             dotClass={segment.dotClass}
           />
-          <div className={CARD_GRID}>
+          <div className={CARD_GRID} style={gridStyle}>
             {segment.games.map((game) => {
               const index = cardIndex++
               return (

@@ -68,7 +68,8 @@ export function GamesPage({
   addLabel,
 }: Props) {
   const { getToken } = useAuth()
-  const { refreshConsoles, viewMode } = useOutletContext<AppOutletContext>()
+  const { refreshConsoles, viewMode, columnsPerRow } =
+    useOutletContext<AppOutletContext>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [games, setGames] = useState<Game[]>([])
   const [consoleNames, setConsoleNames] = useState<string[]>([])
@@ -465,6 +466,7 @@ export function GamesPage({
             <GameGrid
               games={displayedGames}
               viewMode={viewMode}
+              columnsPerRow={columnsPerRow}
               wishlist={wishlist}
               groupBy={groupBy}
               emptyTitle={emptyTitle}

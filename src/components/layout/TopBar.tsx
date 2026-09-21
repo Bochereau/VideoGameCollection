@@ -1,8 +1,7 @@
 import { UserButton } from '@clerk/clerk-react'
 import { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ViewModeToggle } from '@/components/games/ViewModeToggle'
-import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { SettingsMenu } from '@/components/layout/SettingsMenu'
 import { Button } from '@/components/ui/Button'
 import type { ColorTheme } from '@/types/theme'
 import type { GamesViewMode } from '@/types/view'
@@ -14,11 +13,13 @@ type Props = {
   onSearchChange: (value: string) => void
   viewMode: GamesViewMode
   onViewModeChange: (value: GamesViewMode) => void
+  columnsPerRow: number
+  onColumnsPerRowChange: (value: number) => void
   colorTheme: ColorTheme
   onColorThemeChange: (value: ColorTheme) => void
   onToggleSidebar: () => void
   hideSearch?: boolean
-  hideViewMode?: boolean
+  hideLayout?: boolean
 }
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -33,11 +34,13 @@ export function TopBar({
   onSearchChange,
   viewMode,
   onViewModeChange,
+  columnsPerRow,
+  onColumnsPerRowChange,
   colorTheme,
   onColorThemeChange,
   onToggleSidebar,
   hideSearch = false,
-  hideViewMode = false,
+  hideLayout = false,
 }: Props) {
   const [draft, setDraft] = useState(search)
   const onSearchChangeRef = useRef(onSearchChange)
@@ -145,10 +148,15 @@ export function TopBar({
           ) : (
             <div className="min-w-0 flex-1" />
           )}
-          {!hideViewMode ? (
-            <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
-          ) : null}
-          <ThemeToggle value={colorTheme} onChange={onColorThemeChange} />
+          <SettingsMenu
+            colorTheme={colorTheme}
+            onColorThemeChange={onColorThemeChange}
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            columnsPerRow={columnsPerRow}
+            onColumnsPerRowChange={onColumnsPerRowChange}
+            hideLayout={hideLayout}
+          />
           <UserButton afterSignOutUrl="/" />
         </div>
       </div>

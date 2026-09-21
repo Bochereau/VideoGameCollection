@@ -16,6 +16,12 @@
   --color-danger: #e8a87c;
 }
 
+@property --game-cols {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 8;
+}
+
 :root,
 [data-theme="dark"] {
   --color-ink: #e8eef8;
@@ -202,6 +208,30 @@
 
   .animate-fade-in {
     animation: fade-in 0.3s ease-out both;
+  }
+
+  .game-card-grid {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 640px) {
+    .game-card-grid {
+      grid-template-columns: repeat(min(3, var(--game-cols, 8)), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .game-card-grid {
+      grid-template-columns: repeat(min(5, var(--game-cols, 8)), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .game-card-grid {
+      grid-template-columns: repeat(var(--game-cols, 8), minmax(0, 1fr));
+    }
   }
 }
 

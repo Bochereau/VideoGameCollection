@@ -35,21 +35,22 @@ function MoonIcon() {
 
 export function ThemeToggle({ value, onChange }: Props) {
   return (
-    <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label="Thème">
-      <div className="flex gap-1 rounded-xl border border-line bg-surface/80 p-1 backdrop-blur-md">
+    <div className="flex w-full shrink-0 items-center" role="group" aria-label="Thème">
+      <div className="flex w-full gap-1 rounded-xl border border-line bg-bg/50 p-1">
         <button
           type="button"
           onClick={() => onChange('light')}
           aria-pressed={value === 'light'}
           aria-label="Thème clair"
           title="Clair"
-          className={`rounded-lg p-1.5 transition ${
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
             value === 'light'
               ? 'bg-accent text-bg shadow-sm'
               : 'text-ink-muted hover:text-ink'
           }`}
         >
           <SunIcon />
+          Clair
         </button>
         <button
           type="button"
@@ -57,13 +58,14 @@ export function ThemeToggle({ value, onChange }: Props) {
           aria-pressed={value === 'dark'}
           aria-label="Thème nuit"
           title="Nuit"
-          className={`rounded-lg p-1.5 transition ${
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
             value === 'dark'
               ? 'bg-accent text-bg shadow-sm'
               : 'text-ink-muted hover:text-ink'
           }`}
         >
           <MoonIcon />
+          Nuit
         </button>
       </div>
     </div>
