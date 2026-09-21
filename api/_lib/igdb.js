@@ -310,15 +310,18 @@ const REGION_LABELS = {
   10: 'Brésil',
 }
 
-/** Lower is better: Europe, then US, then the rest. */
-export function regionPreference(region = '') {
-  const key = String(region)
+function regionKey(region = '') {
+  return String(region)
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+}
 
+/** IGDB: Europe/NZ (often the same art) first, then US. */
+export function igdbRegionPreference(region = '') {
+  const key = regionKey(region)
   if (
-    /europe|france|germany|allemagne|ital|spain|espagne|uk\b|united kingdom|angleterre|en-europe|\bpal\b|sles|sces/.test(
+    /europe|france|germany|allemagne|ital|spain|espagne|uk\b|united kingdom|angleterre|en-europe|\bpal\b|sles|sces|nouvelle-zelande|new zealand|austral/.test(
       key,
     )
   ) {
@@ -331,15 +334,39 @@ export function regionPreference(region = '') {
     return 1
   }
   if (/world|worldwide|officielle|official/.test(key)) return 2
-  if (/austral|new zealand|nouvelle-zelande/.test(key)) return 3
-  if (/japon|japan/.test(key)) return 4
-  return 5
+  if (/japon|japan/.test(key)) return 3
+  return 4
+}
+
+/** Libretro: France, then Europe, then US. */
+export function libretroRegionPreference(region = '') {
+  const key = regionKey(region)
+  if (/france/.test(key)) return 0
+  if (
+    /europe|germany|allemagne|ital|spain|espagne|uk\b|united kingdom|angleterre|en-europe|\bpal\b|sles|sces/.test(
+      key,
+    )
+  ) {
+    return 1
+  }
+  if (/usa|\bus\b|ntsc-u|slus/.test(key) && !/japan|ntsc-j/.test(key)) {
+    return 2
+  }
+  if (/japon|japan/.test(key)) return 3
+  return 4
+}
+
+export function regionPreference(region = '', source = 'igdb') {
+  return source === 'libretro'
+    ? libretroRegionPreference(region)
+    : igdbRegionPreference(region)
 }
 
 function localizationRank(regionEnum) {
   if (regionEnum === 1) return 0
-  if (regionEnum === 2) return 1
-  if (regionEnum === 8) return 2
+  if (regionEnum === 4 || regionEnum === 3) return 1
+  if (regionEnum === 2) return 2
+  if (regionEnum === 8) return 3
   return 4
 }
 
@@ -366,7 +393,7 @@ export async function applyPreferredRegionalCovers(games) {
 
   return games.map((g) => {
     const best = bestByGame.get(g.id)
-    if (!best || best.rank > 1) return g
+    if (!best || best.rank > 2) return g
     return {
       ...g,
       cover: {
@@ -512,7 +539,7 @@ export async function fetchIgdbCoverOptions(
   results.sort((a, b) => {
     const score = scoreTitleMatch(b.name, query) - scoreTitleMatch(a.name, query)
     if (score) return score
-    return regionPreference(a.region) - regionPreference(b.region)
+    return igdbRegionPreference(a.region) - igdbRegionPreference(b.region)
   })
 
   return results.slice(0, limit)
