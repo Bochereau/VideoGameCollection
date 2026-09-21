@@ -120,10 +120,22 @@ export type TopEntry = {
   rawgId?: number | null
 }
 
+export type TopColumnsPerRow = 5 | 10 | 15 | 20
+
+export const TOP_COLUMNS_CHOICES: TopColumnsPerRow[] = [5, 10, 15, 20]
+
+export function defaultColumnsPerRow(size: number): TopColumnsPerRow {
+  if (size >= 80) return 20
+  if (size >= 30) return 15
+  if (size >= 15) return 10
+  return 5
+}
+
 export type Top = {
   id: string
   name: string
   size: number
+  columnsPerRow: TopColumnsPerRow
   filledCount: number
   entries: TopEntry[]
   createdAt?: string
@@ -134,6 +146,7 @@ export type TopSummary = {
   id: string
   name: string
   size: number
+  columnsPerRow: TopColumnsPerRow
   filledCount: number
   createdAt?: string
   updatedAt?: string
@@ -142,11 +155,13 @@ export type TopSummary = {
 export type TopInput = {
   name: string
   size: number
+  columnsPerRow?: TopColumnsPerRow
 }
 
 export type TopUpdate = {
   name?: string
   size?: number
+  columnsPerRow?: TopColumnsPerRow
   entries?: TopEntry[]
 }
 

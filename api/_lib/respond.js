@@ -108,10 +108,23 @@ export function serializeTopEntry(entry) {
 
 export function serializeTop(doc, { summary = false } = {}) {
   const entries = Array.isArray(doc.entries) ? doc.entries : []
+  const size = Number(doc.size) || 10
+  const columns = Number(doc.columnsPerRow)
+  const columnsPerRow =
+    columns === 5 || columns === 10 || columns === 15 || columns === 20
+      ? columns
+      : size >= 80
+        ? 20
+        : size >= 30
+          ? 15
+          : size >= 15
+            ? 10
+            : 5
   const base = {
     id: String(doc._id),
     name: doc.name,
-    size: Number(doc.size) || 10,
+    size,
+    columnsPerRow,
     filledCount: entries.length,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

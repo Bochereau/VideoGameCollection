@@ -19,6 +19,19 @@ function clampSize(value, fallback = 10) {
   return Math.min(100, Math.max(1, n))
 }
 
+function defaultColumnsPerRow(size) {
+  if (size >= 80) return 20
+  if (size >= 30) return 15
+  if (size >= 15) return 10
+  return 5
+}
+
+function parseColumnsPerRow(value, fallback = 5) {
+  const n = Number(value)
+  if (n === 5 || n === 10 || n === 15 || n === 20) return n
+  return fallback
+}
+
 function normalizeEntry(raw, size) {
   const rank = Number(raw?.rank)
   if (!Number.isInteger(rank) || rank < 1 || rank > size) return null
@@ -165,11 +178,16 @@ export default async function handler(req, res) {
         return json(res, 400, { error: 'name is required' })
       }
       const size = clampSize(body?.size, 10)
+      const columnsPerRow = parseColumnsPerRow(
+        body?.columnsPerRow,
+        defaultColumnsPerRow(size),
+      )
       const now = new Date()
       const doc = {
         userId,
         name,
         size,
+        columnsPerRow,
         entries: [],
         createdAt: now,
         updatedAt: now,
@@ -204,6 +222,13 @@ export default async function handler(req, res) {
       if (body.size !== undefined) {
         nextSize = clampSize(body.size, existing.size)
         update.size = nextSize
+      }
+
+      if (body.columnsPerRow !== undefined) {
+        update.columnsPerRow = parseColumnsPerRow(
+          body.columnsPerRow,
+          defaultColumnsPerRow(nextSize),
+        )
       }
 
       if (body.entries !== undefined) {

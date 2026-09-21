@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useMemo, useState } from 'react'
 import type {
+  CatalogCover,
   CatalogGame,
   ConditionFilter,
   ConsoleItem,
@@ -107,6 +108,9 @@ export function TopEntryPickerModal({
   const [catalogResults, setCatalogResults] = useState<CatalogGame[]>([])
   const [catalogSearching, setCatalogSearching] = useState(false)
   const [catalogBusy, setCatalogBusy] = useState(false)
+  const [pickedCatalog, setPickedCatalog] = useState<CatalogGame | null>(null)
+  const [coverResults, setCoverResults] = useState<CatalogCover[]>([])
+  const [coverSearching, setCoverSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -121,6 +125,9 @@ export function TopEntryPickerModal({
     setFavorite('all')
     setCatalogQuery('')
     setCatalogResults([])
+    setPickedCatalog(null)
+    setCoverResults([])
+    setCoverSearching(false)
     setError(null)
   }, [open, rank])
 
@@ -200,7 +207,11 @@ export function TopEntryPickerModal({
         try {
           const token = await getToken()
           if (!token || cancelled) return
-          const list = await catalogApi.searchGames(token, query)
+          const list = await catalogApi.searchGames(
+            token,
+            query,
+            hardware === 'all' ? undefined : hardware,
+          )
           if (!cancelled) setCatalogResults(list)
         } catch {
           if (!cancelled) setCatalogResults([])
@@ -208,13 +219,13 @@ export function TopEntryPickerModal({
           if (!cancelled) setCatalogSearching(false)
         }
       })()
-    }, 500)
+    }, 800)
 
     return () => {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [catalogQuery, open, tab, getToken])
+  }, [catalogQuery, open, tab, hardware, getToken])
 
   if (!open) return null
 
@@ -229,21 +240,69 @@ export function TopEntryPickerModal({
       const token = await getToken()
       if (!token) throw new Error('Non authentifié')
       const details = await catalogApi.gameDetails(token, item.igdbId)
-      onSelect(
-        catalogToEntry({
-          ...item,
-          ...details,
-          name: item.name,
-          cover: details.cover ?? item.cover,
-          release: details.release ?? item.release,
-        }),
+      const merged: CatalogGame = {
+        ...item,
+        ...details,
+        name: item.name,
+        cover: details.cover ?? item.cover,
+        release: details.release ?? item.release,
+        platforms:
+          details.platforms?.length > 0 ? details.platforms : item.platforms,
+      }
+      setPickedCatalog(merged)
+
+      setCoverSearching(true)
+      const coverHardware =
+        (hardware !== 'all' ? hardware : merged.platforms?.[0]) || undefined
+      const data = await catalogApi.searchCovers(
+        token,
+        merged.name,
+        coverHardware,
+        merged.igdbId,
       )
-      onClose()
+      const covers = data.results ?? []
+      if (merged.cover && !covers.some((c) => c.mediaUrl === merged.cover)) {
+        covers.unshift({
+          id: merged.igdbId,
+          name: merged.name,
+          system: coverHardware || '',
+          region: 'Officielle',
+          mediaUrl: merged.cover,
+          thumb: merged.cover,
+          alternatives: [],
+          source: 'igdb',
+        })
+      }
+      setCoverResults(covers)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur catalogue')
     } finally {
       setCatalogBusy(false)
+      setCoverSearching(false)
     }
+  }
+
+  function confirmCatalogCover(coverUrl: string | null) {
+    if (!pickedCatalog) return
+    onSelect(catalogToEntry({ ...pickedCatalog, cover: coverUrl }))
+    onClose()
+  }
+
+  function backToCatalogSearch() {
+    setPickedCatalog(null)
+    setCoverResults([])
+    setCoverSearching(false)
+  }
+
+  function coverCaption(item: CatalogCover) {
+    const system = item.system
+      ? ` · ${item.system.replace(/^(Sony|Sega|Nintendo|Microsoft|SNK|NEC) - /i, '')}`
+      : ''
+    if (item.source === 'libretro') return `${item.region}${system}`
+    if (item.region && item.region !== 'Officielle') {
+      return `${item.region} · ${item.name}${system}`
+    }
+    return `${item.name}${system}`
   }
 
   return (
@@ -284,7 +343,11 @@ export function TopEntryPickerModal({
             <button
               key={id}
               type="button"
-              onClick={() => setTab(id)}
+              onClick={() => {
+                setTab(id)
+                setPickedCatalog(null)
+                setCoverResults([])
+              }}
               className={`rounded-t-lg px-3 py-2 text-sm font-medium transition ${
                 tab === id
                   ? 'bg-accent-soft text-accent'
@@ -428,17 +491,96 @@ export function TopEntryPickerModal({
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col gap-3">
+              {pickedCatalog ? (
+                <>
+                  <div className="flex shrink-0 items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-ink">
+                        {pickedCatalog.name}
+                      </p>
+                      <p className="text-xs text-ink-muted">
+                        Choisissez une jaquette
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="!text-xs"
+                      onClick={backToCatalogSearch}
+                    >
+                      Retour
+                    </Button>
+                  </div>
+                  <div className="relative min-h-0 flex-1 overflow-y-auto rounded-xl border border-line p-3">
+                    {coverSearching || catalogBusy ? (
+                      <div className="flex h-full min-h-[12rem] items-center justify-center">
+                        <Loading label="Chargement des jaquettes…" />
+                      </div>
+                    ) : coverResults.length > 0 ? (
+                      <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                        {coverResults.map((item) => (
+                          <li
+                            key={`${item.source ?? 'igdb'}-${item.system}-${item.mediaUrl}`}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => confirmCatalogCover(item.mediaUrl)}
+                              className="group w-full overflow-hidden rounded-lg border border-line bg-bg text-left transition hover:border-accent/50"
+                            >
+                              <img
+                                src={cardCoverUrl(item.thumb) ?? item.thumb}
+                                alt=""
+                                className="aspect-[3/4] w-full object-cover object-top"
+                              />
+                              <span className="block truncate px-1.5 py-1 text-[0.65rem] text-ink-muted group-hover:text-ink">
+                                {coverCaption(item)}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="flex h-full min-h-[12rem] flex-col items-center justify-center gap-3 px-4 text-center">
+                        <p className="text-sm text-ink-muted">
+                          Aucune jaquette trouvée. Vous pouvez garder celle du
+                          catalogue.
+                        </p>
+                        <Button
+                          type="button"
+                          onClick={() =>
+                            confirmCatalogCover(pickedCatalog.cover ?? null)
+                          }
+                        >
+                          Utiliser la jaquette proposée
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
               <label className="block shrink-0 space-y-1.5">
                 <span className="text-xs font-medium text-ink-muted">
                   Recherche catalogue
                 </span>
-                <input
-                  autoFocus
-                  className="field w-full"
-                  value={catalogQuery}
-                  onChange={(e) => setCatalogQuery(e.target.value)}
-                  placeholder="Nom du jeu…"
-                />
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    autoFocus
+                    className="field min-w-[10rem] flex-1"
+                    value={catalogQuery}
+                    onChange={(e) => setCatalogQuery(e.target.value)}
+                    placeholder="Nom du jeu…"
+                  />
+                  <FilterSelect
+                    label="Console"
+                    value={hardware}
+                    onChange={setHardware}
+                    options={[
+                      { id: 'all', label: 'Console : toutes' },
+                      ...consoles.map((c) => ({ id: c.name, label: c.name })),
+                    ]}
+                  />
+                </div>
               </label>
               <div className="relative min-h-0 flex-1 overflow-y-auto rounded-xl border border-line">
                 {catalogSearching ? (
@@ -476,6 +618,9 @@ export function TopEntryPickerModal({
                             </p>
                             <p className="truncate text-xs text-ink-muted">
                               {item.release ?? 'Année inconnue'}
+                              {item.platforms?.length
+                                ? ` · ${item.platforms.slice(0, 2).join(', ')}`
+                                : ''}
                             </p>
                           </div>
                         </button>
@@ -484,6 +629,8 @@ export function TopEntryPickerModal({
                   </ul>
                 )}
               </div>
+                </>
+              )}
             </div>
           )}
         </div>

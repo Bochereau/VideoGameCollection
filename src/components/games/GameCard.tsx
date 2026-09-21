@@ -42,14 +42,14 @@ export function GameCard({
       className="animate-fade-up group relative flex flex-col rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 backdrop-blur-md transition duration-300 hover:border-accent/40 hover:shadow-cyan-500/10"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <div className="relative h-36 overflow-hidden rounded-t-xl bg-bg sm:h-40">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-t-xl bg-bg">
         {game.cover ? (
           <img
             src={cardCoverUrl(game.cover) ?? game.cover}
             alt=""
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover object-top"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -100,8 +100,8 @@ export function GameCard({
         />
       ) : null}
 
-      <div className="flex flex-1 flex-col p-3">
-        <h3 className="mb-1.5 line-clamp-2 text-sm leading-snug font-semibold text-ink">
+      <div className="flex flex-1 flex-col p-2 sm:p-2.5">
+        <h3 className="mb-1 line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
           {game.name}
         </h3>
 

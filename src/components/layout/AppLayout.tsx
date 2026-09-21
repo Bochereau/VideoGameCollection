@@ -80,12 +80,15 @@ export function AppLayout() {
   }
 
   function setSearch(value: string) {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev)
-      if (value) next.set('q', value)
-      else next.delete('q')
-      return next
-    })
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (value) next.set('q', value)
+        else next.delete('q')
+        return next
+      },
+      { replace: true },
+    )
   }
 
   function setHardware(name: string | null) {

@@ -13,6 +13,9 @@ import { Button } from '@/components/ui/Button'
 
 export type { GamesViewMode }
 
+const CARD_GRID =
+  'grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8'
+
 type Props = {
   games: Game[]
   viewMode: GamesViewMode
@@ -78,7 +81,7 @@ export function GameGrid({
 
   if (!segments) {
     return (
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+      <div className={CARD_GRID}>
         {games.map((game, index) => (
           <GameCard key={game.id} game={game} index={index} {...shared} />
         ))}
@@ -98,7 +101,7 @@ export function GameGrid({
             accentClass={segment.accentClass}
             dotClass={segment.dotClass}
           />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+          <div className={CARD_GRID}>
             {segment.games.map((game) => {
               const index = cardIndex++
               return (

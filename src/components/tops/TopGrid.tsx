@@ -1,5 +1,5 @@
 import type { DragEvent } from 'react'
-import type { TopEntry } from '@/types'
+import type { TopColumnsPerRow, TopEntry } from '@/types'
 import { cardCoverUrl } from '@/lib/coverUrl'
 import { Button } from '@/components/ui/Button'
 
@@ -8,6 +8,7 @@ type TopSlotItem = TopEntry | null
 type SlotProps = {
   rank: number
   entry: TopSlotItem
+  compact: boolean
   isDropTarget: boolean
   isMovedCard: boolean
   previewing: boolean
@@ -22,6 +23,7 @@ type SlotProps = {
 export function TopSlot({
   rank,
   entry,
+  compact,
   isDropTarget,
   isMovedCard,
   previewing,
@@ -60,13 +62,21 @@ export function TopSlot({
             : ''
       } ${previewing && !isMovedCard ? 'opacity-90' : ''}`}
     >
-      <div className="flex shrink-0 items-center justify-center border-b border-line bg-bg px-2 py-1.5">
-        <span className="text-sm font-bold tracking-wide text-accent tabular-nums">
+      <div
+        className={`flex shrink-0 items-center justify-center border-b border-line bg-bg ${
+          compact ? 'px-1 py-1' : 'px-2 py-1.5'
+        }`}
+      >
+        <span
+          className={`font-bold tracking-wide text-accent tabular-nums ${
+            compact ? 'text-[0.65rem]' : 'text-sm'
+          }`}
+        >
           #{rank}
         </span>
       </div>
 
-      <div className="relative h-32 overflow-hidden bg-bg sm:h-36">
+      <div className="relative aspect-[3/4] overflow-hidden bg-bg">
         <button
           type="button"
           onClick={() => onPick(rank)}
@@ -79,7 +89,7 @@ export function TopSlot({
               alt=""
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover object-top"
+              className="h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-1 px-3">
@@ -120,12 +130,18 @@ export function TopSlot({
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col p-3">
-        <h3 className="line-clamp-2 text-sm leading-snug font-semibold text-ink">
+      <div className={`flex flex-1 flex-col ${compact ? 'p-1.5' : 'p-3'}`}>
+        <h3
+          className={`line-clamp-2 leading-snug font-semibold text-ink ${
+            compact ? 'text-[0.65rem]' : 'text-sm'
+          }`}
+        >
           {entry?.name ?? 'Place libre'}
         </h3>
         {entry?.release ? (
-          <p className="mt-0.5 text-xs text-ink-muted">{entry.release}</p>
+          <p className={`mt-0.5 text-ink-muted ${compact ? 'text-[0.6rem]' : 'text-xs'}`}>
+            {entry.release}
+          </p>
         ) : null}
       </div>
     </article>
@@ -134,6 +150,7 @@ export function TopSlot({
 
 type GridProps = {
   size: number
+  columnsPerRow: TopColumnsPerRow
   entries: TopEntry[]
   draggingRank: number | null
   dropTargetRank: number | null
@@ -148,6 +165,7 @@ type GridProps = {
 
 export function TopGrid({
   size,
+  columnsPerRow,
   entries,
   draggingRank,
   dropTargetRank,
@@ -169,10 +187,15 @@ export function TopGrid({
       ? entries.find((e) => e.rank === draggingRank) ?? null
       : null
 
-  const dense = size > 15
-  const gridClass = dense
-    ? 'grid w-full grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10'
-    : 'mx-auto grid w-full max-w-6xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
+  const compact = columnsPerRow >= 15
+  const gridClass =
+    columnsPerRow === 20
+      ? 'grid w-full grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-12 xl:grid-cols-[repeat(20,minmax(0,1fr))]'
+      : columnsPerRow === 15
+        ? 'grid w-full grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-[repeat(15,minmax(0,1fr))]'
+        : columnsPerRow === 10
+          ? 'grid w-full grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10'
+          : 'mx-auto grid w-full max-w-6xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
 
   return (
     <div className={gridClass}>
@@ -198,6 +221,7 @@ export function TopGrid({
             key={rank}
             rank={rank}
             entry={entry}
+            compact={compact}
             isDropTarget={dropTargetRank === rank && draggingRank !== rank}
             isMovedCard={Boolean(isMovedCard)}
             previewing={previewing}

@@ -2,15 +2,17 @@ import { useAuth } from '@clerk/clerk-react'
 import { useCallback, useEffect, useMemo, useState, type DragEvent } from 'react'
 import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import type { AppOutletContext } from '@/components/layout/AppLayout'
+import { ColumnsPerRowToggle } from '@/components/tops/ColumnsPerRowToggle'
 import { CreateTopModal } from '@/components/tops/CreateTopModal'
+import { ExportTopModal } from '@/components/tops/ExportTopModal'
 import { TopEntryPickerModal } from '@/components/tops/TopEntryPickerModal'
 import { TopGrid } from '@/components/tops/TopGrid'
 import { reorderSlots } from '@/components/tops/reorderSlots'
 import { Button } from '@/components/ui/Button'
 import { Loading } from '@/components/ui/Loading'
 import { topsApi } from '@/lib/api'
-import { exportTopImage } from '@/lib/exportTopImage'
-import type { Top, TopEntry } from '@/types'
+import { exportTopImage, type TopExportOptions } from '@/lib/exportTopImage'
+import { defaultColumnsPerRow, type Top, type TopColumnsPerRow, type TopEntry } from '@/types'
 
 export function TopDetailPage() {
   const { topId } = useParams<{ topId: string }>()
@@ -27,6 +29,7 @@ export function TopDetailPage() {
   const [dropTargetRank, setDropTargetRank] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
 
   const load = useCallback(async () => {
     if (!topId) return
@@ -100,14 +103,28 @@ export function TopDetailPage() {
     navigate('/tops')
   }
 
-  async function handleExport() {
+  async function handleColumnsPerRow(columnsPerRow: TopColumnsPerRow) {
+    if (!topId || !top || top.columnsPerRow === columnsPerRow) return
+    const previous = top
+    setTop({ ...top, columnsPerRow })
+    try {
+      const token = await getToken()
+      if (!token) throw new Error('Non authentifié')
+      const updated = await topsApi.update(token, topId, { columnsPerRow })
+      setTop(updated)
+      await refreshTops()
+    } catch (err) {
+      setTop(previous)
+      setError(err instanceof Error ? err.message : 'Erreur de sauvegarde')
+    }
+  }
+
+  async function handleExport(options: TopExportOptions) {
     if (!top) return
     setExporting(true)
-    setError(null)
     try {
-      await exportTopImage(top)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Export impossible')
+      await exportTopImage(top, options)
+      setExportOpen(false)
     } finally {
       setExporting(false)
     }
@@ -184,13 +201,17 @@ export function TopDetailPage() {
               {saving ? ' · Enregistrement…' : ''}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <ColumnsPerRowToggle
+              value={top.columnsPerRow ?? defaultColumnsPerRow(top.size)}
+              onChange={(value) => void handleColumnsPerRow(value)}
+            />
             <Button
               variant="secondary"
               disabled={exporting || top.filledCount === 0}
-              onClick={() => void handleExport()}
+              onClick={() => setExportOpen(true)}
             >
-              {exporting ? 'Export…' : 'Exporter l’image'}
+              Exporter l’image
             </Button>
             <Button variant="secondary" onClick={() => setEditOpen(true)}>
               Modifier
@@ -205,6 +226,7 @@ export function TopDetailPage() {
 
         <TopGrid
           size={top.size}
+          columnsPerRow={top.columnsPerRow ?? defaultColumnsPerRow(top.size)}
           entries={top.entries}
           draggingRank={draggingRank}
           dropTargetRank={dropTargetRank}
@@ -220,6 +242,16 @@ export function TopDetailPage() {
           }}
         />
       </div>
+
+      <ExportTopModal
+        open={exportOpen}
+        busy={exporting}
+        columnsPerRow={top.columnsPerRow ?? defaultColumnsPerRow(top.size)}
+        onClose={() => {
+          if (!exporting) setExportOpen(false)
+        }}
+        onExport={handleExport}
+      />
 
       <CreateTopModal
         open={editOpen}

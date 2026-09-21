@@ -107,7 +107,7 @@ export function pickCompanies(involved = []) {
 }
 
 const GAME_FIELDS =
-  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating, version_parent, version_title'
+  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating, version_parent, version_title, category, game_type.type'
 
 export function hardwareKey(value) {
   return String(value || '')
@@ -253,6 +253,25 @@ function sortGamesByQuery(rows, query) {
     if (dateA && dateB && dateA !== dateB) return dateA - dateB
     return String(a.name || '').localeCompare(String(b.name || ''), 'fr')
   })
+}
+
+export function isVideoGame(g) {
+  if (!g) return false
+
+  const type = g.game_type
+  const typeName = String(type?.type || type?.name || '').toLowerCase()
+  if (/movie|film|\btv\b|television|\bseries\b|\bshow\b/.test(typeName)) {
+    return false
+  }
+
+  if (/\(\s*(the\s+)?(movie|film)\s*\)|\ble film\b|\bthe movie\b/i.test(g.name || '')) {
+    return false
+  }
+
+  const platforms = g.platforms || []
+  if (!platforms.length) return false
+
+  return true
 }
 
 function nameWhereClause(query) {
@@ -430,16 +449,19 @@ export async function fetchIgdbCoverOptions(
   const [details, versions] = await Promise.all([
     igdbQuery(
       'games',
-      `fields name, cover.image_id, platforms.name, version_parent, version_title; where id = (${idList});`,
+      `fields name, cover.image_id, platforms.name, version_parent, version_title, category, game_type.type; where id = (${idList});`,
     ).catch(() => []),
     igdbQuery(
       'games',
-      `fields name, cover.image_id, platforms.name, version_parent, version_title; where version_parent = (${idList}); limit 50;`,
+      `fields name, cover.image_id, platforms.name, version_parent, version_title, category, game_type.type; where version_parent = (${idList}); limit 50;`,
     ).catch(() => []),
   ])
 
-  collectGameIds(details, ids)
-  collectGameIds(versions, ids)
+  const detailsList = (Array.isArray(details) ? details : []).filter(isVideoGame)
+  const versionsList = (Array.isArray(versions) ? versions : []).filter(isVideoGame)
+
+  collectGameIds(detailsList, ids)
+  collectGameIds(versionsList, ids)
   const allIds = [...ids].join(',')
 
   const [covers, localizations] = await Promise.all([
@@ -454,7 +476,7 @@ export async function fetchIgdbCoverOptions(
   ])
 
   const gameById = new Map()
-  for (const g of [...games, ...(details || []), ...(versions || [])]) {
+  for (const g of [...games, ...detailsList, ...versionsList]) {
     if (g?.id != null) gameById.set(g.id, g)
   }
 
@@ -524,7 +546,7 @@ export async function fetchIgdbCoverOptions(
     )
   }
 
-  for (const g of [...(details || []), ...(versions || []), ...games]) {
+  for (const g of [...detailsList, ...versionsList, ...games]) {
     push(
       coverItem(
         g.cover?.image_id,
@@ -584,7 +606,7 @@ export async function searchIgdbGames(q, { hardware = '', limit = 8 } = {}) {
     }
   }
 
-  let rows = [...byId.values()]
+  let rows = [...byId.values()].filter(isVideoGame)
   if (names.length) {
     const filtered = rows.filter((g) => gameMatchesHardware(g, hardware))
     if (filtered.length) rows = filtered

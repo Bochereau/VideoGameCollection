@@ -188,7 +188,7 @@ export function GameFormModal({
           if (!cancelled) setSearching(false)
         }
       })()
-    }, 500)
+    }, 800)
 
     return () => {
       cancelled = true

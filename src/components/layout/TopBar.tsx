@@ -1,10 +1,13 @@
 import { UserButton } from '@clerk/clerk-react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { ViewModeToggle } from '@/components/games/ViewModeToggle'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/Button'
 import type { ColorTheme } from '@/types/theme'
 import type { GamesViewMode } from '@/types/view'
+
+const SEARCH_DEBOUNCE_MS = 700
 
 type Props = {
   search: string
@@ -36,6 +39,37 @@ export function TopBar({
   hideSearch = false,
   hideViewMode = false,
 }: Props) {
+  const [draft, setDraft] = useState(search)
+  const onSearchChangeRef = useRef(onSearchChange)
+  const timerRef = useRef(0)
+  const dirtyRef = useRef(false)
+
+  onSearchChangeRef.current = onSearchChange
+
+  useEffect(() => {
+    if (!dirtyRef.current) setDraft(search)
+  }, [search])
+
+  useEffect(() => {
+    return () => window.clearTimeout(timerRef.current)
+  }, [])
+
+  function commitSearch(value: string) {
+    window.clearTimeout(timerRef.current)
+    dirtyRef.current = false
+    if (value !== search) onSearchChangeRef.current(value)
+  }
+
+  function handleSearchChange(value: string) {
+    dirtyRef.current = true
+    setDraft(value)
+    window.clearTimeout(timerRef.current)
+    timerRef.current = window.setTimeout(() => {
+      dirtyRef.current = false
+      onSearchChangeRef.current(value)
+    }, SEARCH_DEBOUNCE_MS)
+  }
+
   return (
     <header
       data-chrome
@@ -98,8 +132,12 @@ export function TopBar({
                 />
               </svg>
               <input
-                value={search}
-                onChange={(e) => onSearchChange(e.target.value)}
+                value={draft}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onBlur={() => commitSearch(draft)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitSearch(draft)
+                }}
                 placeholder="Rechercher un jeu…"
                 className="field w-full !rounded-lg !py-2 !pr-3 !pl-9"
               />

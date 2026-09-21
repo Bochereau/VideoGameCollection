@@ -14,6 +14,7 @@ import {
   groupGamesByYear,
   SegmentHeading,
 } from '@/components/games/priorityGroups'
+import { cardCoverUrl } from '@/lib/coverUrl'
 
 type Props = {
   games: Game[]
@@ -70,6 +71,25 @@ function GameRow({
       className="animate-fade-up border-b border-line/60 last:border-b-0 transition hover:bg-accent-soft/40"
       style={{ animationDelay: `${Math.min(index, 20) * 20}ms` }}
     >
+      <td className="w-12 px-3 py-2">
+        <div className="aspect-[3/4] w-10 overflow-hidden rounded bg-bg">
+          {game.cover ? (
+            <img
+              src={cardCoverUrl(game.cover) ?? game.cover}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <span className="font-display text-[0.55rem] tracking-wide text-accent/30">
+                VGC
+              </span>
+            </div>
+          )}
+        </div>
+      </td>
       <td className="px-3 py-2.5 font-semibold text-ink">{game.name}</td>
       <td className="px-3 py-2.5 whitespace-nowrap text-amber">
         {game.hardware}
@@ -150,7 +170,7 @@ export function GameList({
   onAddToCollection,
   onDelete,
 }: Props) {
-  const colCount = wishlist ? 7 : 8
+  const colCount = wishlist ? 8 : 9
   const rowProps = {
     wishlist,
     onEdit,
@@ -174,6 +194,9 @@ export function GameList({
       <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-line text-[0.65rem] font-medium tracking-wide text-ink-muted uppercase">
+            <th className="w-12 px-3 py-2.5 font-medium">
+              <span className="sr-only">Jaquette</span>
+            </th>
             <th className="px-3 py-2.5 font-medium">Jeu</th>
             <th className="px-3 py-2.5 font-medium">Console</th>
             <th className="hidden px-3 py-2.5 font-medium md:table-cell">Studio</th>

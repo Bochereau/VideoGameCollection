@@ -1,6 +1,6 @@
 import { requireUserId } from '../../_lib/auth.js'
 import { handleOptions } from '../../_lib/db.js'
-import { igdbQuery, mapIgdbGameDetails, applyPreferredRegionalCovers } from '../../_lib/igdb.js'
+import { igdbQuery, mapIgdbGameDetails, applyPreferredRegionalCovers, isVideoGame } from '../../_lib/igdb.js'
 import { errorResponse, json } from '../../_lib/respond.js'
 
 export default async function handler(req, res) {
@@ -20,11 +20,11 @@ export default async function handler(req, res) {
 
     const data = await igdbQuery(
       'games',
-      `fields name, first_release_date, cover.image_id, platforms.name, involved_companies.company.name, involved_companies.developer, involved_companies.publisher; where id = ${id};`,
+      `fields name, first_release_date, cover.image_id, platforms.name, involved_companies.company.name, involved_companies.developer, involved_companies.publisher, category, game_type.type; where id = ${id};`,
     )
 
     const g = Array.isArray(data) ? data[0] : null
-    if (!g) {
+    if (!g || !isVideoGame(g)) {
       return json(res, 404, { error: 'Game not found' })
     }
 
