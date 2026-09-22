@@ -51,7 +51,6 @@ function sortGames(list: Game[], sort: SortKey): Game[] {
 export function SharedWishlistPage() {
   const { token = '' } = useParams()
   const [games, setGames] = useState<Game[]>([])
-  const [logos, setLogos] = useState<Record<string, string>>({})
   const [ownerName, setOwnerName] = useState('')
   const [loading, setLoading] = useState(Boolean(token))
   const [missing, setMissing] = useState(!token)
@@ -72,13 +71,11 @@ export function SharedWishlistPage() {
       setLoading(true)
       setMissing(false)
       setError(null)
-      setLogos({})
       try {
         const data = await wishlistShareApi.public(token)
         if (cancelled) return
         setOwnerName(data.ownerName.trim())
         setGames(data.games.map(toGame))
-        setLogos(data.logos ?? {})
       } catch (err) {
         if (cancelled) return
         const message = err instanceof Error ? err.message : ''
@@ -261,7 +258,6 @@ export function SharedWishlistPage() {
                                   key={game.id}
                                   game={game}
                                   index={index}
-                                  logo={logos[game.hardware]}
                                 />
                               )
                             })}
@@ -275,12 +271,7 @@ export function SharedWishlistPage() {
                       style={{ '--game-cols': columnsPerRow } as CSSProperties}
                     >
                       {visible.map((game, index) => (
-                        <SharedGameCard
-                          key={game.id}
-                          game={game}
-                          index={index}
-                          logo={logos[game.hardware]}
-                        />
+                        <SharedGameCard key={game.id} game={game} index={index} />
                       ))}
                     </div>
                   )}

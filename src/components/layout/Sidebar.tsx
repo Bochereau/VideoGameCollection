@@ -2,7 +2,6 @@ import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import type { CatalogPlatform, ConsoleItem } from '@/types'
 import { catalogApi } from '@/lib/api'
-import { ConsoleMark } from '@/components/games/ConsoleMark'
 import { Button } from '@/components/ui/Button'
 
 type Props = {
@@ -138,12 +137,7 @@ export function Sidebar({
                   : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
               }`}
             >
-              <ConsoleMark
-                name={c.name}
-                logo={c.logo}
-                className="min-w-0 flex-1"
-                logoClassName="h-4 max-w-8"
-              />
+              <span className="truncate">{c.name}</span>
               <span className="shrink-0 tabular-nums text-xs opacity-70">{c.count}</span>
             </button>
             <button
@@ -201,17 +195,6 @@ export function Sidebar({
                         setPickedName(p.name)
                       }}
                     >
-                      {p.logo ? (
-                        <span className="inline-flex h-5 w-8 shrink-0 items-center justify-center rounded bg-white">
-                          <img
-                            src={p.logo}
-                            alt=""
-                            className="max-h-4 max-w-7 object-contain"
-                          />
-                        </span>
-                      ) : (
-                        <span className="h-5 w-8 shrink-0" aria-hidden />
-                      )}
                       <span className="truncate">{p.name}</span>
                     </button>
                   </li>

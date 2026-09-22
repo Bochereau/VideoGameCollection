@@ -7,7 +7,6 @@ import { ShareWishlistModal } from '@/components/games/ShareWishlistModal'
 import { GameGrid } from '@/components/games/GameGrid'
 import { StatusFilters } from '@/components/games/StatusFilters'
 import { AddToCollectionModal } from '@/components/games/AddToCollectionModal'
-import { ConsoleMark } from '@/components/games/ConsoleMark'
 import { Loading } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
 import { gamesApi, consolesApi } from '@/lib/api'
@@ -76,7 +75,6 @@ export function GamesPage({
   const [searchParams, setSearchParams] = useSearchParams()
   const [games, setGames] = useState<Game[]>([])
   const [consoleNames, setConsoleNames] = useState<string[]>([])
-  const [consoleLogos, setConsoleLogos] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -182,13 +180,6 @@ export function GamesPage({
       ])
       setGames(list)
       setConsoleNames(consoles.map((c) => c.name))
-      setConsoleLogos(
-        Object.fromEntries(
-          consoles.flatMap((console) =>
-            console.logo ? [[console.name, console.logo] as const] : [],
-          ),
-        ),
-      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de chargement')
     } finally {
@@ -420,13 +411,7 @@ export function GamesPage({
                 {hardware ? (
                   <>
                     {' '}
-                    ·{' '}
-                    <ConsoleMark
-                      name={hardware}
-                      logo={consoleLogos[hardware]}
-                      className="inline-flex align-middle"
-                      logoClassName="h-3.5 max-w-8"
-                    />
+                    · <span className="text-ink">{hardware}</span>
                   </>
                 ) : null}
                 {!wishlist && statusFilter !== 'all'
@@ -529,7 +514,6 @@ export function GamesPage({
               onToggleFavorite={toggleFavorite}
               onAddToCollection={addToCollection}
               onDelete={removeGame}
-              consoleLogos={consoleLogos}
             />
           )}
         </div>

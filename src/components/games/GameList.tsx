@@ -15,7 +15,6 @@ import {
   SegmentHeading,
 } from '@/components/games/priorityGroups'
 import { cardCoverUrl } from '@/lib/coverUrl'
-import { ConsoleMark } from '@/components/games/ConsoleMark'
 
 type Props = {
   games: Game[]
@@ -27,7 +26,6 @@ type Props = {
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
-  consoleLogos?: Record<string, string | null>
 }
 
 function TrashIcon() {
@@ -53,7 +51,6 @@ function GameRow({
   onToggleFavorite,
   onAddToCollection,
   onDelete,
-  consoleLogos,
 }: {
   game: Game
   index: number
@@ -64,7 +61,6 @@ function GameRow({
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
-  consoleLogos?: Record<string, string | null>
 }) {
   const { format, condition, edition } = gameCopyMeta(game)
   const showPriority = wishlist || game.status === 'todo'
@@ -96,11 +92,7 @@ function GameRow({
       </td>
       <td className="px-3 py-2.5 font-semibold text-ink">{game.name}</td>
       <td className="px-3 py-2.5 whitespace-nowrap text-amber">
-        <ConsoleMark
-          name={game.hardware}
-          logo={consoleLogos?.[game.hardware]}
-          logoClassName="h-4 max-w-10"
-        />
+        {game.hardware}
       </td>
       <td className="hidden max-w-[10rem] truncate px-3 py-2.5 text-ink-muted md:table-cell">
         {game.developer || '—'}
@@ -177,7 +169,6 @@ export function GameList({
   onToggleFavorite,
   onAddToCollection,
   onDelete,
-  consoleLogos,
 }: Props) {
   const colCount = wishlist ? 8 : 9
   const rowProps = {
@@ -188,7 +179,6 @@ export function GameList({
     onToggleFavorite,
     onAddToCollection,
     onDelete,
-    consoleLogos,
   }
 
   let rowIndex = 0
