@@ -89,9 +89,11 @@ export function Sidebar({
 
   const totalCount = consoles.reduce((sum, c) => sum + c.count, 0)
 
-  const content = (
+  function panel(solid: boolean) {
+    return (
     <aside
       data-chrome
+      {...(solid ? { 'data-solid': '' } : {})}
       className="flex h-full min-h-0 w-64 shrink-0 flex-col border-r border-line bg-bg/75 backdrop-blur-xl"
     >
       <div className="flex shrink-0 items-center justify-between px-4 py-4">
@@ -302,12 +304,13 @@ export function Sidebar({
         )}
       </div>
     </aside>
-  )
+    )
+  }
 
   return (
     <>
       <div className="hidden h-full min-h-0 w-64 shrink-0 lg:flex lg:flex-col">
-        {content}
+        {panel(false)}
       </div>
       {open ? (
         <div className="fixed inset-0 z-40 flex lg:hidden">
@@ -317,7 +320,7 @@ export function Sidebar({
             aria-label="Fermer le panneau"
             onClick={onClose}
           />
-          <div className="animate-fade-in relative z-10 h-full shadow-xl">{content}</div>
+          <div className="animate-fade-in relative z-10 h-full shadow-xl">{panel(true)}</div>
         </div>
       ) : null}
     </>

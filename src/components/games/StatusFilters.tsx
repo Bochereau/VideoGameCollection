@@ -44,7 +44,7 @@ function FilterSelect({
 }) {
   return (
     <label
-      className={`flex min-w-[8.5rem] items-center gap-2 ${disabled ? 'opacity-40' : ''}`}
+      className={`flex shrink-0 items-center gap-2 sm:min-w-[8.5rem] ${disabled ? 'opacity-40' : ''}`}
     >
       <span className="sr-only">{label}</span>
       <select
@@ -93,8 +93,10 @@ export function StatusFilters({
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button onClick={onAdd}>{addLabel}</Button>
+    <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto sm:flex-wrap sm:gap-3 sm:overflow-visible">
+      <Button onClick={onAdd} className="shrink-0">
+        {addLabel}
+      </Button>
 
       {!wishlist ? (
         <FilterSelect
@@ -165,7 +167,7 @@ export function StatusFilters({
           labelOn="Afficher tous les jeux"
           labelOff="Afficher les coups de cœur"
           title="Filtrer les coups de cœur"
-          className="ml-auto !bg-surface/80 !backdrop-blur-md border border-line"
+          className="shrink-0 border border-line !bg-surface/80 backdrop-blur-md sm:ml-auto"
         />
       ) : null}
     </div>

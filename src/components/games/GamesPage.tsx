@@ -394,8 +394,8 @@ export function GamesPage({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="min-w-0 shrink-0 space-y-3 px-4 pt-4 pb-3 sm:space-y-6 sm:px-6 sm:pt-6 sm:pb-4 lg:px-8">
         <div className="animate-fade-up flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h1 className="font-display text-4xl tracking-wide text-ink sm:text-5xl">

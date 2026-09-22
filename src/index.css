@@ -94,6 +94,15 @@
   color: var(--color-ink);
 }
 
+[data-chrome][data-solid] {
+  background-color: #080c1b;
+  backdrop-filter: none;
+}
+
+[data-theme="light"] [data-chrome][data-solid] {
+  background-color: #0f2418;
+}
+
 @layer base {
   *,
   *::before,

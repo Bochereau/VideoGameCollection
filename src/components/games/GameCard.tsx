@@ -59,7 +59,7 @@ export function GameCard({
         )}
         <span
           title={game.hardware}
-          className="absolute top-2 left-2 z-10 max-w-[calc(100%-2.75rem)] truncate rounded-md bg-bg/80 px-1.5 py-0.5 text-xs font-medium text-amber backdrop-blur-sm"
+          className="absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full bg-bg/80 px-2.5 text-xs font-medium text-amber backdrop-blur-sm"
         >
           {consoleShortName(game.hardware)}
         </span>
