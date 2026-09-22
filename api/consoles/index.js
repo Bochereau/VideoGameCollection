@@ -1,7 +1,54 @@
 import { ObjectId } from 'mongodb'
 import { requireUserId } from '../_lib/auth.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
+import { resolvePlatformLogos } from '../_lib/igdb.js'
 import { errorResponse, json, serializeConsole } from '../_lib/respond.js'
+
+function parseIgdbId(value) {
+  const id = Number(value)
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
+async function lookupLogo(name, igdbId) {
+  try {
+    const found = await resolvePlatformLogos([{ name, igdbId }])
+    return found.get(name) ?? { igdbId: igdbId ?? null, logo: null }
+  } catch (err) {
+    console.error('Platform logo lookup failed:', err?.message || err)
+    return null
+  }
+}
+
+async function backfillLogos(consoles, userId, docs) {
+  const pending = docs.filter((doc) => !doc.logoChecked)
+  if (!pending.length) return
+
+  let found
+  try {
+    found = await resolvePlatformLogos(
+      pending.map((doc) => ({ name: doc.name, igdbId: doc.igdbId })),
+    )
+  } catch (err) {
+    console.error('Platform logo backfill failed:', err?.message || err)
+    return
+  }
+
+  await Promise.all(
+    pending.map(async (doc) => {
+      if (!found.has(doc.name)) return
+      const hit = found.get(doc.name)
+      const logo = hit?.logo || null
+      const igdbId = hit?.igdbId ?? null
+      await consoles.updateOne(
+        { _id: doc._id, userId },
+        { $set: { logo, igdbId, logoChecked: true } },
+      )
+      doc.logo = logo
+      doc.igdbId = igdbId
+      doc.logoChecked = true
+    }),
+  )
+}
 
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return
@@ -33,6 +80,7 @@ export default async function handler(req, res) {
         ])
         .toArray()
       const countMap = Object.fromEntries(counts.map((c) => [c._id, c.count]))
+      await backfillLogos(consoles, userId, docs)
 
       return json(
         res,
@@ -53,7 +101,16 @@ export default async function handler(req, res) {
         return json(res, 409, { error: 'Console already exists' })
       }
 
-      const doc = { userId, name, createdAt: new Date() }
+      const requestedId = parseIgdbId(body?.igdbId)
+      const logoHit = await lookupLogo(name, requestedId)
+      const doc = {
+        userId,
+        name,
+        logo: logoHit?.logo || null,
+        igdbId: logoHit?.igdbId ?? requestedId,
+        logoChecked: logoHit != null,
+        createdAt: new Date(),
+      }
       const result = await consoles.insertOne(doc)
       return json(res, 201, serializeConsole({ ...doc, _id: result.insertedId }, 0))
     }

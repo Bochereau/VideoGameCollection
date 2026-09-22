@@ -99,10 +99,13 @@ export const consolesApi = {
     return apiFetch<ConsoleItem[]>(`/api/consoles${qs ? `?${qs}` : ''}`, token)
   },
 
-  create: (token: string, name: string) =>
+  create: (token: string, name: string, igdbId?: number | null) =>
     apiFetch<ConsoleItem>('/api/consoles', token, {
       method: 'POST',
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({
+        name,
+        ...(igdbId != null ? { igdbId } : {}),
+      }),
     }),
 
   remove: (token: string, id: string) =>

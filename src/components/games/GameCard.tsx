@@ -9,6 +9,7 @@ import {
   gameCopyMeta,
 } from '@/components/games/gameActions'
 import { cardCoverUrl } from '@/lib/coverUrl'
+import { ConsoleMark } from '@/components/games/ConsoleMark'
 
 type Props = {
   game: Game
@@ -20,6 +21,7 @@ type Props = {
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
+  consoleLogos?: Record<string, string | null>
 }
 
 export function GameCard({
@@ -32,6 +34,7 @@ export function GameCard({
   onToggleFavorite,
   onAddToCollection,
   onDelete,
+  consoleLogos,
 }: Props) {
   const { format, condition, edition } = gameCopyMeta(game)
   const showPriority = wishlist || game.status === 'todo'
@@ -56,8 +59,12 @@ export function GameCard({
             <span className="font-display text-xl tracking-wide text-accent/30">VGC</span>
           </div>
         )}
-        <span className="absolute top-2 left-2 z-10 rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
-          {game.hardware}
+        <span className="absolute top-2 left-2 z-10 max-w-[calc(100%-2.75rem)] rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
+          <ConsoleMark
+            name={game.hardware}
+            logo={consoleLogos?.[game.hardware]}
+            logoClassName="h-3.5 max-w-7"
+          />
         </span>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-1.5 bg-gradient-to-t from-bg/90 via-bg/55 to-transparent p-2 pt-8 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">

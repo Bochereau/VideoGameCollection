@@ -13,6 +13,12 @@ export function igdbImageUrl(imageId, size = IGDB_COVER_SIZE) {
   return `https://images.igdb.com/igdb/image/upload/t_${size}/${imageId}.jpg`
 }
 
+/** Platform logos are transparent PNGs. logo_med stays sharp in the UI. */
+export function igdbLogoUrl(imageId) {
+  if (!imageId) return null
+  return `https://images.igdb.com/igdb/image/upload/t_logo_med/${imageId}.png`
+}
+
 export function unixToYear(ts) {
   if (ts == null || ts === '') return null
   const year = new Date(Number(ts) * 1000).getUTCFullYear()
@@ -613,6 +619,85 @@ export async function searchIgdbGames(q, { hardware = '', limit = 8 } = {}) {
   }
 
   return applyPreferredRegionalCovers(sortGamesByQuery(rows, query).slice(0, limit))
+}
+
+function platformLogoFromRow(row) {
+  return {
+    igdbId: row?.id ?? null,
+    logo: igdbLogoUrl(row?.platform_logo?.image_id),
+  }
+}
+
+/**
+ * Resolve IGDB platform logos for console names.
+ * Known aliases use the local platform map; other names are searched.
+ * Names that were not looked up are absent from the map.
+ */
+export async function resolvePlatformLogos(items) {
+  const result = new Map()
+  const direct = []
+  const named = []
+
+  for (const item of Array.isArray(items) ? items : []) {
+    const name = String(item?.name ?? '').trim()
+    if (
+      !name ||
+      direct.some((row) => row.name === name) ||
+      named.includes(name)
+    ) {
+      continue
+    }
+    const rawId = Number(item?.igdbId)
+    if (Number.isInteger(rawId) && rawId > 0) {
+      direct.push({ name, id: rawId })
+      continue
+    }
+    const resolved = resolveIgdbPlatforms(name)
+    if (resolved.ids[0]) direct.push({ name, id: resolved.ids[0] })
+    else named.push(name)
+  }
+
+  const uniqueIds = [...new Set(direct.map((row) => row.id))]
+  const byId = new Map()
+  if (uniqueIds.length) {
+    const rows = await igdbQuery(
+      'platforms',
+      `fields name, platform_logo.image_id; where id = (${uniqueIds.join(',')}); limit ${uniqueIds.length};`,
+    )
+    for (const row of Array.isArray(rows) ? rows : []) {
+      if (row?.id != null) byId.set(row.id, row)
+    }
+  }
+
+  for (const item of direct) {
+    const row = byId.get(item.id)
+    result.set(item.name, {
+      igdbId: row?.id ?? item.id,
+      logo: igdbLogoUrl(row?.platform_logo?.image_id),
+    })
+  }
+
+  for (const name of named.slice(0, 8)) {
+    const query = sanitizeQuery(name)
+    if (query.length < 2) {
+      result.set(name, { igdbId: null, logo: null })
+      continue
+    }
+    const rows = await igdbQuery(
+      'platforms',
+      `search "${query}"; fields name, platform_logo.image_id; limit 5;`,
+    )
+    const best = [...(Array.isArray(rows) ? rows : [])].sort(
+      (a, b) => scoreTitleMatch(b.name, query) - scoreTitleMatch(a.name, query),
+    )[0]
+    if (!best || scoreTitleMatch(best.name, query) < 260) {
+      result.set(name, { igdbId: null, logo: null })
+    } else {
+      result.set(name, platformLogoFromRow(best))
+    }
+  }
+
+  return result
 }
 
 export function mapIgdbGame(g) {

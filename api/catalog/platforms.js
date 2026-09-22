@@ -1,6 +1,6 @@
 import { requireUserId } from '../_lib/auth.js'
 import { handleOptions } from '../_lib/db.js'
-import { igdbQuery, sanitizeQuery } from '../_lib/igdb.js'
+import { igdbLogoUrl, igdbQuery, sanitizeQuery } from '../_lib/igdb.js'
 import { errorResponse, json } from '../_lib/respond.js'
 
 export default async function handler(req, res) {
@@ -18,14 +18,15 @@ export default async function handler(req, res) {
     )
 
     const body = q
-      ? `fields name; where name ~ *"${q.toLowerCase()}"*; limit 20;`
-      : 'fields name; where category = (1, 5, 6); limit 50; sort name asc;'
+      ? `fields name, platform_logo.image_id; where name ~ *"${q.toLowerCase()}"*; limit 20;`
+      : 'fields name, platform_logo.image_id; where category = (1, 5, 6); limit 50; sort name asc;'
 
     const data = await igdbQuery('platforms', body)
 
     const platforms = (Array.isArray(data) ? data : []).map((p) => ({
       igdbId: p.id,
       name: p.name,
+      logo: igdbLogoUrl(p.platform_logo?.image_id),
       gamesCount: 0,
     }))
 

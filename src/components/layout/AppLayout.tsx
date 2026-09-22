@@ -109,10 +109,10 @@ export function AppLayout() {
     })
   }
 
-  async function addConsole(name: string) {
+  async function addConsole(name: string, igdbId?: number) {
     const token = await getToken()
     if (!token) return
-    await consolesApi.create(token, name)
+    await consolesApi.create(token, name, igdbId)
     await refreshConsoles()
   }
 

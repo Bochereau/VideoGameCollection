@@ -1,13 +1,15 @@
 import type { Game } from '@/types'
 import { EDITION_LABELS, PRIORITY_COLORS, PRIORITY_LABELS } from '@/types'
 import { cardCoverUrl } from '@/lib/coverUrl'
+import { ConsoleMark } from '@/components/games/ConsoleMark'
 
 type Props = {
   game: Game
   index: number
+  logo?: string | null
 }
 
-export function SharedGameCard({ game, index }: Props) {
+export function SharedGameCard({ game, index, logo }: Props) {
   const priority = game.priority ?? 3
 
   return (
@@ -31,8 +33,12 @@ export function SharedGameCard({ game, index }: Props) {
             </span>
           </div>
         )}
-        <span className="absolute top-2 left-2 z-10 rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
-          {game.hardware}
+        <span className="absolute top-2 left-2 z-10 max-w-[calc(100%-2.75rem)] rounded-md bg-bg/80 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber backdrop-blur-sm">
+          <ConsoleMark
+            name={game.hardware}
+            logo={logo}
+            logoClassName="h-3.5 max-w-7"
+          />
         </span>
         <span
           className={`absolute top-2 right-2 z-10 inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm ${PRIORITY_COLORS[priority]}`}

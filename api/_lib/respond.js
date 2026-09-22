@@ -90,6 +90,8 @@ export function serializeConsole(doc, count = 0) {
     id: String(doc._id),
     name: doc.name,
     count,
+    logo: doc.logo || null,
+    igdbId: doc.igdbId ?? null,
     createdAt: doc.createdAt,
   }
 }

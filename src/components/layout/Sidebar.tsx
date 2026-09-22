@@ -2,13 +2,14 @@ import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import type { CatalogPlatform, ConsoleItem } from '@/types'
 import { catalogApi } from '@/lib/api'
+import { ConsoleMark } from '@/components/games/ConsoleMark'
 import { Button } from '@/components/ui/Button'
 
 type Props = {
   consoles: ConsoleItem[]
   selectedHardware: string | null
   onSelectHardware: (name: string | null) => void
-  onAddConsole: (name: string) => Promise<void>
+  onAddConsole: (name: string, igdbId?: number) => Promise<void>
   onDeleteConsole: (id: string) => Promise<void>
   open: boolean
   onClose: () => void
@@ -30,6 +31,8 @@ export function Sidebar({
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [suggestions, setSuggestions] = useState<CatalogPlatform[]>([])
+  const [pickedId, setPickedId] = useState<number | null>(null)
+  const [pickedName, setPickedName] = useState('')
 
   useEffect(() => {
     if (!adding) return
@@ -65,8 +68,14 @@ export function Sidebar({
     if (!name.trim()) return
     setBusy(true)
     try {
-      await onAddConsole(name.trim())
+      const trimmed = name.trim()
+      await onAddConsole(
+        trimmed,
+        pickedId != null && pickedName === trimmed ? pickedId : undefined,
+      )
       setName('')
+      setPickedId(null)
+      setPickedName('')
       setAdding(false)
       setSuggestions([])
     } finally {
@@ -123,14 +132,19 @@ export function Sidebar({
                 onSelectHardware(c.name)
                 onClose()
               }}
-              className={`flex min-w-0 flex-1 items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
+              className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
                 selectedHardware === c.name
                   ? 'bg-accent-soft font-medium text-accent'
                   : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
               }`}
             >
-              <span className="truncate">{c.name}</span>
-              <span className="ml-2 tabular-nums text-xs opacity-70">{c.count}</span>
+              <ConsoleMark
+                name={c.name}
+                logo={c.logo}
+                className="min-w-0 flex-1"
+                logoClassName="h-4 max-w-8"
+              />
+              <span className="shrink-0 tabular-nums text-xs opacity-70">{c.count}</span>
             </button>
             <button
               type="button"
@@ -157,7 +171,14 @@ export function Sidebar({
             <input
               autoFocus
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                setName(value)
+                if (pickedName && value.trim() !== pickedName) {
+                  setPickedId(null)
+                  setPickedName('')
+                }
+              }}
               placeholder="Nom de la console"
               className="field"
               list="platform-suggestions"
@@ -173,10 +194,25 @@ export function Sidebar({
                   <li key={p.igdbId}>
                     <button
                       type="button"
-                      className="w-full px-2 py-1.5 text-left hover:bg-accent-soft"
-                      onClick={() => setName(p.name)}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-left hover:bg-accent-soft"
+                      onClick={() => {
+                        setName(p.name)
+                        setPickedId(p.igdbId)
+                        setPickedName(p.name)
+                      }}
                     >
-                      {p.name}
+                      {p.logo ? (
+                        <span className="inline-flex h-5 w-8 shrink-0 items-center justify-center rounded bg-white">
+                          <img
+                            src={p.logo}
+                            alt=""
+                            className="max-h-4 max-w-7 object-contain"
+                          />
+                        </span>
+                      ) : (
+                        <span className="h-5 w-8 shrink-0" aria-hidden />
+                      )}
+                      <span className="truncate">{p.name}</span>
                     </button>
                   </li>
                 ))}
@@ -192,6 +228,8 @@ export function Sidebar({
                 onClick={() => {
                   setAdding(false)
                   setName('')
+                  setPickedId(null)
+                  setPickedName('')
                   setSuggestions([])
                 }}
               >

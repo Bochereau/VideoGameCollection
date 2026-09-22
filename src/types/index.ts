@@ -40,6 +40,8 @@ export interface ConsoleItem {
   id: string
   name: string
   count: number
+  logo?: string | null
+  igdbId?: number | null
   createdAt?: string
 }
 
@@ -88,6 +90,7 @@ export type CatalogCover = {
 export type CatalogPlatform = {
   igdbId: number
   name: string
+  logo?: string | null
   gamesCount: number
 }
 
@@ -133,6 +136,7 @@ export type PublicWishlistGame = {
 export type PublicWishlist = {
   ownerName: string
   games: PublicWishlistGame[]
+  logos?: Record<string, string>
 }
 
 export type TopEntry = {

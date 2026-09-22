@@ -81,19 +81,28 @@ export default async function handler(req, res) {
         return json(res, 404, { error: 'Lien introuvable' })
       }
 
-      const docs = await db
-        .collection('games')
-        .find({
-          userId: share.userId,
-          $or: [{ wishlist: true }, { wishlist: 'true' }],
-        })
-        .collation({ locale: 'fr', strength: 2 })
-        .sort({ name: 1 })
-        .toArray()
+      const [docs, consoleDocs] = await Promise.all([
+        db
+          .collection('games')
+          .find({
+            userId: share.userId,
+            $or: [{ wishlist: true }, { wishlist: 'true' }],
+          })
+          .collation({ locale: 'fr', strength: 2 })
+          .sort({ name: 1 })
+          .toArray(),
+        db.collection('consoles').find({ userId: share.userId }).toArray(),
+      ])
+
+      const logos = {}
+      for (const consoleDoc of consoleDocs) {
+        if (consoleDoc?.name && consoleDoc.logo) logos[consoleDoc.name] = consoleDoc.logo
+      }
 
       return json(res, 200, {
         ownerName: share.ownerName ?? '',
         games: docs.map(serializePublicGame),
+        logos,
       })
     }
 

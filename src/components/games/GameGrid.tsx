@@ -31,6 +31,7 @@ type Props = {
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onDelete: (game: Game) => void
+  consoleLogos?: Record<string, string | null>
 }
 
 function segmentsFor(games: Game[], groupBy: GroupBy): GameSegment[] | null {
@@ -54,6 +55,7 @@ export function GameGrid({
   onToggleFavorite,
   onAddToCollection,
   onDelete,
+  consoleLogos,
 }: Props) {
   if (games.length === 0) {
     return (
@@ -73,6 +75,7 @@ export function GameGrid({
     onToggleFavorite,
     onAddToCollection,
     onDelete,
+    consoleLogos,
   }
 
   if (viewMode === 'list') {
