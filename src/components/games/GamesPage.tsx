@@ -3,10 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
 import type { AppOutletContext } from '@/components/layout/AppLayout'
 import { GameFormModal } from '@/components/games/GameFormModal'
+import { ShareWishlistModal } from '@/components/games/ShareWishlistModal'
 import { GameGrid } from '@/components/games/GameGrid'
 import { StatusFilters } from '@/components/games/StatusFilters'
 import { AddToCollectionModal } from '@/components/games/AddToCollectionModal'
 import { Loading } from '@/components/ui/Loading'
+import { Button } from '@/components/ui/Button'
 import { gamesApi, consolesApi } from '@/lib/api'
 import type {
   ConditionFilter,
@@ -79,6 +81,7 @@ export function GamesPage({
   const [editing, setEditing] = useState<Game | null>(null)
   const [addingGame, setAddingGame] = useState<Game | null>(null)
   const [addingBusy, setAddingBusy] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const q = searchParams.get('q') ?? ''
   const hardware = searchParams.get('hardware') ?? undefined
@@ -393,11 +396,12 @@ export function GamesPage({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8">
-        <div className="animate-fade-up flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="font-display text-4xl tracking-wide text-ink sm:text-5xl">
-            {title}
-          </h1>
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm text-ink-muted">
+        <div className="animate-fade-up flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="font-display text-4xl tracking-wide text-ink sm:text-5xl">
+              {title}
+            </h1>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm text-ink-muted">
             {!loading ? (
               <p className="rounded-lg border border-line bg-bg px-2.5 py-1 text-sm text-ink shadow-sm">
                 <span className="font-medium text-ink tabular-nums">
@@ -426,7 +430,33 @@ export function GamesPage({
                 {sortKey === 'year' ? ' · Année' : null}
               </p>
             ) : null}
+            </div>
           </div>
+          {wishlist ? (
+            <Button variant="secondary" onClick={() => setShareOpen(true)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path
+                  d="M9.5 14.5 14.5 9.5"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M10.2 7.2 12 5.4a3.6 3.6 0 0 1 5.1 5.1L15.3 12.3"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M13.8 16.8 12 18.6a3.6 3.6 0 0 1-5.1-5.1L8.7 11.7"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Partager
+            </Button>
+          ) : null}
         </div>
 
         <StatusFilters
@@ -501,6 +531,13 @@ export function GamesPage({
         }}
         onSubmit={handleSubmit}
       />
+
+      {wishlist ? (
+        <ShareWishlistModal
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+        />
+      ) : null}
 
       <AddToCollectionModal
         open={addingGame != null}

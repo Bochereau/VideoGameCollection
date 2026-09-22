@@ -7,6 +7,7 @@ import { SignInPage } from '@/pages/SignIn'
 import { SignUpPage } from '@/pages/SignUp'
 import { TopDetailPage } from '@/pages/TopDetail'
 import { TopsPage } from '@/pages/Tops'
+import { SharedWishlistPage } from '@/pages/SharedWishlist'
 import { WishlistPage } from '@/pages/Wishlist'
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
+        <Route path="/envies/:token" element={<SharedWishlistPage />} />
         <Route
           element={
             <ProtectedRoute>

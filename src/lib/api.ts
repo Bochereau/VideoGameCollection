@@ -6,10 +6,12 @@ import type {
   Game,
   GameInput,
   GamesQuery,
+  PublicWishlist,
   Top,
   TopInput,
   TopSummary,
   TopUpdate,
+  WishlistShareLink,
 } from '@/types'
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
@@ -133,6 +135,32 @@ export const topsApi = {
     apiFetch<{ ok: boolean }>(`/api/tops?id=${encodeURIComponent(id)}`, token, {
       method: 'DELETE',
     }),
+}
+
+export function wishlistShareUrl(token: string) {
+  return `${window.location.origin}/envies/${token}`
+}
+
+export const wishlistShareApi = {
+  get: (token: string) =>
+    apiFetch<WishlistShareLink>('/api/wishlist/share', token),
+
+  save: (token: string, body: { ownerName?: string; rotate?: boolean }) =>
+    apiFetch<WishlistShareLink>('/api/wishlist/share', token, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  revoke: (token: string) =>
+    apiFetch<{ ok: boolean }>('/api/wishlist/share', token, {
+      method: 'DELETE',
+    }),
+
+  public: (shareToken: string) =>
+    apiFetch<PublicWishlist>(
+      `/api/wishlist/share?token=${encodeURIComponent(shareToken)}`,
+      null,
+    ),
 }
 
 export const catalogApi = {

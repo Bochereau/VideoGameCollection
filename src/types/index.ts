@@ -110,6 +110,31 @@ export type GamesQuery = {
   edition?: GameEdition
 }
 
+export type WishlistShareLink = {
+  token: string | null
+  ownerName?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type PublicWishlistGame = {
+  id: string
+  name: string
+  hardware: string
+  developer: string
+  editor: string
+  release: number | null
+  priority: GamePriority | null
+  cover?: string | null
+  format: GameFormat
+  edition: GameEdition
+}
+
+export type PublicWishlist = {
+  ownerName: string
+  games: PublicWishlistGame[]
+}
+
 export type TopEntry = {
   rank: number
   gameId?: string | null
