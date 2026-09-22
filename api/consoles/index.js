@@ -115,6 +115,47 @@ export default async function handler(req, res) {
       return json(res, 201, serializeConsole({ ...doc, _id: result.insertedId }, 0))
     }
 
+    if (req.method === 'PATCH') {
+      const id = req.query.id
+      if (typeof id !== 'string' || !ObjectId.isValid(id)) {
+        return json(res, 400, { error: 'Invalid console id' })
+      }
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
+      const name = String(body?.name ?? '').trim()
+      if (!name) {
+        return json(res, 400, { error: 'name is required' })
+      }
+
+      const _id = new ObjectId(id)
+      const existing = await consoles.findOne({ _id, userId })
+      if (!existing) {
+        return json(res, 404, { error: 'Console not found' })
+      }
+
+      const clash = await consoles.findOne(
+        { userId, name, _id: { $ne: _id } },
+        { collation: { locale: 'fr', strength: 2 } },
+      )
+      if (clash) {
+        return json(res, 409, { error: 'Une console porte déjà ce nom.' })
+      }
+
+      if (name !== existing.name) {
+        await games.updateMany(
+          { userId, hardware: existing.name },
+          { $set: { hardware: name, updatedAt: new Date() } },
+        )
+        await consoles.updateOne({ _id, userId }, { $set: { name } })
+      }
+
+      const updated = await consoles.findOne({ _id, userId })
+      const count = await games.countDocuments({
+        userId,
+        hardware: updated.name,
+      })
+      return json(res, 200, serializeConsole(updated, count))
+    }
+
     if (req.method === 'DELETE') {
       const id = req.query.id
       if (typeof id !== 'string' || !ObjectId.isValid(id)) {

@@ -61,6 +61,7 @@ function toQuery(params: GamesQuery): string {
     search.set('favorite', String(params.favorite))
   }
   if (params.q) search.set('q', params.q)
+  if (params.nameExact) search.set('nameExact', params.nameExact)
   if (params.format) search.set('format', params.format)
   if (params.condition) search.set('condition', params.condition)
   if (params.edition) search.set('edition', params.edition)
@@ -114,6 +115,12 @@ export const consolesApi = {
       token,
       { method: 'DELETE' },
     ),
+
+  update: (token: string, id: string, name: string) =>
+    apiFetch<ConsoleItem>(`/api/consoles?id=${encodeURIComponent(id)}`, token, {
+      method: 'PATCH',
+      body: JSON.stringify({ name }),
+    }),
 }
 
 export const topsApi = {

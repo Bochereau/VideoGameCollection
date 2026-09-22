@@ -1,6 +1,7 @@
 import type { Game } from '@/types'
 import { EDITION_LABELS, PRIORITY_COLORS, PRIORITY_LABELS } from '@/types'
 import { cardCoverUrl } from '@/lib/coverUrl'
+import { consoleShortName } from '@/lib/consoleShortName'
 
 type Props = {
   game: Game
@@ -31,8 +32,11 @@ export function SharedGameCard({ game, index }: Props) {
             </span>
           </div>
         )}
-        <span className="absolute top-2 left-2 z-10 rounded-md bg-bg/80 px-1.5 py-0.5 text-xs font-medium text-amber backdrop-blur-sm">
-          {game.hardware}
+        <span
+          title={game.hardware}
+          className="absolute top-2 left-2 z-10 max-w-[calc(100%-2.75rem)] truncate rounded-md bg-bg/80 px-1.5 py-0.5 text-xs font-medium text-amber backdrop-blur-sm"
+        >
+          {consoleShortName(game.hardware)}
         </span>
         <span
           className={`absolute top-2 right-2 z-10 inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm ${PRIORITY_COLORS[priority]}`}

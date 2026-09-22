@@ -244,6 +244,11 @@ export default async function handler(req, res) {
         })
       }
 
+      if (typeof req.query.nameExact === 'string' && req.query.nameExact.trim()) {
+        const term = req.query.nameExact.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        and.push({ name: { $regex: `^${term}$`, $options: 'i' } })
+      }
+
       if (and.length) filter.$and = and
 
       const docs = await games

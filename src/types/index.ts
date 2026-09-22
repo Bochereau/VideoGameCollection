@@ -108,6 +108,7 @@ export type GamesQuery = {
   status?: GameStatus
   favorite?: boolean
   q?: string
+  nameExact?: string
   format?: GameFormat
   condition?: GameCondition
   edition?: GameEdition

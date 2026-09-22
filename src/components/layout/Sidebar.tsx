@@ -9,6 +9,7 @@ type Props = {
   selectedHardware: string | null
   onSelectHardware: (name: string | null) => void
   onAddConsole: (name: string, igdbId?: number) => Promise<void>
+  onRenameConsole: (id: string, name: string) => Promise<void>
   onDeleteConsole: (id: string) => Promise<void>
   open: boolean
   onClose: () => void
@@ -20,6 +21,7 @@ export function Sidebar({
   selectedHardware,
   onSelectHardware,
   onAddConsole,
+  onRenameConsole,
   onDeleteConsole,
   open,
   onClose,
@@ -32,6 +34,9 @@ export function Sidebar({
   const [suggestions, setSuggestions] = useState<CatalogPlatform[]>([])
   const [pickedId, setPickedId] = useState<number | null>(null)
   const [pickedName, setPickedName] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [renameError, setRenameError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!adding) return
@@ -120,26 +125,93 @@ export function Sidebar({
             <span>Toutes</span>
             <span className="ml-2 tabular-nums text-xs opacity-70">{totalCount}</span>
           </button>
-          <span className="w-[26px] shrink-0" aria-hidden />
+          <span className="w-[3.4rem] shrink-0" aria-hidden />
         </div>
 
         {consoles.map((c) => (
           <div key={c.id} className="group flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                onSelectHardware(c.name)
-                onClose()
-              }}
-              className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
-                selectedHardware === c.name
-                  ? 'bg-accent-soft font-medium text-accent'
-                  : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
-              }`}
-            >
-              <span className="truncate">{c.name}</span>
-              <span className="shrink-0 tabular-nums text-xs opacity-70">{c.count}</span>
-            </button>
+            {editingId === c.id ? (
+              <form
+                className="flex min-w-0 flex-1 items-center gap-1"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const next = editName.trim()
+                  if (!next || next === c.name) {
+                    setEditingId(null)
+                    setRenameError(null)
+                    return
+                  }
+                  setBusy(true)
+                  setRenameError(null)
+                  void onRenameConsole(c.id, next)
+                    .then(() => setEditingId(null))
+                    .catch((err: unknown) => {
+                      setRenameError(
+                        err instanceof Error ? err.message : 'Renommage impossible',
+                      )
+                    })
+                    .finally(() => setBusy(false))
+                }}
+              >
+                <input
+                  autoFocus
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="field min-w-0 !px-2 !py-1 text-sm"
+                  aria-label={`Renommer ${c.name}`}
+                />
+                <button
+                  type="submit"
+                  disabled={busy || !editName.trim()}
+                  className="shrink-0 rounded px-1.5 py-1 text-xs font-medium text-accent hover:bg-accent-soft"
+                >
+                  OK
+                </button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  onSelectHardware(c.name)
+                  onClose()
+                }}
+                className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+                  selectedHardware === c.name
+                    ? 'bg-accent-soft font-medium text-accent'
+                    : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
+                }`}
+              >
+                <span className="truncate">{c.name}</span>
+                <span className="shrink-0 tabular-nums text-xs opacity-70">{c.count}</span>
+              </button>
+            )}
+            {editingId === c.id ? null : (
+              <button
+                type="button"
+                className="rounded p-1.5 text-ink-muted opacity-0 transition group-hover:opacity-100 hover:bg-ink/10 hover:text-ink"
+                aria-label={`Renommer ${c.name}`}
+                onClick={() => {
+                  setEditingId(c.id)
+                  setEditName(c.name)
+                  setRenameError(null)
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path
+                    d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M13.5 6.5l3 3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            )}
             <button
               type="button"
               className="rounded p-1.5 text-ink-muted opacity-0 transition group-hover:opacity-100 hover:bg-danger/15 hover:text-danger"
@@ -157,6 +229,9 @@ export function Sidebar({
             </button>
           </div>
         ))}
+        {renameError ? (
+          <p className="px-2 pt-1 text-xs text-danger">{renameError}</p>
+        ) : null}
       </div>
 
       <div className="shrink-0 border-t border-line p-3">

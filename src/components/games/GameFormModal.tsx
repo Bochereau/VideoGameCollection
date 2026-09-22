@@ -15,7 +15,7 @@ import {
   PRIORITY_LABELS,
   STATUS_LABELS,
 } from '@/types'
-import { catalogApi } from '@/lib/api'
+import { catalogApi, gamesApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 
 const OTHER = '__other__'
@@ -109,6 +109,8 @@ export function GameFormModal({
   const [coverSource, setCoverSource] = useState<'igdb' | 'libretro' | 'rawg' | null>(
     null,
   )
+  const [duplicates, setDuplicates] = useState<Game[]>([])
+  const [duplicateAck, setDuplicateAck] = useState('')
 
   useEffect(() => {
     if (!open) return
@@ -158,7 +160,14 @@ export function GameFormModal({
     setCoverPickerOpen(false)
     setCoverSource(detectCoverSource(initial?.cover))
     setError(null)
+    setDuplicates([])
+    setDuplicateAck('')
   }, [open, initial, defaultWishlist, defaultHardware, consoleNames])
+
+  useEffect(() => {
+    setDuplicates([])
+    setDuplicateAck('')
+  }, [form.name, consoleChoice, customHardware])
 
   useEffect(() => {
     if (!open || initial || catalogLocked) return
@@ -305,16 +314,37 @@ export function GameFormModal({
     e.preventDefault()
     const hardware =
       consoleChoice === OTHER ? customHardware.trim() : consoleChoice.trim()
-    if (!form.name.trim() || !hardware) {
+    const name = form.name.trim()
+    if (!name || !hardware) {
       setError('Nom et console sont requis.')
       return
     }
+    const ackKey = `${name.toLocaleLowerCase('fr')}\n${hardware.toLocaleLowerCase('fr')}`
     setBusy(true)
     setError(null)
     try {
+      const unchanged =
+        initial != null &&
+        initial.name.localeCompare(name, 'fr', { sensitivity: 'base' }) === 0 &&
+        initial.hardware === hardware
+      if (!unchanged && duplicateAck !== ackKey) {
+        const token = await getToken()
+        if (!token) throw new Error('Non authentifié')
+        const matches = await gamesApi.list(token, { nameExact: name })
+        const others = matches.filter(
+          (game) =>
+            game.id !== initial?.id &&
+            game.name.localeCompare(name, 'fr', { sensitivity: 'base' }) === 0,
+        )
+        if (others.length > 0) {
+          setDuplicates(others)
+          setDuplicateAck(ackKey)
+          return
+        }
+      }
       await onSubmit({
         ...form,
-        name: form.name.trim(),
+        name,
         hardware,
         developer: form.developer?.trim() ?? '',
         editor: form.editor?.trim() ?? '',
@@ -734,6 +764,19 @@ export function GameFormModal({
           </div>
         </div>
 
+        {duplicates.length > 0 ? (
+          <div className="mt-3 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm text-ink">
+            <p>Ce jeu est déjà enregistré.</p>
+            <ul className="mt-1 space-y-0.5 text-ink-muted">
+              {duplicates.map((game) => (
+                <li key={game.id}>
+                  {game.wishlist ? 'Envies' : 'Collection'} · {game.hardware}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
 
         <div className="mt-6 flex justify-end gap-2">
@@ -741,7 +784,11 @@ export function GameFormModal({
             Annuler
           </Button>
           <Button type="submit" disabled={busy}>
-            {busy ? 'Enregistrement…' : 'Enregistrer'}
+            {busy
+              ? 'Enregistrement…'
+              : duplicates.length > 0
+                ? 'Enregistrer quand même'
+                : 'Enregistrer'}
           </Button>
         </div>
       </form>

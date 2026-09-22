@@ -9,6 +9,7 @@ import {
   gameCopyMeta,
 } from '@/components/games/gameActions'
 import { cardCoverUrl } from '@/lib/coverUrl'
+import { consoleShortName } from '@/lib/consoleShortName'
 
 type Props = {
   game: Game
@@ -56,8 +57,11 @@ export function GameCard({
             <span className="font-display text-xl tracking-wide text-accent/30">VGC</span>
           </div>
         )}
-        <span className="absolute top-2 left-2 z-10 rounded-md bg-bg/80 px-1.5 py-0.5 text-xs font-medium text-amber backdrop-blur-sm">
-          {game.hardware}
+        <span
+          title={game.hardware}
+          className="absolute top-2 left-2 z-10 max-w-[calc(100%-2.75rem)] truncate rounded-md bg-bg/80 px-1.5 py-0.5 text-xs font-medium text-amber backdrop-blur-sm"
+        >
+          {consoleShortName(game.hardware)}
         </span>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-1.5 bg-gradient-to-t from-bg/90 via-bg/55 to-transparent p-2 pt-8 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">

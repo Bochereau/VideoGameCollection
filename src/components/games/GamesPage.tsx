@@ -70,7 +70,7 @@ export function GamesPage({
   addLabel,
 }: Props) {
   const { getToken } = useAuth()
-  const { refreshConsoles, viewMode, columnsPerRow } =
+  const { refreshConsoles, viewMode, columnsPerRow, collectionVersion } =
     useOutletContext<AppOutletContext>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [games, setGames] = useState<Game[]>([])
@@ -185,7 +185,7 @@ export function GamesPage({
     } finally {
       setLoading(false)
     }
-  }, [getToken, query])
+  }, [getToken, query, collectionVersion])
 
   useEffect(() => {
     void load()

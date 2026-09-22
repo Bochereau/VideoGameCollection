@@ -20,6 +20,7 @@ export type AppOutletContext = {
   topsLoaded: boolean
   viewMode: GamesViewMode
   columnsPerRow: number
+  collectionVersion: number
   onColumnsPerRowChange: (value: number) => void
   topsMode: boolean
   openCreateTop: () => void
@@ -38,6 +39,7 @@ export function AppLayout() {
   const [columnsPerRow, setColumnsPerRow] = useState(readGameColumns)
   const [colorTheme, setColorTheme] = useState<ColorTheme>(readColorTheme)
   const [createTopOpen, setCreateTopOpen] = useState(false)
+  const [collectionVersion, setCollectionVersion] = useState(0)
 
   const search = searchParams.get('q') ?? ''
   const selectedHardware = searchParams.get('hardware')
@@ -116,6 +118,18 @@ export function AppLayout() {
     await refreshConsoles()
   }
 
+  async function renameConsole(id: string, name: string) {
+    const token = await getToken()
+    if (!token) throw new Error('Non authentifié')
+    const previous = consoles.find((c) => c.id === id)
+    const updated = await consolesApi.update(token, id, name)
+    if (previous && selectedHardware === previous.name) {
+      setHardware(updated.name)
+    }
+    setCollectionVersion((value) => value + 1)
+    await refreshConsoles()
+  }
+
   async function deleteConsole(id: string) {
     const token = await getToken()
     if (!token) return
@@ -174,6 +188,7 @@ export function AppLayout() {
             selectedHardware={selectedHardware}
             onSelectHardware={setHardware}
             onAddConsole={addConsole}
+            onRenameConsole={renameConsole}
             onDeleteConsole={deleteConsole}
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
@@ -190,6 +205,7 @@ export function AppLayout() {
                 topsLoaded,
                 viewMode,
                 columnsPerRow,
+                collectionVersion,
                 onColumnsPerRowChange: changeColumnsPerRow,
                 topsMode,
                 openCreateTop: () => setCreateTopOpen(true),
