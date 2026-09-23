@@ -32,6 +32,7 @@ export interface Game {
   format: GameFormat
   condition: GameCondition
   edition: GameEdition
+  reserved?: boolean
   createdAt?: string
   updatedAt?: string
 }
@@ -132,6 +133,7 @@ export type PublicWishlistGame = {
   cover?: string | null
   format: GameFormat
   edition: GameEdition
+  reserved?: boolean
 }
 
 export type PublicWishlist = {

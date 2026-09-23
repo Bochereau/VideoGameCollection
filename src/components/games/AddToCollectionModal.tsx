@@ -66,6 +66,11 @@ export function AddToCollectionModal({
           Quelle priorité pour{' '}
           <span className="font-medium text-ink">{game.name}</span> ?
         </p>
+        {game.reserved ? (
+          <p className="mt-3 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm text-amber">
+            Quelqu’un s’en occupe. Ajoute-le seulement si tu l’as déjà reçu.
+          </p>
+        ) : null}
 
         <ul className="mt-5 space-y-1.5" role="listbox" aria-label="Priorité">
           {PRIORITY_ORDER.map((id) => {
@@ -104,7 +109,7 @@ export function AddToCollectionModal({
             disabled={busy}
             onClick={() => onConfirm(priority)}
           >
-            {busy ? 'Ajout…' : 'Ajouter'}
+            {busy ? 'Ajout…' : game.reserved ? 'Je l’ai déjà reçu' : 'Ajouter'}
           </Button>
         </div>
       </div>

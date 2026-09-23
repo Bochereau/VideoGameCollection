@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { requireUserId } from '../_lib/auth.js'
+import { clearClaim, reservedIdSet } from '../_lib/claims.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
 import {
   errorResponse,
@@ -256,7 +257,18 @@ export default async function handler(req, res) {
         .collation({ locale: 'fr', strength: 2 })
         .sort({ name: 1 })
         .toArray()
-      return json(res, 200, docs.map(serializeGame))
+      const wishlistIds = docs
+        .filter((doc) => doc.wishlist === true || doc.wishlist === 'true')
+        .map((doc) => doc._id)
+      const reserved = await reservedIdSet(db, userId, wishlistIds)
+      return json(
+        res,
+        200,
+        docs.map((doc) => {
+          const game = serializeGame(doc)
+          return reserved.has(game.id) ? { ...game, reserved: true } : game
+        }),
+      )
     }
 
     if (req.method === 'POST') {
@@ -428,15 +440,18 @@ export default async function handler(req, res) {
       if (Object.keys($unset).length) update.$unset = $unset
 
       await games.updateOne({ _id, userId }, update)
+      if (leavingWishlist) await clearClaim(db, userId, _id)
       const updated = await games.findOne({ _id, userId })
       return json(res, 200, serializeGame(updated))
     }
 
     if (req.method === 'DELETE' && typeof id === 'string') {
-      const result = await games.deleteOne({ _id: new ObjectId(id), userId })
+      const _id = new ObjectId(id)
+      const result = await games.deleteOne({ _id, userId })
       if (result.deletedCount === 0) {
         return json(res, 404, { error: 'Game not found' })
       }
+      await clearClaim(db, userId, _id)
       return json(res, 200, { ok: true })
     }
 

@@ -303,6 +303,31 @@ export function StatusSelect({
   )
 }
 
+export function ReservedNotice({
+  onRelease,
+  compact = false,
+}: {
+  onRelease: () => void
+  compact?: boolean
+}) {
+  return (
+    <div
+      className={`flex items-center justify-between gap-2 rounded-lg bg-amber/15 ${
+        compact ? 'px-2 py-1' : 'px-2 py-1.5'
+      }`}
+    >
+      <p className="text-[0.7rem] font-medium text-amber">Quelqu’un s’en occupe</p>
+      <button
+        type="button"
+        onClick={onRelease}
+        className="shrink-0 text-[0.65rem] font-medium text-ink-muted underline decoration-ink-muted/40 underline-offset-2 hover:text-ink"
+      >
+        Libérer
+      </button>
+    </div>
+  )
+}
+
 export function AddToCollectionButton({
   onClick,
   compact = false,

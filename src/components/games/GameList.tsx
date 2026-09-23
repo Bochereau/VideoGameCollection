@@ -6,6 +6,7 @@ import {
   AddToCollectionButton,
   FavoriteButton,
   PriorityButton,
+  ReservedNotice,
   StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
@@ -25,6 +26,7 @@ type Props = {
   onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
+  onReleaseReservation: (game: Game) => void
   onDelete: (game: Game) => void
 }
 
@@ -50,6 +52,7 @@ function GameRow({
   onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
+  onReleaseReservation,
   onDelete,
 }: {
   game: Game
@@ -60,6 +63,7 @@ function GameRow({
   onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
+  onReleaseReservation: (game: Game) => void
   onDelete: (game: Game) => void
 }) {
   const { format, condition, edition } = gameCopyMeta(game)
@@ -90,7 +94,17 @@ function GameRow({
           )}
         </div>
       </td>
-      <td className="px-3 py-2.5 font-semibold text-ink">{game.name}</td>
+      <td className="px-3 py-2.5 font-semibold text-ink">
+        <div>{game.name}</div>
+        {wishlist && game.reserved ? (
+          <div className="mt-1 max-w-56">
+            <ReservedNotice
+              compact
+              onRelease={() => onReleaseReservation(game)}
+            />
+          </div>
+        ) : null}
+      </td>
       <td className="px-3 py-2.5 whitespace-nowrap text-amber">
         {game.hardware}
       </td>
@@ -168,6 +182,7 @@ export function GameList({
   onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
+  onReleaseReservation,
   onDelete,
 }: Props) {
   const colCount = wishlist ? 8 : 9
@@ -178,6 +193,7 @@ export function GameList({
     onPriorityChange,
     onToggleFavorite,
     onAddToCollection,
+    onReleaseReservation,
     onDelete,
   }
 

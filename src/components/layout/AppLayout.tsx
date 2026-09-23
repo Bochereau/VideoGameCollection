@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { CreateTopModal } from '@/components/tops/CreateTopModal'
 import { TopsSidebar } from '@/components/tops/TopsSidebar'
-import { consolesApi, topsApi } from '@/lib/api'
+import { consolesApi, topsApi, wishlistClaimApi } from '@/lib/api'
 import { applyColorTheme, readColorTheme, writeColorTheme } from '@/lib/colorTheme'
 import { readGameColumns, writeGameColumns } from '@/lib/columnsPerRow'
 import { readViewMode, writeViewMode } from '@/lib/viewMode'
@@ -21,6 +21,7 @@ export type AppOutletContext = {
   viewMode: GamesViewMode
   columnsPerRow: number
   collectionVersion: number
+  refreshReservations: () => Promise<void>
   onColumnsPerRowChange: (value: number) => void
   topsMode: boolean
   openCreateTop: () => void
@@ -40,6 +41,7 @@ export function AppLayout() {
   const [colorTheme, setColorTheme] = useState<ColorTheme>(readColorTheme)
   const [createTopOpen, setCreateTopOpen] = useState(false)
   const [collectionVersion, setCollectionVersion] = useState(0)
+  const [reservationCount, setReservationCount] = useState(0)
 
   const search = searchParams.get('q') ?? ''
   const selectedHardware = searchParams.get('hardware')
@@ -54,6 +56,17 @@ export function AppLayout() {
     const data = await consolesApi.list(token, { wishlist: wishlistMode })
     setConsoles(data)
   }, [getToken, wishlistMode])
+
+  const refreshReservations = useCallback(async () => {
+    try {
+      const token = await getToken()
+      if (!token) return
+      const data = await wishlistClaimApi.count(token)
+      setReservationCount(data.count)
+    } catch {
+      // Le badge reste à sa dernière valeur si l’API n’est pas joignable.
+    }
+  }, [getToken])
 
   const refreshTops = useCallback(async () => {
     const token = await getToken()
@@ -70,6 +83,10 @@ export function AppLayout() {
     }
     void refreshConsoles().catch(console.error)
   }, [topsMode, refreshConsoles, refreshTops])
+
+  useEffect(() => {
+    void refreshReservations()
+  }, [refreshReservations])
 
   useEffect(() => {
     applyColorTheme(colorTheme)
@@ -171,6 +188,7 @@ export function AppLayout() {
         colorTheme={colorTheme}
         onColorThemeChange={changeColorTheme}
         onToggleSidebar={() => setSidebarOpen(true)}
+        reservationCount={reservationCount}
       />
       <div className="flex min-h-0 flex-1">
         {topsMode ? (
@@ -206,6 +224,7 @@ export function AppLayout() {
                 viewMode,
                 columnsPerRow,
                 collectionVersion,
+                refreshReservations,
                 onColumnsPerRowChange: changeColumnsPerRow,
                 topsMode,
                 openCreateTop: () => setCreateTopOpen(true),

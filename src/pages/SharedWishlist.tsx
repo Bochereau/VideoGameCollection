@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { SharedGameCard } from '@/components/games/SharedGameCard'
-import { SegmentHeading, groupGamesByPriority, groupGamesByYear } from '@/components/games/priorityGroups'
+import { SegmentHeading, groupGamesByPriority } from '@/components/games/priorityGroups'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Loading } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
-import { wishlistShareApi } from '@/lib/api'
+import { wishlistClaimApi, wishlistShareApi } from '@/lib/api'
+import { readClaims, writeClaims, type StoredClaims } from '@/lib/wishlistClaims'
 import { applyColorTheme, readColorTheme, writeColorTheme } from '@/lib/colorTheme'
 import { readGameColumns } from '@/lib/columnsPerRow'
-import type { Game, PublicWishlistGame, SortKey } from '@/types'
+import type { Game, PublicWishlistGame } from '@/types'
 import type { ColorTheme } from '@/types/theme'
 
 function toGame(game: PublicWishlistGame): Game {
@@ -21,33 +22,6 @@ function toGame(game: PublicWishlistGame): Game {
   }
 }
 
-function sortGames(list: Game[], sort: SortKey): Game[] {
-  const copy = [...list]
-  if (sort === 'year') {
-    copy.sort((a, b) => {
-      if (a.release == null && b.release == null) {
-        return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-      }
-      if (a.release == null) return 1
-      if (b.release == null) return -1
-      if (b.release !== a.release) return b.release - a.release
-      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-    })
-  } else if (sort === 'name') {
-    copy.sort((a, b) =>
-      a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
-    )
-  } else {
-    copy.sort((a, b) => {
-      const pa = a.priority ?? 0
-      const pb = b.priority ?? 0
-      if (pb !== pa) return pb - pa
-      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-    })
-  }
-  return copy
-}
-
 export function SharedWishlistPage() {
   const { token = '' } = useParams()
   const [games, setGames] = useState<Game[]>([])
@@ -55,10 +29,14 @@ export function SharedWishlistPage() {
   const [loading, setLoading] = useState(Boolean(token))
   const [missing, setMissing] = useState(!token)
   const [error, setError] = useState<string | null>(null)
-  const [hardware, setHardware] = useState('all')
-  const [sort, setSort] = useState<SortKey>('priority')
   const [theme, setTheme] = useState<ColorTheme>(readColorTheme)
   const [reloadKey, setReloadKey] = useState(0)
+  const [claims, setClaims] = useState<StoredClaims>({})
+  const [claiming, setClaiming] = useState<Game | null>(null)
+  const [firstName, setFirstName] = useState('')
+  const [claimBusy, setClaimBusy] = useState(false)
+  const [claimError, setClaimError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const columnsPerRow = readGameColumns()
 
   useEffect(() => {
@@ -75,7 +53,33 @@ export function SharedWishlistPage() {
         const data = await wishlistShareApi.public(token)
         if (cancelled) return
         setOwnerName(data.ownerName.trim())
-        setGames(data.games.map(toGame))
+        const nextGames = data.games.map(toGame)
+        setGames(nextGames)
+        const stored = readClaims(token)
+        const proofs = Object.values(stored).map((claim) => claim.token)
+        let nextClaims = stored
+        if (proofs.length) {
+          try {
+            const claimed = await wishlistClaimApi.mine(token, proofs)
+            const names = new Map(claimed.mine.map((item) => [item.gameId, item.name]))
+            nextClaims = {}
+            for (const [gameId, claim] of Object.entries(stored)) {
+              const name = names.get(gameId)
+              if (!name) continue
+              nextClaims[gameId] = { token: claim.token, name }
+            }
+            writeClaims(token, nextClaims)
+          } catch {
+            const reserved = new Set(
+              nextGames.filter((game) => game.reserved).map((game) => game.id),
+            )
+            nextClaims = {}
+            for (const [gameId, claim] of Object.entries(stored)) {
+              if (reserved.has(gameId)) nextClaims[gameId] = claim
+            }
+          }
+        }
+        if (!cancelled) setClaims(nextClaims)
       } catch (err) {
         if (cancelled) return
         const message = err instanceof Error ? err.message : ''
@@ -112,27 +116,94 @@ export function SharedWishlistPage() {
     }
   }, [missing, title])
 
-  const consoles = useMemo(() => {
-    const names = new Set(games.map((game) => game.hardware).filter(Boolean))
-    return [...names].sort((a, b) =>
-      a.localeCompare(b, 'fr', { sensitivity: 'base' }),
-    )
-  }, [games])
+  const segments = useMemo(() => groupGamesByPriority(games), [games])
 
-  const visible = useMemo(() => {
-    const filtered =
-      hardware === 'all'
-        ? games
-        : games.filter((game) => game.hardware === hardware)
-    return sortGames(filtered, sort)
-  }, [games, hardware, sort])
+  function rememberClaim(gameId: string, claim: { token: string; name: string }) {
+    setClaims((prev) => {
+      const next = { ...prev, [gameId]: claim }
+      writeClaims(token, next)
+      return next
+    })
+  }
 
-  const segments =
-    sort === 'priority'
-      ? groupGamesByPriority(visible)
-      : sort === 'year'
-        ? groupGamesByYear(visible)
-        : null
+  function forgetClaim(gameId: string) {
+    setClaims((prev) => {
+      const next = { ...prev }
+      delete next[gameId]
+      writeClaims(token, next)
+      return next
+    })
+  }
+
+  async function submitClaim() {
+    if (!claiming) return
+    const name = firstName.trim().replace(/\s+/g, ' ')
+    if (!name) {
+      setClaimError('Indique un prénom.')
+      return
+    }
+    setClaimBusy(true)
+    setClaimError(null)
+    try {
+      const created = await wishlistClaimApi.create({
+        token,
+        gameId: claiming.id,
+        name,
+      })
+      rememberClaim(created.gameId, { token: created.claimToken, name: created.name })
+      setGames((prev) =>
+        prev.map((game) =>
+          game.id === created.gameId ? { ...game, reserved: true } : game,
+        ),
+      )
+      setClaiming(null)
+      setFirstName('')
+      setNotice(null)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Réservation impossible'
+      setClaimError(message)
+      if (message.includes('déjà réservé')) {
+        setGames((prev) =>
+          prev.map((game) =>
+            game.id === claiming.id ? { ...game, reserved: true } : game,
+          ),
+        )
+      }
+    } finally {
+      setClaimBusy(false)
+    }
+  }
+
+  async function cancelClaim(game: Game) {
+    const claim = claims[game.id]
+    if (!claim) return
+    if (!window.confirm(`Annuler ta réservation pour « ${game.name} » ?`)) return
+    setClaimBusy(true)
+    setNotice(null)
+    try {
+      await wishlistClaimApi.cancel(claim.token)
+      forgetClaim(game.id)
+      setGames((prev) =>
+        prev.map((item) =>
+          item.id === game.id ? { ...item, reserved: false } : item,
+        ),
+      )
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Annulation impossible'
+      if (message.includes('introuvable')) {
+        forgetClaim(game.id)
+        setGames((prev) =>
+          prev.map((item) =>
+            item.id === game.id ? { ...item, reserved: false } : item,
+          ),
+        )
+      } else {
+        setNotice(message)
+      }
+    } finally {
+      setClaimBusy(false)
+    }
+  }
 
   function toggleTheme() {
     const next: ColorTheme = theme === 'dark' ? 'light' : 'dark'
@@ -140,8 +211,6 @@ export function SharedWishlistPage() {
     writeColorTheme(next)
     applyColorTheme(next)
   }
-
-  let cardIndex = 0
 
   return (
     <div className="min-h-screen">
@@ -187,10 +256,21 @@ export function SharedWishlistPage() {
                 {title}
               </h1>
               <p className="rounded-lg border border-line bg-bg px-2.5 py-1 text-sm text-ink shadow-sm">
-                <span className="font-medium tabular-nums">{visible.length}</span>
-                {visible.length === 1 ? ' jeu' : ' jeux'}
+                <span className="font-medium tabular-nums">{games.length}</span>
+                {games.length === 1 ? ' jeu' : ' jeux'}
               </p>
             </div>
+            {games.length > 0 ? (
+              <p className="mt-3 max-w-xl text-sm text-ink-muted">
+                Réserve un jeu pour l’offrir. Ton prénom reste sur cet appareil,
+                pour que tu puisses annuler.
+              </p>
+            ) : null}
+            {notice ? (
+              <p className="mt-3 max-w-xl rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm text-amber">
+                {notice}
+              </p>
+            ) : null}
 
             {games.length === 0 ? (
               <div className="mt-6">
@@ -200,87 +280,98 @@ export function SharedWishlistPage() {
                 />
               </div>
             ) : (
-              <>
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <label>
-                    <span className="sr-only">Console</span>
-                    <select
-                      className="field !w-auto !py-1.5 !pr-8 text-sm"
-                      value={hardware}
-                      onChange={(event) => setHardware(event.target.value)}
-                    >
-                      <option value="all">Console : toutes</option>
-                      {consoles.map((name) => (
-                        <option key={name} value={name}>
-                          {name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    <span className="sr-only">Tri</span>
-                    <select
-                      className="field !w-auto !py-1.5 !pr-8 text-sm"
-                      value={sort}
-                      onChange={(event) => setSort(event.target.value as SortKey)}
-                    >
-                      <option value="priority">Tri : Priorité</option>
-                      <option value="name">Tri : A→Z</option>
-                      <option value="year">Tri : Année</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div className="mt-6">
-                  {visible.length === 0 ? (
-                    <EmptyState
-                      title="Aucun jeu"
-                      description="Aucun jeu ne correspond à cette console."
+              <div className="mt-6 space-y-6">
+                {segments.map((segment) => (
+                  <section key={segment.key} className="space-y-3">
+                    <SegmentHeading
+                      label={segment.label}
+                      count={segment.games.length}
+                      accentClass={segment.accentClass}
+                      dotClass={segment.dotClass}
                     />
-                  ) : segments ? (
-                    <div className="space-y-6">
-                      {segments.map((segment) => (
-                        <section key={segment.key} className="space-y-3">
-                          <SegmentHeading
-                            label={segment.label}
-                            count={segment.games.length}
-                            accentClass={segment.accentClass}
-                            dotClass={segment.dotClass}
-                          />
-                          <div
-                            className="game-card-grid"
-                            style={{ '--game-cols': columnsPerRow } as CSSProperties}
-                          >
-                            {segment.games.map((game) => {
-                              const index = cardIndex++
-                              return (
-                                <SharedGameCard
-                                  key={game.id}
-                                  game={game}
-                                  index={index}
-                                />
-                              )
-                            })}
-                          </div>
-                        </section>
-                      ))}
-                    </div>
-                  ) : (
                     <div
                       className="game-card-grid"
                       style={{ '--game-cols': columnsPerRow } as CSSProperties}
                     >
-                      {visible.map((game, index) => (
-                        <SharedGameCard key={game.id} game={game} index={index} />
+                      {segment.games.map((game, index) => (
+                        <SharedGameCard
+                          key={game.id}
+                          game={game}
+                          index={index}
+                          mineName={claims[game.id]?.name}
+                          busy={claimBusy}
+                          onClaim={() => {
+                            setClaimError(null)
+                            setFirstName('')
+                            setClaiming(game)
+                          }}
+                          onCancel={() => void cancelClaim(game)}
+                        />
                       ))}
                     </div>
-                  )}
-                </div>
-              </>
+                  </section>
+                ))}
+              </div>
             )}
           </>
         )}
       </main>
+
+      {claiming ? (
+        <div className="animate-fade-in fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+          <button
+            type="button"
+            className="absolute inset-0 bg-bg/70 backdrop-blur-[2px]"
+            aria-label="Fermer"
+            disabled={claimBusy}
+            onClick={() => setClaiming(null)}
+          />
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="claim-title"
+            className="relative z-10 w-full max-w-md rounded-t-2xl border border-line bg-bg p-5 shadow-2xl shadow-black/40 sm:rounded-2xl sm:p-6"
+            onSubmit={(event) => {
+              event.preventDefault()
+              void submitClaim()
+            }}
+          >
+            <h2 id="claim-title" className="font-display text-2xl tracking-wide text-ink">
+              Je m’en occupe
+            </h2>
+            <p className="mt-2 text-sm text-ink-muted">
+              Ton prénom sert à retrouver ta réservation sur cet appareil.
+            </p>
+            <label className="mt-5 block">
+              <span className="mb-1.5 block text-sm text-ink-muted">Prénom</span>
+              <input
+                className="field"
+                value={firstName}
+                maxLength={40}
+                autoFocus
+                disabled={claimBusy}
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+            </label>
+            {claimError ? (
+              <p className="mt-3 text-sm text-danger">{claimError}</p>
+            ) : null}
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={claimBusy}
+                onClick={() => setClaiming(null)}
+              >
+                Annuler
+              </Button>
+              <Button type="submit" disabled={claimBusy}>
+                {claimBusy ? 'Réservation…' : 'Réserver'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -154,8 +154,9 @@ export function ShareWishlistModal({ open, onClose }: Props) {
           Partager la liste d’envies
         </h2>
         <p className="mt-2 text-sm text-ink-muted">
-          Le lien affiche toujours votre liste à jour. Vos proches peuvent la
-          consulter, sans la modifier.
+          Le lien affiche toujours votre liste à jour. Vos proches peuvent
+          réserver un jeu pour vous l’offrir. Vous voyez seulement que quelqu’un
+          s’en occupe.
         </p>
 
         {error ? (

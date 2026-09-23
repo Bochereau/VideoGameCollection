@@ -1,16 +1,24 @@
 import type { Game } from '@/types'
-import { EDITION_LABELS, PRIORITY_COLORS, PRIORITY_LABELS } from '@/types'
 import { cardCoverUrl } from '@/lib/coverUrl'
 import { consoleShortName } from '@/lib/consoleShortName'
 
 type Props = {
   game: Game
   index: number
+  mineName?: string
+  busy?: boolean
+  onClaim: () => void
+  onCancel: () => void
 }
 
-export function SharedGameCard({ game, index }: Props) {
-  const priority = game.priority ?? 3
-
+export function SharedGameCard({
+  game,
+  index,
+  mineName,
+  busy = false,
+  onClaim,
+  onCancel,
+}: Props) {
   return (
     <article
       className="animate-fade-up relative flex flex-col rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 backdrop-blur-md"
@@ -34,52 +42,50 @@ export function SharedGameCard({ game, index }: Props) {
         )}
         <span
           title={game.hardware}
-          className="absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full bg-bg/80 px-2.5 text-xs font-medium text-amber backdrop-blur-sm"
+          className="absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full bg-bg/80 px-2.5 text-xs font-medium text-amber backdrop-blur-sm"
         >
           {consoleShortName(game.hardware)}
-        </span>
-        <span
-          className={`absolute top-2 right-2 z-10 inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm ${PRIORITY_COLORS[priority]}`}
-          title={`Priorité : ${PRIORITY_LABELS[priority]}`}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path
-              d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"
-              fill="currentColor"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
         </span>
       </div>
 
       <div className="flex flex-1 flex-col p-2 sm:p-2.5">
-        <h3 className="mb-1 line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
+        <h3 className="line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
           {game.name}
         </h3>
-        <dl className="space-y-0.5 text-xs text-ink-muted">
-          {game.developer ? (
-            <div className="flex gap-1.5">
-              <dt className="shrink-0 text-accent/70">Studio</dt>
-              <dd className="truncate">{game.developer}</dd>
-            </div>
-          ) : null}
-          {game.release ? (
-            <div className="flex gap-1.5">
-              <dt className="shrink-0 text-accent/70">Année</dt>
-              <dd>{game.release}</dd>
-            </div>
-          ) : null}
-        </dl>
-        <div className="mt-2 flex flex-wrap gap-1">
+        <div className="mt-2">
           <span className="rounded bg-bg/70 px-1.5 py-0.5 text-[0.65rem] font-medium text-ink-muted">
             {game.format === 'digital' ? 'Numérique' : 'Physique'}
           </span>
-          <span className="rounded bg-amber/20 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber">
-            {EDITION_LABELS[game.edition]}
-          </span>
+        </div>
+        <div className="mt-auto pt-2.5">
+          {mineName ? (
+            <div className="space-y-1.5">
+              <p className="text-center text-[0.7rem] font-medium text-amber">
+                Réservé par {mineName}
+              </p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={onCancel}
+                className="w-full rounded-full px-2.5 py-1.5 text-[0.7rem] font-medium text-ink-muted transition hover:bg-ink/5 hover:text-ink disabled:opacity-50"
+              >
+                Annuler
+              </button>
+            </div>
+          ) : game.reserved ? (
+            <p className="rounded-full bg-ink/5 px-2.5 py-1.5 text-center text-[0.7rem] font-medium text-ink-muted">
+              Déjà réservé
+            </p>
+          ) : (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onClaim}
+              className="w-full rounded-full bg-accent/20 px-2.5 py-1.5 text-[0.7rem] font-medium text-accent transition hover:bg-accent hover:text-bg disabled:opacity-50"
+            >
+              Je m’en occupe
+            </button>
+          )}
         </div>
       </div>
     </article>

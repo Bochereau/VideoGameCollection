@@ -30,6 +30,7 @@ type Props = {
   onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
+  onReleaseReservation: (game: Game) => void
   onDelete: (game: Game) => void
 }
 
@@ -53,6 +54,7 @@ export function GameGrid({
   onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
+  onReleaseReservation,
   onDelete,
 }: Props) {
   if (games.length === 0) {
@@ -72,6 +74,7 @@ export function GameGrid({
     onPriorityChange,
     onToggleFavorite,
     onAddToCollection,
+    onReleaseReservation,
     onDelete,
   }
 

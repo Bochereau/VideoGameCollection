@@ -20,6 +20,7 @@ type Props = {
   onToggleSidebar: () => void
   hideSearch?: boolean
   hideLayout?: boolean
+  reservationCount?: number
 }
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -28,6 +29,21 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       ? 'bg-accent-soft text-accent'
       : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
   }`
+
+function EnviesLink({ count }: { count: number }) {
+  return (
+    <NavLink to="/wishlist" className={linkClass}>
+      <span className="inline-flex items-center gap-1.5">
+        Envies
+        {count > 0 ? (
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber px-1 text-[0.65rem] font-semibold text-bg tabular-nums">
+            {count > 99 ? '99+' : count}
+          </span>
+        ) : null}
+      </span>
+    </NavLink>
+  )
+}
 
 export function TopBar({
   search,
@@ -41,6 +57,7 @@ export function TopBar({
   onToggleSidebar,
   hideSearch = false,
   hideLayout = false,
+  reservationCount = 0,
 }: Props) {
   const [draft, setDraft] = useState(search)
   const onSearchChangeRef = useRef(onSearchChange)
@@ -106,9 +123,7 @@ export function TopBar({
           <NavLink to="/collection" className={linkClass}>
             Collection
           </NavLink>
-          <NavLink to="/wishlist" className={linkClass}>
-            Envies
-          </NavLink>
+          <EnviesLink count={reservationCount} />
           <NavLink to="/tops" className={linkClass}>
             Tops
           </NavLink>
@@ -165,9 +180,7 @@ export function TopBar({
         <NavLink to="/collection" className={linkClass}>
           Collection
         </NavLink>
-        <NavLink to="/wishlist" className={linkClass}>
-          Envies
-        </NavLink>
+        <EnviesLink count={reservationCount} />
         <NavLink to="/tops" className={linkClass}>
           Tops
         </NavLink>

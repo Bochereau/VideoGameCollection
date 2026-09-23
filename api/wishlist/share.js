@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { requireUserId } from '../_lib/auth.js'
+import { reservedIdSet } from '../_lib/claims.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
 import { errorResponse, json, serializeGame } from '../_lib/respond.js'
 
@@ -99,9 +100,18 @@ export default async function handler(req, res) {
         if (consoleDoc?.name && consoleDoc.logo) logos[consoleDoc.name] = consoleDoc.logo
       }
 
+      const reserved = await reservedIdSet(
+        db,
+        share.userId,
+        docs.map((doc) => doc._id),
+      )
+
       return json(res, 200, {
         ownerName: share.ownerName ?? '',
-        games: docs.map(serializePublicGame),
+        games: docs.map((doc) => {
+          const game = serializePublicGame(doc)
+          return reserved.has(game.id) ? { ...game, reserved: true } : game
+        }),
         logos,
       })
     }

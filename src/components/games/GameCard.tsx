@@ -5,6 +5,7 @@ import {
   AddToCollectionButton,
   FavoriteButton,
   PriorityButton,
+  ReservedNotice,
   StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
@@ -20,6 +21,7 @@ type Props = {
   onPriorityChange: (game: Game, priority: GamePriority) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
+  onReleaseReservation: (game: Game) => void
   onDelete: (game: Game) => void
 }
 
@@ -32,6 +34,7 @@ export function GameCard({
   onPriorityChange,
   onToggleFavorite,
   onAddToCollection,
+  onReleaseReservation,
   onDelete,
 }: Props) {
   const { format, condition, edition } = gameCopyMeta(game)
@@ -138,7 +141,10 @@ export function GameCard({
           </span>
         </div>
 
-        <div className="mt-auto pt-2.5">
+        <div className="mt-auto space-y-2 pt-2.5">
+          {wishlist && game.reserved ? (
+            <ReservedNotice onRelease={() => onReleaseReservation(game)} />
+          ) : null}
           {wishlist ? (
             <AddToCollectionButton onClick={() => onAddToCollection(game)} />
           ) : (

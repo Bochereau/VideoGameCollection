@@ -173,6 +173,40 @@ export const wishlistShareApi = {
     ),
 }
 
+export const wishlistClaimApi = {
+  count: (token: string) =>
+    apiFetch<{ count: number }>('/api/wishlist/claim', token),
+
+  mine: (shareToken: string, proofs: string[]) =>
+    apiFetch<{ mine: { gameId: string; name: string }[] }>(
+      `/api/wishlist/claim?token=${encodeURIComponent(shareToken)}&proofs=${encodeURIComponent(proofs.join(','))}`,
+      null,
+    ),
+
+  create: (body: { token: string; gameId: string; name: string }) =>
+    apiFetch<{
+      claimToken: string
+      gameId: string
+      name: string
+    }>('/api/wishlist/claim', null, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  cancel: (claimToken: string) =>
+    apiFetch<{ ok: boolean }>('/api/wishlist/claim', null, {
+      method: 'DELETE',
+      body: JSON.stringify({ claimToken }),
+    }),
+
+  release: (token: string, gameId: string) =>
+    apiFetch<{ ok: boolean }>(
+      `/api/wishlist/claim?gameId=${encodeURIComponent(gameId)}`,
+      token,
+      { method: 'DELETE' },
+    ),
+}
+
 export const catalogApi = {
   searchGames: (token: string, q: string, hardware?: string) => {
     const params = new URLSearchParams({ q })

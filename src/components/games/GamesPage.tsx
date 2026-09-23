@@ -9,7 +9,7 @@ import { StatusFilters } from '@/components/games/StatusFilters'
 import { AddToCollectionModal } from '@/components/games/AddToCollectionModal'
 import { Loading } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
-import { gamesApi, consolesApi } from '@/lib/api'
+import { gamesApi, consolesApi, wishlistClaimApi } from '@/lib/api'
 import type {
   ConditionFilter,
   EditionFilter,
@@ -70,8 +70,13 @@ export function GamesPage({
   addLabel,
 }: Props) {
   const { getToken } = useAuth()
-  const { refreshConsoles, viewMode, columnsPerRow, collectionVersion } =
-    useOutletContext<AppOutletContext>()
+  const {
+    refreshConsoles,
+    viewMode,
+    columnsPerRow,
+    collectionVersion,
+    refreshReservations,
+  } = useOutletContext<AppOutletContext>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [games, setGames] = useState<Game[]>([])
   const [consoleNames, setConsoleNames] = useState<string[]>([])
@@ -355,6 +360,26 @@ export function GamesPage({
     setAddingGame(game)
   }
 
+  async function releaseReservation(game: Game) {
+    if (!window.confirm(`Libérer « ${game.name} » ? Le jeu redevient disponible.`)) {
+      return
+    }
+    setError(null)
+    try {
+      await withToken((token) => wishlistClaimApi.release(token, game.id))
+      setGames((prev) =>
+        prev.map((item) =>
+          item.id === game.id ? { ...item, reserved: false } : item,
+        ),
+      )
+      await refreshReservations()
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Impossible de libérer la réservation',
+      )
+    }
+  }
+
   async function confirmAddToCollection(priority: GamePriority) {
     if (!addingGame) return
     setAddingBusy(true)
@@ -371,6 +396,7 @@ export function GamesPage({
       setAddingGame(null)
       await load()
       await refreshConsoles()
+      await refreshReservations()
     } catch (err) {
       setError(
         err instanceof Error
@@ -388,6 +414,7 @@ export function GamesPage({
       await withToken((token) => gamesApi.remove(token, game.id))
       await load()
       await refreshConsoles()
+      if (game.reserved) await refreshReservations()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Suppression impossible')
     }
@@ -513,6 +540,7 @@ export function GamesPage({
               onPriorityChange={updatePriority}
               onToggleFavorite={toggleFavorite}
               onAddToCollection={addToCollection}
+              onReleaseReservation={releaseReservation}
               onDelete={removeGame}
             />
           )}
