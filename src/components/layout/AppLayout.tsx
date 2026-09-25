@@ -16,6 +16,7 @@ import type { GamesViewMode } from '@/types/view'
 export type AppOutletContext = {
   refreshConsoles: () => Promise<void>
   refreshTops: () => Promise<void>
+  consoles: ConsoleItem[]
   tops: TopSummary[]
   topsLoaded: boolean
   viewMode: GamesViewMode
@@ -25,6 +26,7 @@ export type AppOutletContext = {
   onColumnsPerRowChange: (value: number) => void
   topsMode: boolean
   openCreateTop: () => void
+  openConsoleManager: () => void
 }
 
 export function AppLayout() {
@@ -87,6 +89,10 @@ export function AppLayout() {
   useEffect(() => {
     void refreshReservations()
   }, [refreshReservations])
+
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [topsMode])
 
   useEffect(() => {
     applyColorTheme(colorTheme)
@@ -187,7 +193,7 @@ export function AppLayout() {
         onColumnsPerRowChange={changeColumnsPerRow}
         colorTheme={colorTheme}
         onColorThemeChange={changeColorTheme}
-        onToggleSidebar={() => setSidebarOpen(true)}
+        onToggleSidebar={topsMode ? () => setSidebarOpen(true) : undefined}
         reservationCount={reservationCount}
       />
       <div className="flex min-h-0 flex-1">
@@ -219,6 +225,7 @@ export function AppLayout() {
               {
                 refreshConsoles,
                 refreshTops,
+                consoles,
                 tops,
                 topsLoaded,
                 viewMode,
@@ -228,6 +235,7 @@ export function AppLayout() {
                 onColumnsPerRowChange: changeColumnsPerRow,
                 topsMode,
                 openCreateTop: () => setCreateTopOpen(true),
+                openConsoleManager: () => setSidebarOpen(true),
               } satisfies AppOutletContext
             }
           />

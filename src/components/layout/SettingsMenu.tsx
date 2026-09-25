@@ -81,7 +81,7 @@ export function SettingsMenu({
         <div
           role="dialog"
           aria-label="Paramètres d’affichage"
-          className="animate-fade-in absolute top-[calc(100%+0.5rem)] right-0 z-50 w-72 rounded-xl border border-line bg-surface-elevated p-3 shadow-xl shadow-black/30 backdrop-blur-xl"
+          className="animate-fade-in absolute top-[calc(100%+0.5rem)] right-0 z-50 w-72 rounded-xl border border-line bg-bg p-3 shadow-xl shadow-black/30"
         >
           <p className="mb-3 text-[0.65rem] font-medium tracking-wide text-ink-muted uppercase">
             Paramètres
@@ -99,7 +99,7 @@ export function SettingsMenu({
                   <ViewModeToggle value={viewMode} onChange={onViewModeChange} />
                 </section>
                 {viewMode === 'cards' ? (
-                  <section className="space-y-1.5">
+                  <section className="hidden space-y-1.5 lg:block">
                     <h3 className="text-xs font-medium text-ink-muted">
                       Cartes par ligne
                     </h3>

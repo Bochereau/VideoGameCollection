@@ -17,22 +17,10 @@ import {
   STATUS_LABELS,
 } from '@/types'
 import { catalogApi, gamesApi } from '@/lib/api'
+import { useVisualFrame, visualFrameStyle } from '@/lib/useVisualFrame'
 import { Button } from '@/components/ui/Button'
 
 const OTHER = '__other__'
-
-function readVisualFrame() {
-  const viewport = window.visualViewport
-  if (!viewport) {
-    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight }
-  }
-  return {
-    top: viewport.offsetTop,
-    left: viewport.offsetLeft,
-    width: viewport.width,
-    height: viewport.height,
-  }
-}
 
 type Props = {
   open: boolean
@@ -125,33 +113,14 @@ export function GameFormModal({
   )
   const [duplicates, setDuplicates] = useState<Game[]>([])
   const [duplicateAck, setDuplicateAck] = useState('')
-  const [frame, setFrame] = useState(readVisualFrame)
+  const frame = useVisualFrame(open)
 
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const sync = () => {
-      const next = readVisualFrame()
-      setFrame((current) =>
-        current.top === next.top &&
-        current.left === next.left &&
-        current.width === next.width &&
-        current.height === next.height
-          ? current
-          : next,
-      )
-    }
-    sync()
-    const viewport = window.visualViewport
-    viewport?.addEventListener('resize', sync)
-    viewport?.addEventListener('scroll', sync)
-    window.addEventListener('orientationchange', sync)
     return () => {
       document.body.style.overflow = prev
-      viewport?.removeEventListener('resize', sync)
-      viewport?.removeEventListener('scroll', sync)
-      window.removeEventListener('orientationchange', sync)
     }
   }, [open])
 
@@ -405,13 +374,7 @@ export function GameFormModal({
   return createPortal(
     <div
       className="animate-fade-in fixed z-50 flex w-full min-w-0 flex-col overflow-hidden sm:items-center sm:justify-center sm:p-4"
-      style={{
-        top: frame.top,
-        left: frame.left,
-        width: frame.width,
-        height: frame.height,
-        right: 'auto',
-      }}
+      style={visualFrameStyle(frame)}
     >
       <button
         type="button"

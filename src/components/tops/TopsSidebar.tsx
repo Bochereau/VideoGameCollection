@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import type { TopSummary } from '@/types'
+import { useVisualFrame, visualFrameStyle } from '@/lib/useVisualFrame'
 import { Button } from '@/components/ui/Button'
 
 type Props = {
@@ -20,11 +21,12 @@ export function TopsSidebar({
   onClose,
 }: Props) {
   const navigate = useNavigate()
+  const frame = useVisualFrame(open)
 
   const content = (
     <aside
       data-chrome
-      className="flex h-full min-h-0 w-64 shrink-0 flex-col border-r border-line bg-bg/75 backdrop-blur-xl"
+      className="flex h-full min-h-0 w-full max-w-64 min-w-0 shrink-0 flex-col border-r border-line bg-bg/75 backdrop-blur-xl"
     >
       <div className="flex shrink-0 items-center justify-between px-4 py-4">
         <h2 className="font-display text-sm tracking-wide text-amber uppercase">
@@ -81,7 +83,7 @@ export function TopsSidebar({
             </button>
             <button
               type="button"
-              className="rounded p-1.5 text-ink-muted opacity-0 transition group-hover:opacity-100 hover:bg-danger/15 hover:text-danger"
+              className="rounded p-1.5 text-ink-muted opacity-100 transition hover:bg-danger/15 hover:text-danger lg:opacity-0 lg:group-hover:opacity-100"
               aria-label={`Supprimer ${top.name}`}
               onClick={() => void onDelete(top.id)}
             >
@@ -112,14 +114,17 @@ export function TopsSidebar({
         {content}
       </div>
       {open ? (
-        <div className="fixed inset-0 z-40 flex lg:hidden">
+        <div
+          className="fixed z-40 flex overflow-hidden lg:hidden"
+          style={visualFrameStyle(frame)}
+        >
           <button
             type="button"
             className="absolute inset-0 bg-black/50"
             aria-label="Fermer le panneau"
             onClick={onClose}
           />
-          <div className="animate-fade-in relative z-10 h-full shadow-xl">{content}</div>
+          <div className="animate-fade-in relative z-10 h-full max-w-full shadow-xl">{content}</div>
         </div>
       ) : null}
     </>

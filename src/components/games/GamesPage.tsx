@@ -72,6 +72,8 @@ export function GamesPage({
   const { getToken } = useAuth()
   const {
     refreshConsoles,
+    consoles,
+    openConsoleManager,
     viewMode,
     columnsPerRow,
     collectionVersion,
@@ -247,6 +249,25 @@ export function GamesPage({
     patchParams((next) => {
       if (value === 'all') next.delete('edition')
       else next.set('edition', value)
+    })
+  }
+
+  function setHardware(name: string | null) {
+    patchParams((next) => {
+      if (name) next.set('hardware', name)
+      else next.delete('hardware')
+    })
+  }
+
+  function resetFilters() {
+    patchParams((next) => {
+      next.delete('status')
+      next.delete('format')
+      next.delete('condition')
+      next.delete('edition')
+      next.delete('favorite')
+      next.delete('sort')
+      next.delete('hardware')
     })
   }
 
@@ -505,7 +526,12 @@ export function GamesPage({
             setEditing(null)
             setModalOpen(true)
           }}
+          onReset={resetFilters}
           addLabel={addLabel}
+          consoles={consoles}
+          hardware={hardware ?? null}
+          onHardwareChange={setHardware}
+          onManageConsoles={openConsoleManager}
         />
 
         {error ? (

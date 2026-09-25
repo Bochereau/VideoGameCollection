@@ -17,7 +17,7 @@ type Props = {
   onColumnsPerRowChange: (value: number) => void
   colorTheme: ColorTheme
   onColorThemeChange: (value: ColorTheme) => void
-  onToggleSidebar: () => void
+  onToggleSidebar?: () => void
   hideSearch?: boolean
   hideLayout?: boolean
   reservationCount?: number
@@ -96,21 +96,15 @@ export function TopBar({
       className="sticky top-0 z-30 shrink-0 border-b border-line bg-bg/75 backdrop-blur-xl"
     >
       <div className="flex w-full items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          className="lg:hidden !px-2"
-          onClick={onToggleSidebar}
-          aria-label="Ouvrir les filtres"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path
-              d="M4 7h16M4 12h10M4 17h14"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            />
-          </svg>
-        </Button>
+        {onToggleSidebar ? (
+          <Button
+            variant="ghost"
+            className="lg:hidden !px-2.5"
+            onClick={onToggleSidebar}
+          >
+            Tops
+          </Button>
+        ) : null}
 
         <NavLink
           to="/collection"
