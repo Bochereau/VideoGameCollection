@@ -1,5 +1,6 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import type {
   CatalogCover,
   CatalogGame,
@@ -19,6 +20,19 @@ import { catalogApi, gamesApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 
 const OTHER = '__other__'
+
+function readVisualFrame() {
+  const viewport = window.visualViewport
+  if (!viewport) {
+    return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight }
+  }
+  return {
+    top: viewport.offsetTop,
+    left: viewport.offsetLeft,
+    width: viewport.width,
+    height: viewport.height,
+  }
+}
 
 type Props = {
   open: boolean
@@ -111,13 +125,33 @@ export function GameFormModal({
   )
   const [duplicates, setDuplicates] = useState<Game[]>([])
   const [duplicateAck, setDuplicateAck] = useState('')
+  const [frame, setFrame] = useState(readVisualFrame)
 
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const sync = () => {
+      const next = readVisualFrame()
+      setFrame((current) =>
+        current.top === next.top &&
+        current.left === next.left &&
+        current.width === next.width &&
+        current.height === next.height
+          ? current
+          : next,
+      )
+    }
+    sync()
+    const viewport = window.visualViewport
+    viewport?.addEventListener('resize', sync)
+    viewport?.addEventListener('scroll', sync)
+    window.addEventListener('orientationchange', sync)
     return () => {
       document.body.style.overflow = prev
+      viewport?.removeEventListener('resize', sync)
+      viewport?.removeEventListener('scroll', sync)
+      window.removeEventListener('orientationchange', sync)
     }
   }, [open])
 
@@ -366,8 +400,19 @@ export function GameFormModal({
     }
   }
 
-  return (
-    <div className="animate-fade-in fixed inset-0 z-50 flex items-stretch justify-center sm:items-center sm:p-4">
+  const focusSearch = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+  return createPortal(
+    <div
+      className="animate-fade-in fixed z-50 flex w-full min-w-0 flex-col overflow-hidden sm:items-center sm:justify-center sm:p-4"
+      style={{
+        top: frame.top,
+        left: frame.left,
+        width: frame.width,
+        height: frame.height,
+        right: 'auto',
+      }}
+    >
       <button
         type="button"
         className="absolute inset-0 bg-bg/70 backdrop-blur-[2px]"
@@ -376,10 +421,10 @@ export function GameFormModal({
       />
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden border-line bg-surface-elevated shadow-2xl shadow-black/40 backdrop-blur-xl sm:h-auto sm:max-h-[92dvh] sm:rounded-2xl sm:border"
+        className="relative z-10 flex h-auto max-h-full min-h-0 w-full min-w-0 max-w-full flex-1 flex-col overflow-hidden border-line bg-surface-elevated shadow-2xl shadow-black/40 backdrop-blur-xl sm:max-w-6xl sm:flex-initial sm:rounded-2xl sm:border"
       >
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
-          <h2 className="font-display text-2xl tracking-wide text-ink">
+        <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface-elevated px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:px-6 sm:py-4">
+          <h2 className="min-w-0 font-display text-2xl tracking-wide text-ink">
             {coverPickerOpen
               ? 'Choisir une jaquette'
               : initial
@@ -389,7 +434,7 @@ export function GameFormModal({
           <Button
             type="button"
             variant="ghost"
-            className="!px-2"
+            className="!px-2 shrink-0"
             onClick={coverPickerOpen ? () => setCoverPickerOpen(false) : onClose}
             aria-label={coverPickerOpen ? 'Retour au formulaire' : 'Fermer'}
           >
@@ -405,7 +450,7 @@ export function GameFormModal({
         </div>
 
         {coverPickerOpen ? (
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-line px-4 py-3 sm:px-6">
               {form.cover ? (
                 <img
@@ -447,7 +492,7 @@ export function GameFormModal({
               </div>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
+            <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
               {coverSearching && coverResults.length === 0 ? (
                 <p className="text-sm text-ink-muted">Chargement des jaquettes…</p>
               ) : coverResults.length > 0 ? (
@@ -492,7 +537,7 @@ export function GameFormModal({
             </div>
           </div>
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
             {!initial ? (
               <div className="mb-5 space-y-2">
                 <Field label="Recherche catalogue">
@@ -505,7 +550,7 @@ export function GameFormModal({
                     }}
                     className="field"
                     placeholder="Ex. Streets of Rage 2"
-                    autoFocus
+                    autoFocus={focusSearch}
                     autoCapitalize="off"
                     autoCorrect="off"
                     spellCheck={false}
@@ -552,7 +597,7 @@ export function GameFormModal({
               </div>
             ) : null}
 
-            <div className="grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
+            <div className="grid min-w-0 gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
               <div className="rounded-xl border border-line bg-bg/60 p-3">
                 <div className="flex gap-4 lg:flex-col lg:gap-3">
                   {form.cover ? (
@@ -592,7 +637,7 @@ export function GameFormModal({
                 </div>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="min-w-0 space-y-2.5">
                 {initial || form.name ? (
                   <Field label="Nom">
                     <input
@@ -905,7 +950,7 @@ export function GameFormModal({
           </div>
         )}
 
-        <div className="flex shrink-0 justify-end gap-2 border-t border-line bg-surface-elevated/95 px-4 py-3 backdrop-blur-md sm:px-6">
+        <div className="sticky bottom-0 z-10 flex shrink-0 flex-wrap justify-end gap-2 border-t border-line bg-surface-elevated/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:px-6">
           {coverPickerOpen ? (
             <Button
               type="button"
@@ -929,13 +974,14 @@ export function GameFormModal({
           )}
         </div>
       </form>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block space-y-1">
+    <label className="block min-w-0 space-y-1">
       <span className="text-xs font-medium tracking-wide text-ink-muted uppercase">
         {label}
       </span>
