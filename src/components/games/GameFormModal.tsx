@@ -13,7 +13,6 @@ import {
   CONDITION_LABELS,
   DEFAULT_PRIORITY,
   EDITION_LABELS,
-  GENRE_OPTIONS,
   GENRES,
   genreLabel,
   PRIORITY_LABELS,
@@ -74,25 +73,20 @@ function coverSourceLabel(source: 'igdb' | 'libretro' | 'rawg' | null, hasCover:
 
 function GenreChip({
   id,
-  selected,
-  onToggle,
+  onRemove,
 }: {
   id: string
-  selected: boolean
-  onToggle: (id: string) => void
+  onRemove: (id: string) => void
 }) {
   return (
     <button
       type="button"
-      aria-pressed={selected}
-      onClick={() => onToggle(id)}
-      className={`rounded-full border px-2.5 py-1 text-xs transition ${
-        selected
-          ? 'border-accent bg-accent text-bg'
-          : 'border-line text-ink-muted hover:text-ink'
-      }`}
+      onClick={() => onRemove(id)}
+      aria-label={`Retirer ${genreLabel(id)}`}
+      className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent px-2.5 py-1 text-xs text-bg transition hover:opacity-85"
     >
       {genreLabel(id)}
+      <span aria-hidden>×</span>
     </button>
   )
 }
@@ -762,35 +756,47 @@ export function GameFormModal({
                   </Field>
                 </div>
 
-                <fieldset className="space-y-2">
-                  <legend className="text-xs font-medium tracking-wide text-ink-muted uppercase">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="game-genre-select"
+                    className="text-xs font-medium tracking-wide text-ink-muted uppercase"
+                  >
                     Genres
-                  </legend>
-                  {[...new Set(GENRES.map((g) => g.group))].map((group) => (
-                    <div key={group} className="space-y-1">
-                      <p className="text-[0.7rem] text-ink-muted">{group}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {GENRES.filter((g) => g.group === group).map((genre) => (
-                          <GenreChip
-                            key={genre.id}
-                            id={genre.id}
-                            selected={(form.genres ?? []).includes(genre.id)}
-                            onToggle={toggleGenre}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  {(form.genres ?? []).some((g) => !GENRE_OPTIONS.includes(g)) ? (
+                  </label>
+                  {(form.genres ?? []).length > 0 ? (
                     <div className="flex flex-wrap gap-1.5">
-                      {(form.genres ?? [])
-                        .filter((g) => !GENRE_OPTIONS.includes(g))
-                        .map((id) => (
-                          <GenreChip key={id} id={id} selected onToggle={toggleGenre} />
-                        ))}
+                      {(form.genres ?? []).map((id) => (
+                        <GenreChip key={id} id={id} onRemove={toggleGenre} />
+                      ))}
                     </div>
                   ) : null}
-                </fieldset>
+                  <select
+                    id="game-genre-select"
+                    className="field"
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) toggleGenre(e.target.value)
+                    }}
+                  >
+                    <option value="">Ajouter un genre…</option>
+                    {[...new Set(GENRES.map((g) => g.group))].map((group) => {
+                      const available = GENRES.filter(
+                        (g) =>
+                          g.group === group && !(form.genres ?? []).includes(g.id),
+                      )
+                      if (!available.length) return null
+                      return (
+                        <optgroup key={group} label={group}>
+                          {available.map((g) => (
+                            <option key={g.id} value={g.id}>
+                              {g.label}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )
+                    })}
+                  </select>
+                </div>
 
                 <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
                   <fieldset className="space-y-1.5 sm:col-span-2 xl:col-span-1">
