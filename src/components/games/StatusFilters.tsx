@@ -6,10 +6,17 @@ import type {
   EditionFilter,
   FavoriteFilter,
   FormatFilter,
+  GenreFilter,
   SortKey,
   StatusFilter,
 } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS, STATUS_LABELS } from '@/types'
+import {
+  CONDITION_LABELS,
+  EDITION_LABELS,
+  GENRES,
+  STATUS_LABELS,
+  UNCLASSIFIED_GENRE,
+} from '@/types'
 import { useVisualFrame, visualFrameStyle } from '@/lib/useVisualFrame'
 import { Button } from '@/components/ui/Button'
 import { FavoriteButton } from '@/components/games/gameActions'
@@ -24,6 +31,8 @@ type Props = {
   onConditionChange: (value: ConditionFilter) => void
   edition: EditionFilter
   onEditionChange: (value: EditionFilter) => void
+  genre: GenreFilter
+  onGenreChange: (value: GenreFilter) => void
   favorite: FavoriteFilter
   onFavoriteChange: (value: FavoriteFilter) => void
   showPrioritySort: boolean
@@ -50,7 +59,7 @@ function FilterSelect({
   value: string
   onChange: (value: string) => void
   disabled?: boolean
-  options: { id: string; label: string }[]
+  options: { id: string; label: string; group?: string }[]
   stacked?: boolean
 }) {
   return (
@@ -77,11 +86,26 @@ function FilterSelect({
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
       >
-        {options.map((opt) => (
-          <option key={opt.id} value={opt.id}>
-            {opt.label}
-          </option>
-        ))}
+        {options
+          .filter((opt) => !opt.group)
+          .map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
+          ))}
+        {[...new Set(options.map((opt) => opt.group).filter(Boolean))].map(
+          (group) => (
+            <optgroup key={group} label={group}>
+              {options
+                .filter((opt) => opt.group === group)
+                .map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.label}
+                  </option>
+                ))}
+            </optgroup>
+          ),
+        )}
       </select>
     </label>
   )
@@ -106,6 +130,7 @@ function activeFilterCount({
   format,
   condition,
   edition,
+  genre,
   favorite,
   sort,
   hardware,
@@ -116,6 +141,7 @@ function activeFilterCount({
   | 'format'
   | 'condition'
   | 'edition'
+  | 'genre'
   | 'favorite'
   | 'sort'
   | 'hardware'
@@ -126,6 +152,7 @@ function activeFilterCount({
   if (format !== 'all') count += 1
   if (!wishlist && format !== 'digital' && condition !== 'all') count += 1
   if (edition !== 'all') count += 1
+  if (genre !== 'all') count += 1
   if (!wishlist && favorite === 'yes') count += 1
   const defaultSort: SortKey = wishlist ? 'priority' : 'name'
   if (sort !== defaultSort) count += 1
@@ -142,6 +169,8 @@ export function StatusFilters({
   onConditionChange,
   edition,
   onEditionChange,
+  genre,
+  onGenreChange,
   favorite,
   onFavoriteChange,
   showPrioritySort,
@@ -163,6 +192,7 @@ export function StatusFilters({
     format,
     condition,
     edition,
+    genre,
     favorite,
     sort,
     hardware,
@@ -197,6 +227,11 @@ export function StatusFilters({
   const editionOptions = [
     { id: 'all', label: 'Toutes' },
     ...Object.entries(EDITION_LABELS).map(([id, label]) => ({ id, label })),
+  ]
+  const genreOptions = [
+    { id: 'all', label: 'Tous' },
+    ...GENRES.map((g) => ({ id: g.id, label: g.label, group: g.group })),
+    { id: UNCLASSIFIED_GENRE, label: 'Non classé' },
   ]
 
   return (
@@ -277,6 +312,16 @@ export function StatusFilters({
           }))}
         />
 
+        <FilterSelect
+          label="Genre"
+          value={genre}
+          onChange={onGenreChange}
+          options={genreOptions.map((opt) => ({
+            ...opt,
+            label: opt.id === 'all' ? 'Genre : tous' : `Genre : ${opt.label}`,
+          }))}
+        />
+
         {!wishlist ? (
           <FavoriteButton
             favorite={favoritesOnly}
@@ -300,6 +345,8 @@ export function StatusFilters({
           onConditionChange={onConditionChange}
           edition={edition}
           onEditionChange={onEditionChange}
+          genre={genre}
+          onGenreChange={onGenreChange}
           favorite={favorite}
           onFavoriteChange={onFavoriteChange}
           sort={sort}
@@ -309,6 +356,7 @@ export function StatusFilters({
           formatOptions={formatOptions}
           conditionOptions={conditionOptions}
           editionOptions={editionOptions}
+          genreOptions={genreOptions}
           consoles={consoles}
           hardware={hardware}
           onHardwareChange={onHardwareChange}
@@ -334,6 +382,8 @@ function FilterSheet({
   onConditionChange,
   edition,
   onEditionChange,
+  genre,
+  onGenreChange,
   favorite,
   onFavoriteChange,
   sort,
@@ -343,6 +393,7 @@ function FilterSheet({
   formatOptions,
   conditionOptions,
   editionOptions,
+  genreOptions,
   consoles,
   hardware,
   onHardwareChange,
@@ -359,6 +410,8 @@ function FilterSheet({
   onConditionChange: (value: ConditionFilter) => void
   edition: EditionFilter
   onEditionChange: (value: EditionFilter) => void
+  genre: GenreFilter
+  onGenreChange: (value: GenreFilter) => void
   favorite: FavoriteFilter
   onFavoriteChange: (value: FavoriteFilter) => void
   sort: SortKey
@@ -368,6 +421,7 @@ function FilterSheet({
   formatOptions: { id: string; label: string }[]
   conditionOptions: { id: string; label: string }[]
   editionOptions: { id: string; label: string }[]
+  genreOptions: { id: string; label: string; group?: string }[]
   consoles: ConsoleItem[]
   hardware: string | null
   onHardwareChange: (name: string | null) => void
@@ -493,6 +547,13 @@ function FilterSheet({
             value={edition}
             onChange={(v) => onEditionChange(v as EditionFilter)}
             options={editionOptions}
+          />
+          <FilterSelect
+            stacked
+            label="Genre"
+            value={genre}
+            onChange={onGenreChange}
+            options={genreOptions}
           />
           {!wishlist ? (
             <button

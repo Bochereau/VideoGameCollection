@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb'
 import { requireUserId } from '../_lib/auth.js'
 import { clearClaim, reservedIdSet } from '../_lib/claims.js'
 import { connectToDatabase, handleOptions } from '../_lib/db.js'
+import { parseGenres } from '../_lib/genres.js'
 import {
   errorResponse,
   json,
@@ -14,7 +15,8 @@ function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
 }
 
-const CONDITIONS = new Set(['complete', 'box', 'manual', 'loose', 'none'])
+const UNCLASSIFIED_GENRE = '__none__'
+const CONDITIONS =new Set(['complete', 'box', 'manual', 'loose', 'none'])
 const EDITIONS = new Set(['standard', 'steelbook', 'special', 'deluxe', 'collector'])
 
 function parsePriority(value) {
@@ -233,6 +235,18 @@ export default async function handler(req, res) {
         and.push(editionFilterClause(req.query.edition))
       }
 
+      // Genres (séparés par des virgules) : le jeu doit avoir au moins l'un d'eux
+      if (typeof req.query.genre === 'string' && req.query.genre.trim()) {
+        const wanted = parseGenres(req.query.genre.split(','))
+        const clauses = []
+        const named = wanted.filter((g) => g !== UNCLASSIFIED_GENRE)
+        if (named.length) clauses.push({ genres: { $in: named } })
+        if (wanted.includes(UNCLASSIFIED_GENRE)) {
+          clauses.push({ genres: { $exists: false } }, { genres: { $size: 0 } })
+        }
+        if (clauses.length) and.push({ $or: clauses })
+      }
+
       if (typeof req.query.q === 'string' && req.query.q.trim()) {
         const term = req.query.q.trim()
         and.push({
@@ -314,6 +328,7 @@ export default async function handler(req, res) {
         cover: body?.cover ? String(body.cover) : null,
         igdbId: body?.igdbId != null ? Number(body.igdbId) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
+        genres: parseGenres(body?.genres),
         ...copy,
         createdAt: now,
         updatedAt: now,
@@ -421,6 +436,8 @@ export default async function handler(req, res) {
       if (body?.rawgId !== undefined) {
         $set.rawgId = body.rawgId != null ? Number(body.rawgId) : null
       }
+
+      if (body?.genres !== undefined) $set.genres = parseGenres(body.genres)
 
       if (
         body?.format !== undefined ||

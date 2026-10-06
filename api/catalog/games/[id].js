@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     const data = await igdbQuery(
       'games',
-      `fields name, first_release_date, cover.image_id, platforms.name, involved_companies.company.name, involved_companies.developer, involved_companies.publisher, category, game_type.type; where id = ${id};`,
+      `fields name, first_release_date, cover.image_id, platforms.name, involved_companies.company.name, involved_companies.developer, involved_companies.publisher, category, game_type.type, genres.name, themes.name; where id = ${id};`,
     )
 
     const g = Array.isArray(data) ? data[0] : null

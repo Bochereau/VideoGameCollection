@@ -63,6 +63,7 @@ function toQuery(params: GamesQuery): string {
   if (params.q) search.set('q', params.q)
   if (params.nameExact) search.set('nameExact', params.nameExact)
   if (params.format) search.set('format', params.format)
+  if (params.genre) search.set('genre', params.genre)
   if (params.condition) search.set('condition', params.condition)
   if (params.edition) search.set('edition', params.edition)
   const qs = search.toString()

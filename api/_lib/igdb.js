@@ -1,3 +1,5 @@
+import { mapIgdbToVgcGenres } from './genres.js'
+
 const TWITCH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token'
 const IGDB_BASE = 'https://api.igdb.com/v4'
 
@@ -113,7 +115,7 @@ export function pickCompanies(involved = []) {
 }
 
 const GAME_FIELDS =
-  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating, version_parent, version_title, category, game_type.type'
+  'name, first_release_date, cover.image_id, platforms.name, aggregated_rating, rating, version_parent, version_title, category, game_type.type, genres.name, themes.name'
 
 export function hardwareKey(value) {
   return String(value || '')
@@ -717,5 +719,10 @@ export function mapIgdbGameDetails(g) {
     ...mapIgdbGame(g),
     developer: companies.developer,
     editor: companies.editor,
+    genres: mapIgdbGenres(g),
   }
+}
+
+export function mapIgdbGenres(g) {
+  return mapIgdbToVgcGenres(g)
 }

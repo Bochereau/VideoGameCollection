@@ -19,6 +19,7 @@ function toGame(game: PublicWishlistGame): Game {
     wishlist: true,
     favorite: false,
     condition: 'none',
+    genres: [],
   }
 }
 

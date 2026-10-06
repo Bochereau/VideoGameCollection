@@ -77,6 +77,7 @@ export function serializeGame(doc) {
     cover: doc.cover ?? null,
     igdbId: doc.igdbId ?? null,
     rawgId: doc.rawgId ?? null,
+    genres: Array.isArray(doc.genres) ? doc.genres : [],
     format,
     condition,
     edition: resolveEdition(doc),

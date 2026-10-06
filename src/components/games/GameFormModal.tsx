@@ -13,6 +13,9 @@ import {
   CONDITION_LABELS,
   DEFAULT_PRIORITY,
   EDITION_LABELS,
+  GENRE_OPTIONS,
+  GENRES,
+  genreLabel,
   PRIORITY_LABELS,
   STATUS_LABELS,
 } from '@/types'
@@ -45,6 +48,7 @@ const empty: GameInput = {
   cover: null,
   igdbId: null,
   rawgId: null,
+  genres: [],
   format: 'physical',
   condition: 'none',
   edition: 'standard',
@@ -66,6 +70,31 @@ function coverSourceLabel(source: 'igdb' | 'libretro' | 'rawg' | null, hasCover:
   if (source === 'igdb') return 'Jaquette IGDB'
   if (hasCover) return 'Jaquette'
   return 'Aucune jaquette'
+}
+
+function GenreChip({
+  id,
+  selected,
+  onToggle,
+}: {
+  id: string
+  selected: boolean
+  onToggle: (id: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={() => onToggle(id)}
+      className={`rounded-full border px-2.5 py-1 text-xs transition ${
+        selected
+          ? 'border-accent bg-accent text-bg'
+          : 'border-line text-ink-muted hover:text-ink'
+      }`}
+    >
+      {genreLabel(id)}
+    </button>
+  )
 }
 
 function matchSavedConsole(platforms: string[], saved: string[]): string | null {
@@ -140,6 +169,7 @@ export function GameFormModal({
         cover: initial.cover ?? null,
         igdbId: initial.igdbId ?? null,
         rawgId: initial.rawgId ?? null,
+        genres: initial.genres ?? [],
         format: initial.format ?? 'physical',
         condition: initial.condition ?? 'none',
         edition: initial.edition ?? 'standard',
@@ -219,6 +249,18 @@ export function GameFormModal({
 
   if (!open) return null
 
+  function toggleGenre(id: string) {
+    setForm((f) => {
+      const current = f.genres ?? []
+      return {
+        ...f,
+        genres: current.includes(id)
+          ? current.filter((g) => g !== id)
+          : [...current, id],
+      }
+    })
+  }
+
   function applyHardwareChoice(choice: string, custom: string) {
     const hardware = choice === OTHER ? custom.trim() : choice
     setForm((f) => ({ ...f, hardware }))
@@ -253,6 +295,7 @@ export function GameFormModal({
           release: details.release,
           cover: details.cover,
           igdbId: details.igdbId,
+          genres: details.genres ?? [],
         }))
       } else {
         const fallback = platformList[0] || ''
@@ -267,6 +310,7 @@ export function GameFormModal({
           release: details.release,
           cover: details.cover,
           igdbId: details.igdbId,
+          genres: details.genres ?? [],
         }))
       }
 
@@ -717,6 +761,36 @@ export function GameFormModal({
                     />
                   </Field>
                 </div>
+
+                <fieldset className="space-y-2">
+                  <legend className="text-xs font-medium tracking-wide text-ink-muted uppercase">
+                    Genres
+                  </legend>
+                  {[...new Set(GENRES.map((g) => g.group))].map((group) => (
+                    <div key={group} className="space-y-1">
+                      <p className="text-[0.7rem] text-ink-muted">{group}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {GENRES.filter((g) => g.group === group).map((genre) => (
+                          <GenreChip
+                            key={genre.id}
+                            id={genre.id}
+                            selected={(form.genres ?? []).includes(genre.id)}
+                            onToggle={toggleGenre}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {(form.genres ?? []).some((g) => !GENRE_OPTIONS.includes(g)) ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {(form.genres ?? [])
+                        .filter((g) => !GENRE_OPTIONS.includes(g))
+                        .map((id) => (
+                          <GenreChip key={id} id={id} selected onToggle={toggleGenre} />
+                        ))}
+                    </div>
+                  ) : null}
+                </fieldset>
 
                 <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
                   <fieldset className="space-y-1.5 sm:col-span-2 xl:col-span-1">

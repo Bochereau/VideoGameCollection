@@ -1,0 +1,1013 @@
+{
+ "1000xResist": [
+  "adventure",
+  "narrative"
+ ],
+ "13 Sentinels: Aegis Rim": [
+  "visual-novel"
+ ],
+ "3D Dot Game Heroes": [
+  "action-adventure"
+ ],
+ "ABZU": [
+  "adventure"
+ ],
+ "Aladdin": [
+  "platformer"
+ ],
+ "Animal Well": [
+  "metroidvania",
+  "knowledgevania",
+  "puzzle"
+ ],
+ "Assassin's Creed": [
+  "action-adventure"
+ ],
+ "Astral Chain": [
+  "action-adventure"
+ ],
+ "Astro Bot": [
+  "platformer"
+ ],
+ "Astro's Playroom": [
+  "platformer"
+ ],
+ "Atlantis: The Lost Tales": [
+  "point-and-click"
+ ],
+ "Baten Kaitos : Les ailes éternelles et l'océan perdu": [
+  "jrpg"
+ ],
+ "Baten Kaitos Origins": [
+  "jrpg"
+ ],
+ "Batman: Arkham Asylum": [
+  "action-adventure"
+ ],
+ "Beyond Good & Evil": [
+  "action-adventure"
+ ],
+ "BioShock": [
+  "fps",
+  "immersive-sim"
+ ],
+ "BioShock Infinite": [
+  "fps"
+ ],
+ "Bloodborne": [
+  "action-rpg",
+  "souls-like"
+ ],
+ "Braid": [
+  "platformer",
+  "puzzle"
+ ],
+ "Brothers: A Tale of Two Sons": [
+  "adventure",
+  "puzzle"
+ ],
+ "Cairn": [
+  "action-aventure"
+ ],
+ "Castlevania: Lords of Shadow": [
+  "beat-em-up"
+ ],
+ "Chants of Sennaar": [
+  "puzzle",
+  "adventure"
+ ],
+ "Child of Light": [
+  "jrpg"
+ ],
+ "Chrono Cross": [
+  "jrpg"
+ ],
+ "Clair Obscur: Expedition 33": [
+  "jrpg"
+ ],
+ "Cocoon": [
+  "puzzle",
+  "adventure"
+ ],
+ "Collection of Mana": [
+  "action-rpg"
+ ],
+ "Crash Team Racing Nitro-Fueled": [
+  "kart-racing"
+ ],
+ "Crazy Taxi": [
+  "arcade",
+  "racing"
+ ],
+ "DRAGON QUEST XI S: Echoes of an Elusive Age": [
+  "jrpg"
+ ],
+ "Dark Souls": [
+  "action-rpg",
+  "souls-like"
+ ],
+ "Darksiders": [
+  "action-adventure",
+  "beat-em-up"
+ ],
+ "Deadly Creatures": [
+  "action-adventure"
+ ],
+ "Death Stranding": [
+  "action-adventure",
+  "horror"
+ ],
+ "Death Stranding 2: On The Beach": [
+  "action-adventure",
+  "horror"
+ ],
+ "Demon's Souls": [
+  "action-rpg",
+  "souls-like"
+ ],
+ "Detroit: Become Human": [
+  "narrative"
+ ],
+ "Deus Ex: Human Revolution": [
+  "immersive-sim",
+  "action-rpg",
+  "stealth"
+ ],
+ "Dirge of Cerberus: Final Fantasy VII": [
+  "tps"
+ ],
+ "Dishonored": [
+  "immersive-sim",
+  "stealth"
+ ],
+ "Dragon Quest I & II HD-2D Remake": [
+  "jrpg"
+ ],
+ "Dragon Quest III HD-2D Remake": [
+  "jrpg"
+ ],
+ "Dragon Quest VIII - L'odyssée du roi maudit": [
+  "jrpg"
+ ],
+ "Dragon's Crown Pro": [
+  "beat-em-up",
+  "action-rpg"
+ ],
+ "Drakengard": [
+  "hack-and-slash",
+  "action-rpg"
+ ],
+ "Elden Ring": [
+  "action-rpg",
+  "souls-like"
+ ],
+ "Enslaved: Odyssey to the West": [
+  "action-adventure",
+  "platformer"
+ ],
+ "F-Zero GX": [
+  "racing"
+ ],
+ "FEZ": [
+  "platformer",
+  "puzzle"
+ ],
+ "FINAL FANTASY X/X-2 HD Remaster": [
+  "jrpg"
+ ],
+ "FINAL FANTASY XIV: A Realm Reborn": [
+  "mmorpg"
+ ],
+ "Fantasian": [
+  "jrpg"
+ ],
+ "Final Fantasy 6 (VI)": [
+  "jrpg"
+ ],
+ "Final Fantasy 7 (VII)": [
+  "jrpg"
+ ],
+ "Final Fantasy 8 (VIII)": [
+  "jrpg"
+ ],
+ "Final Fantasy 9 (IX)": [
+  "jrpg"
+ ],
+ "Final Fantasy Anthology (IV & V)": [
+  "jrpg"
+ ],
+ "Final Fantasy I & II: Dawn of Souls": [
+  "jrpg"
+ ],
+ "Final Fantasy IV": [
+  "jrpg"
+ ],
+ "Final Fantasy Origins (I & II)": [
+  "jrpg"
+ ],
+ "Final Fantasy Tactics - The Ivalice Chronicles": [
+  "tactical-rpg"
+ ],
+ "Final Fantasy Tactics Advance": [
+  "tactical-rpg"
+ ],
+ "Final Fantasy VII Rebirth": [
+  "jrpg"
+ ],
+ "Final Fantasy VII Remake": [
+  "jrpg"
+ ],
+ "Final Fantasy VII: Revelation": [
+  "jrpg"
+ ],
+ "Final Fantasy X": [
+  "jrpg"
+ ],
+ "Final Fantasy X-2": [
+  "jrpg"
+ ],
+ "Final Fantasy XII": [
+  "jrpg"
+ ],
+ "Final Fantasy XII: The Zodiac Age": [
+  "jrpg"
+ ],
+ "Final Fantasy XIII": [
+  "jrpg"
+ ],
+ "Final Fantasy XIII-2": [
+  "jrpg"
+ ],
+ "Final Fantasy XV": [
+  "action-rpg"
+ ],
+ "Final Fantasy XVI": [
+  "action-rpg"
+ ],
+ "Fire Emblem: Path of Radiance": [
+  "tactical-rpg"
+ ],
+ "Fire Emblem: Radiant Dawn": [
+  "tactical-rpg"
+ ],
+ "Flower": [
+  "adventure",
+  "walking-sim"
+ ],
+ "Fragile Dreams : Farewell Ruins of the Moon": [
+  "action-rpg"
+ ],
+ "From Dust": [
+  "simulation",
+  "puzzle"
+ ],
+ "God of War": [
+  "action-adventure",
+  "beat-em-up"
+ ],
+ "God of War III": [
+  "action-adventure",
+  "beat-em-up"
+ ],
+ "Golden Sun": [
+  "jrpg"
+ ],
+ "Golden Sun: The Lost Age": [
+  "jrpg"
+ ],
+ "Grand Theft Auto IV": [
+  "action-adventure",
+  "tps"
+ ],
+ "Grandia": [
+  "jrpg"
+ ],
+ "Grandia II": [
+  "jrpg"
+ ],
+ "Gravity Rush 2": [
+  "action-adventure"
+ ],
+ "Gravity Rush Remastered": [
+  "action-adventure"
+ ],
+ "Hogwarts Legacy": [
+  "action-rpg"
+ ],
+ "Hollow Knight": [
+  "metroidvania"
+ ],
+ "Hollow Knight: Silksong": [
+  "metroidvania"
+ ],
+ "Horizon Zero Dawn": [
+  "action-adventure"
+ ],
+ "Hotline Miami": [
+  "action",
+  "arcade"
+ ],
+ "Humanity": [
+  "puzzle"
+ ],
+ "Hyrule Warriors: Les Chroniques du Sceau": [
+  "hack-and-slash"
+ ],
+ "ICO & Shadow of the Colossus - Classic HD": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "INSIDE": [
+  "platformer",
+  "puzzle"
+ ],
+ "Ico": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "It Takes Two": [
+  "platformer",
+  "adventure",
+  "duo"
+ ],
+ "Jade Cocoon: Story of the Tamamayu": [
+  "jrpg"
+ ],
+ "Jet Set Radio": [
+  "action",
+  "arcade"
+ ],
+ "Journey": [
+  "adventure",
+  "walking-sim"
+ ],
+ "Keeper": [
+  "adventure",
+  "puzzle"
+ ],
+ "Kena: Bridge of Spirits": [
+  "action-adventure"
+ ],
+ "Kingdom Hearts": [
+  "action-rpg"
+ ],
+ "Kingdom Hearts HD 1.5 ReMIX": [
+  "action-rpg",
+  "compilation"
+ ],
+ "Kingdom Hearts HD 2.5 ReMIX": [
+  "action-rpg",
+  "compilation"
+ ],
+ "Kingdom Hearts HD 2.8 Final Chapter Prologue": [
+  "action-rpg"
+ ],
+ "Kingdom Hearts II": [
+  "action-rpg"
+ ],
+ "Kingdom Hearts III": [
+  "action-rpg"
+ ],
+ "Kingdom Hearts IV": [
+  "action-rpg"
+ ],
+ "Kingdom Hearts: Chain of Memories": [
+  "action-rpg",
+  "board-card"
+ ],
+ "Kingdom Hearts: Melody of Memory": [
+  "rhythm"
+ ],
+ "Kirby et le monde oublié": [
+  "adventure",
+  "platformer"
+ ],
+ "LEGO Jurassic World": [
+  "action-adventure",
+  "duo"
+ ],
+ "LEGO Star Wars: The Force Awakens": [
+  "action-adventure",
+  "duo"
+ ],
+ "LEGO The Hobbit": [
+  "action-adventure",
+  "duo"
+ ],
+ "LEGO The Lord of the Rings": [
+  "action-adventure",
+  "duo"
+ ],
+ "LIGHTNING RETURNS: FINAL FANTASY XIII": [
+  "jrpg"
+ ],
+ "LUNAR Remastered Collection": [
+  "jrpg"
+ ],
+ "La légende de thor": [
+  "action-rpg"
+ ],
+ "Lara Croft and the Guardian of Light": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "Le Roi Lion": [
+  "platformer"
+ ],
+ "Life is Strange": [
+  "narrative"
+ ],
+ "Limbo": [
+  "platformer",
+  "puzzle"
+ ],
+ "LittleBigPlanet": [
+  "platformer"
+ ],
+ "LittleBigPlanet 2": [
+  "platformer"
+ ],
+ "Live A Live": [
+  "jrpg"
+ ],
+ "Lorelei and the Laser Eyes": [
+  "knowledgevania",
+  "puzzle",
+  "horror"
+ ],
+ "Lost Odyssey": [
+  "jrpg"
+ ],
+ "Luigi's Mansion 3": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "Machinarium": [
+  "point-and-click",
+  "puzzle"
+ ],
+ "MadWorld": [
+  "beat-em-up"
+ ],
+ "Majin and the Forsaken Kingdom": [
+  "action-adventure"
+ ],
+ "Mario + Rabbids Kingdom Battle": [
+  "tactical"
+ ],
+ "Mass Effect Trilogy": [
+  "action-rpg",
+  "tps"
+ ],
+ "Metal Gear Rising: Revengeance": [
+  "beat-em-up"
+ ],
+ "Metal Gear Solid": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid 2": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid 3": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid 4: Guns of the Patriots": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid Delta: Snake Eater": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid V: Ground Zeroes": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid V: The Phantom Pain": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metal Gear Solid: The Legacy Collection": [
+  "stealth",
+  "compilation"
+ ],
+ "Metal Gear Solid: The Twin Snakes": [
+  "stealth",
+  "action-adventure"
+ ],
+ "Metroid Dread": [
+  "metroidvania"
+ ],
+ "Metroid Prime Remastered": [
+  "fps",
+  "metroidvania"
+ ],
+ "Metroid Prime: Trilogy": [
+  "fps",
+  "metroidvania",
+  "compilation"
+ ],
+ "Metroid: Other M": [
+  "metroidvania"
+ ],
+ "Mirror's Edge": [
+  "action-adventure",
+  "platformer"
+ ],
+ "Mirror's Edge Catalyst": [
+  "action-adventure",
+  "platformer"
+ ],
+ "Mixtape": [
+  "narrative",
+  "walking-sim"
+ ],
+ "MotorStorm: Pacific Rift": [
+  "racing"
+ ],
+ "Muramasa: The Demon Blade": [
+  "action-rpg",
+  "beat-em-up"
+ ],
+ "Need For Speed: Most Wanted": [
+  "racing"
+ ],
+ "Need for Speed: Underground 2": [
+  "racing"
+ ],
+ "Ni no Kuni : Wrath of the White Witch": [
+  "jrpg"
+ ],
+ "Ni no Kuni II: Revenant Kingdom": [
+  "action-rpg"
+ ],
+ "NieR": [
+  "action-rpg"
+ ],
+ "NieR Replicant v1.22474487139...": [
+  "action-rpg"
+ ],
+ "NieR:Automata": [
+  "action-rpg"
+ ],
+ "No Man's Sky": [
+  "survival",
+  "sandbox"
+ ],
+ "OKAMI HD": [
+  "action-adventure"
+ ],
+ "Octopath Traveler": [
+  "jrpg"
+ ],
+ "Octopath Traveler 2": [
+  "jrpg"
+ ],
+ "Odin Sphere Leifthrasir": [
+  "action-rpg"
+ ],
+ "Okami": [
+  "action-adventure"
+ ],
+ "Ori and the Blind Forest: Definitive Edition": [
+  "metroidvania"
+ ],
+ "Ori and the Will of the Wisps": [
+  "metroidvania"
+ ],
+ "Outer Wilds": [
+  "knowledgevania",
+  "puzzle"
+ ],
+ "Pandora's Tower": [
+  "action-rpg"
+ ],
+ "Panzer Dragoon: Remake": [
+  "shoot-em-up"
+ ],
+ "Paprium": [
+  "beat-em-up"
+ ],
+ "Parasite Eve": [
+  "rpg",
+  "survival-horror"
+ ],
+ "Phantasy Star II": [
+  "jrpg"
+ ],
+ "Pier Solar and the Great Architects": [
+  "jrpg"
+ ],
+ "Pokémon Cristal": [
+  "jrpg"
+ ],
+ "Pokémon Jaune": [
+  "jrpg"
+ ],
+ "Pokémon Legends: Arceus": [
+  "action-rpg"
+ ],
+ "Pokémon Or": [
+  "jrpg"
+ ],
+ "Pokémon Saphir": [
+  "jrpg"
+ ],
+ "Portal 2": [
+  "puzzle",
+  "fps"
+ ],
+ "Prince of Persia": [
+  "action-adventure",
+  "platformer"
+ ],
+ "Prince of Persia: The Lost Crown": [
+  "metroidvania"
+ ],
+ "Puppeteer": [
+  "platformer"
+ ],
+ "Rain": [
+  "adventure",
+  "puzzle"
+ ],
+ "Reanimal": [
+  "adventure",
+  "horror"
+ ],
+ "Remember Me": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "Resonance of Fate": [
+  "jrpg"
+ ],
+ "Returnal": [
+  "tps",
+  "roguelike"
+ ],
+ "Rez": [
+  "shoot-em-up",
+  "rhythm"
+ ],
+ "Rez Infinite": [
+  "shoot-em-up",
+  "rhythm"
+ ],
+ "RiME": [
+  "adventure",
+  "puzzle"
+ ],
+ "Ring Fit Adventure": [
+  "fitness"
+ ],
+ "SaGa Frontier 2": [
+  "jrpg"
+ ],
+ "Sackboy: A Big Adventure": [
+  "platformer",
+  "duo"
+ ],
+ "Saros": [
+  "tps",
+  "roguelike"
+ ],
+ "Sea of Stars": [
+  "jrpg"
+ ],
+ "Shadow Hearts": [
+  "jrpg"
+ ],
+ "Shadow Hearts: Covenant": [
+  "jrpg"
+ ],
+ "Shadow of the Colossus": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "Shenmue": [
+  "action-adventure"
+ ],
+ "Shenmue II": [
+  "action-adventure"
+ ],
+ "Shenmue III": [
+  "action-adventure"
+ ],
+ "Shin Megami Tensei V": [
+  "jrpg"
+ ],
+ "Shining Force": [
+  "tactical-rpg"
+ ],
+ "Shining Force II": [
+  "tactical-rpg"
+ ],
+ "Silent Hill 2": [
+  "survival-horror"
+ ],
+ "Sin & Punishment: Star Successor": [
+  "shoot-em-up"
+ ],
+ "Skies of Arcadia": [
+  "jrpg"
+ ],
+ "Sly Cooper: Thieves in Time": [
+  "platformer",
+  "stealth"
+ ],
+ "Soleil": [
+  "action-adventure"
+ ],
+ "Sonic Adventure": [
+  "platformer"
+ ],
+ "Sonic Mania": [
+  "platformer"
+ ],
+ "Sonic the Hedgehog": [
+  "platformer"
+ ],
+ "Sonic the Hedgehog 2": [
+  "platformer"
+ ],
+ "Sonic the Hedgehog 3": [
+  "platformer"
+ ],
+ "Split Fiction": [
+  "action-adventure",
+  "duo"
+ ],
+ "Star Ocean: The Second Story R": [
+  "jrpg"
+ ],
+ "Star Wars: Galactic Racer": [
+  "racing"
+ ],
+ "Streets of Rage 2": [
+  "beat-em-up"
+ ],
+ "Streets of Rage 4": [
+  "beat-em-up"
+ ],
+ "Suikoden I & II HD Remaster: Gate Rune and Dunan Unification Wars": [
+  "jrpg"
+ ],
+ "Suikoden V": [
+  "jrpg"
+ ],
+ "Super Mario Galaxy": [
+  "platformer"
+ ],
+ "Super Mario Galaxy + Super Mario Galaxy 2": [
+  "platformer"
+ ],
+ "Superliminal": [
+  "puzzle"
+ ],
+ "Sword of Mana": [
+  "action-rpg"
+ ],
+ "TRIANGLE STRATEGY": [
+  "tactical-rpg"
+ ],
+ "Tactics Ogre": [
+  "tactical-rpg"
+ ],
+ "Tactics Ogre: Reborn": [
+  "tactical-rpg"
+ ],
+ "The Banner Saga Trilogy": [
+  "tactical-rpg"
+ ],
+ "The Last Campfire": [
+  "adventure",
+  "puzzle"
+ ],
+ "The Last Guardian": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "The Last Of Us": [
+  "action-adventure",
+  "survival-horror"
+ ],
+ "The Last Story": [
+  "action-rpg"
+ ],
+ "The Last of Us Part I": [
+  "action-adventure",
+  "survival-horror"
+ ],
+ "The Last of Us Part II Remastered": [
+  "action-adventure",
+  "survival-horror"
+ ],
+ "The Legend of Dragoon": [
+  "jrpg"
+ ],
+ "The Legend of Zelda: Breath of the Wild": [
+  "action-adventure",
+  "sandbox"
+ ],
+ "The Legend of Zelda: Link's Awakening (2019)": [
+  "action-adventure"
+ ],
+ "The Legend of Zelda: Ocarina of Time": [
+  "action-adventure"
+ ],
+ "The Legend of Zelda: Skyward Sword": [
+  "action-adventure"
+ ],
+ "The Legend of Zelda: Skyward Sword HD": [
+  "action-adventure"
+ ],
+ "The Legend of Zelda: Tears of the Kingdom": [
+  "action-adventure",
+  "sandbox"
+ ],
+ "The Legend of Zelda: Twilight Princess": [
+  "action-adventure"
+ ],
+ "The Orange Box": [
+  "fps",
+  "compilation"
+ ],
+ "The Sly collection": [
+  "platformer",
+  "stealth",
+  "compilation"
+ ],
+ "The Stanley Parable: Ultra Deluxe": [
+  "walking-sim"
+ ],
+ "The Talos Principle": [
+  "puzzle"
+ ],
+ "The Walking Dead: Saison 1": [
+  "narrative"
+ ],
+ "The Witness": [
+  "puzzle",
+  "knowledgevania"
+ ],
+ "Time Crisis: Project Titan": [
+  "tps"
+ ],
+ "Titanfall 2": [
+  "fps"
+ ],
+ "Trine": [
+  "platformer",
+  "puzzle"
+ ],
+ "Trine 2": [
+  "platformer",
+  "puzzle"
+ ],
+ "Trine 4: The Nightmare Prince": [
+  "platformer",
+  "puzzle"
+ ],
+ "Tunic": [
+  "action-adventure",
+  "knowledgevania"
+ ],
+ "Uncharted 2: Among Thieves": [
+  "action-adventure",
+  "tps"
+ ],
+ "Uncharted 3: Drake's Deception": [
+  "action-adventure",
+  "tps"
+ ],
+ "Uncharted 4: A Thief’s End": [
+  "action-adventure",
+  "tps"
+ ],
+ "Uncharted : Drake's Fortune": [
+  "action-adventure",
+  "tps"
+ ],
+ "Unicorn Overlord": [
+  "tactical-rpg"
+ ],
+ "Unlimited Saga": [
+  "jrpg"
+ ],
+ "Vagrant Story": [
+  "jrpg"
+ ],
+ "Valkyria Chronicles": [
+  "tactical-rpg"
+ ],
+ "Valkyria Chronicles 4": [
+  "tactical-rpg"
+ ],
+ "Valkyrie Profile": [
+  "jrpg"
+ ],
+ "Valkyrie Profile 2: Silmeria": [
+  "jrpg"
+ ],
+ "Voice of Cards: The Isle Dragon Roars": [
+  "jrpg",
+  "board-card"
+ ],
+ "What Remains of Edith Finch": [
+  "adventure",
+  "walking-sim"
+ ],
+ "Wii Sports": [
+  "sport",
+  "party-game"
+ ],
+ "Wild Arms": [
+  "jrpg"
+ ],
+ "Wind and Water: Puzzle Battles": [
+  "puzzle"
+ ],
+ "WipEout HD: Fury": [
+  "racing"
+ ],
+ "WipEout Omega Collection": [
+  "racing"
+ ],
+ "World of final fantasy": [
+  "jrpg"
+ ],
+ "Xenoblade Chronicles": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenoblade Chronicles - Definitive Edition": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenoblade Chronicles 2": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenoblade Chronicles 2: Torna ~ The Golden Country": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenoblade Chronicles 3": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenoblade Chronicles X - Definitive Edition": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenoblade Genesis": [
+  "action-rpg",
+  "jrpg"
+ ],
+ "Xenogears": [
+  "jrpg"
+ ],
+ "Zack & Wiki: Le trésor de Barbaros": [
+  "point-and-click",
+  "puzzle"
+ ],
+ "Zone of the Enders": [
+  "action"
+ ],
+ "Zone of the Enders HD Collection": [
+  "action",
+  "compilation"
+ ],
+ "Zone of the Enders: The 2nd Runner": [
+  "action"
+ ],
+ "de Blob 2": [
+  "platformer",
+  "puzzle"
+ ],
+ "flOw": [
+  "action"
+ ],
+ "inFAMOUS 2": [
+  "action-adventure"
+ ],
+ "inFamous": [
+  "action-adventure"
+ ],
+ "Return of the Obra Dinn": [
+  "puzzle",
+  "knowledgevania"
+ ],
+ "gen ATLAS": [
+  "action-adventure",
+  "puzzle"
+ ],
+ "The lost wild": [
+  "survival",
+  "stealth"
+ ]
+}

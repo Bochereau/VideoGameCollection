@@ -15,6 +15,7 @@ import type {
   EditionFilter,
   FavoriteFilter,
   FormatFilter,
+  GenreFilter,
   Game,
   GameInput,
   GamePriority,
@@ -23,7 +24,13 @@ import type {
   SortKey,
   StatusFilter,
 } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS, STATUS_LABELS } from '@/types'
+import {
+  CONDITION_LABELS,
+  EDITION_LABELS,
+  genreLabel,
+  STATUS_LABELS,
+  UNCLASSIFIED_GENRE,
+} from '@/types'
 
 type Props = {
   wishlist: boolean
@@ -105,6 +112,7 @@ export function GamesPage({
   const conditionFilter =
     (searchParams.get('condition') as ConditionFilter) || 'all'
   const editionFilter = (searchParams.get('edition') as EditionFilter) || 'all'
+  const genreFilter: GenreFilter = searchParams.get('genre') || 'all'
   const favoriteParam = searchParams.get('favorite')
   const favoriteFilter: FavoriteFilter =
     favoriteParam === 'yes' || favoriteParam === 'true' ? 'yes' : 'all'
@@ -134,6 +142,7 @@ export function GamesPage({
       format?: 'physical' | 'digital'
       condition?: 'complete' | 'box' | 'manual' | 'loose' | 'none'
       edition?: 'standard' | 'special' | 'collector' | 'steelbook' | 'deluxe'
+      genre?: string
     } = { wishlist }
     if (hardware) base.hardware = hardware
     if (q) base.q = q
@@ -163,6 +172,7 @@ export function GamesPage({
     ) {
       base.edition = editionFilter
     }
+    if (genreFilter !== 'all') base.genre = genreFilter
     return base
   }, [
     wishlist,
@@ -173,6 +183,7 @@ export function GamesPage({
     formatFilter,
     conditionFilter,
     editionFilter,
+    genreFilter,
   ])
 
   const load = useCallback(async () => {
@@ -252,6 +263,13 @@ export function GamesPage({
     })
   }
 
+  function setGenre(value: GenreFilter) {
+    patchParams((next) => {
+      if (value === 'all') next.delete('genre')
+      else next.set('genre', value)
+    })
+  }
+
   function setHardware(name: string | null) {
     patchParams((next) => {
       if (name) next.set('hardware', name)
@@ -265,6 +283,7 @@ export function GamesPage({
       next.delete('format')
       next.delete('condition')
       next.delete('edition')
+      next.delete('genre')
       next.delete('favorite')
       next.delete('sort')
       next.delete('hardware')
@@ -296,14 +315,15 @@ export function GamesPage({
       priority:
         asWishlist || status === 'todo' ? (data.priority ?? 3) : null,
     }
-    await withToken(async (token) => {
-      if (editing) {
-        await gamesApi.update(token, editing.id, payload)
-      } else {
-        await gamesApi.create(token, payload)
-      }
+    const saved = await withToken(async (token) => {
+      if (editing) return gamesApi.update(token, editing.id, payload)
+      return gamesApi.create(token, payload)
     })
-    await load()
+    if (editing) {
+      setGames((prev) => prev.map((game) => (game.id === saved.id ? saved : game)))
+    } else {
+      await load()
+    }
     await refreshConsoles()
   }
 
@@ -474,6 +494,9 @@ export function GamesPage({
                 {editionFilter !== 'all'
                   ? ` · ${EDITION_LABELS[editionFilter]}`
                   : null}
+                {genreFilter !== 'all'
+                  ? ` · ${genreFilter === UNCLASSIFIED_GENRE ? 'Non classé' : genreLabel(genreFilter)}`
+                  : null}
                 {sortKey === 'priority' ? ' · Priorité' : null}
                 {sortKey === 'year' ? ' · Année' : null}
               </p>
@@ -517,6 +540,8 @@ export function GamesPage({
           onConditionChange={setCondition}
           edition={editionFilter}
           onEditionChange={setEdition}
+          genre={genreFilter}
+          onGenreChange={setGenre}
           favorite={favoriteFilter}
           onFavoriteChange={setFavorite}
           showPrioritySort={showPrioritySort}
