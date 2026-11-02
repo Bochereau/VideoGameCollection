@@ -43,6 +43,8 @@ export interface ConsoleItem {
   name: string
   count: number
   logo?: string | null
+  /** Couleur hexadécimale (#rrggbb) choisie par l'utilisateur */
+  color?: string | null
   igdbId?: number | null
   createdAt?: string
 }
@@ -146,6 +148,7 @@ export type PublicWishlist = {
   ownerName: string
   games: PublicWishlistGame[]
   logos?: Record<string, string>
+  colors?: Record<string, string>
 }
 
 export type TopEntry = {
@@ -295,7 +298,7 @@ export const GENRES: { id: string; label: string; group: GenreGroup }[] = [
   { id: 'puzzle', label: 'Réflexion', group: 'Aventure' },
   { id: 'horror', label: 'Horreur', group: 'Aventure' },
   // RPG
-  { id: 'rpg', label: 'Jeux de rôle (RPG)', group: 'RPG' },
+  { id: 'rpg', label: 'RPG', group: 'RPG' },
   { id: 'action-rpg', label: 'Action-RPG', group: 'RPG' },
   { id: 'jrpg', label: 'J-RPG', group: 'RPG' },
   { id: 'tactical-rpg', label: 'Tactical RPG', group: 'RPG' },

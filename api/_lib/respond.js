@@ -92,6 +92,7 @@ export function serializeConsole(doc, count = 0) {
     name: doc.name,
     count,
     logo: doc.logo || null,
+    color: doc.color || null,
     igdbId: doc.igdbId ?? null,
     createdAt: doc.createdAt,
   }

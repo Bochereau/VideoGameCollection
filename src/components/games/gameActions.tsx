@@ -8,7 +8,14 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import type { Game, GamePriority, GameStatus } from '@/types'
+import type {
+  Game,
+  GameCondition,
+  GameEdition,
+  GameFormat,
+  GamePriority,
+  GameStatus,
+} from '@/types'
 import {
   CONDITION_LABELS,
   EDITION_LABELS,
@@ -17,8 +24,12 @@ import {
   STATUS_LABELS,
 } from '@/types'
 
-export function gameCopyMeta(game: Game) {
-  const format = game.format === 'digital' ? 'digital' : 'physical'
+export function gameCopyMeta(game: Game): {
+  format: GameFormat
+  condition: GameCondition
+  edition: GameEdition
+} {
+  const format: GameFormat = game.format === 'digital' ? 'digital' : 'physical'
   const condition =
     format === 'physical' && game.condition && game.condition in CONDITION_LABELS
       ? game.condition

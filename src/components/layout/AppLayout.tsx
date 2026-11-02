@@ -145,12 +145,23 @@ export function AppLayout() {
     const token = await getToken()
     if (!token) throw new Error('Non authentifié')
     const previous = consoles.find((c) => c.id === id)
-    const updated = await consolesApi.update(token, id, name)
+    const updated = await consolesApi.update(token, id, { name })
     if (previous && selectedHardware === previous.name) {
       setHardware(updated.name)
     }
     setCollectionVersion((value) => value + 1)
     await refreshConsoles()
+  }
+
+  async function recolorConsole(id: string, color: string | null) {
+    const token = await getToken()
+    if (!token) return
+    setConsoles((list) => list.map((c) => (c.id === id ? { ...c, color } : c)))
+    try {
+      await consolesApi.update(token, id, { color })
+    } catch {
+      await refreshConsoles()
+    }
   }
 
   async function deleteConsole(id: string) {
@@ -213,6 +224,7 @@ export function AppLayout() {
             onSelectHardware={setHardware}
             onAddConsole={addConsole}
             onRenameConsole={renameConsole}
+            onRecolorConsole={recolorConsole}
             onDeleteConsole={deleteConsole}
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}

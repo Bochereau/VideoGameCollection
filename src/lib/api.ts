@@ -117,10 +117,14 @@ export const consolesApi = {
       { method: 'DELETE' },
     ),
 
-  update: (token: string, id: string, name: string) =>
+  update: (
+    token: string,
+    id: string,
+    patch: { name?: string; color?: string | null },
+  ) =>
     apiFetch<ConsoleItem>(`/api/consoles?id=${encodeURIComponent(id)}`, token, {
       method: 'PATCH',
-      body: JSON.stringify({ name }),
+      body: JSON.stringify(patch),
     }),
 }
 

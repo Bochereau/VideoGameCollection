@@ -21,6 +21,7 @@ type Props = {
   games: Game[]
   wishlist: boolean
   groupBy?: GroupBy
+  consoleColors?: Record<string, string>
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
@@ -47,6 +48,7 @@ function GameRow({
   game,
   index,
   wishlist,
+  consoleColor,
   onEdit,
   onStatusChange,
   onPriorityChange,
@@ -58,6 +60,7 @@ function GameRow({
   game: Game
   index: number
   wishlist: boolean
+  consoleColor?: string
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
@@ -106,7 +109,16 @@ function GameRow({
         ) : null}
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap text-amber">
-        {game.hardware}
+        <span className="inline-flex items-center gap-1.5">
+          {consoleColor ? (
+            <span
+              className="size-2.5 shrink-0 rounded-full"
+              style={{ backgroundColor: consoleColor }}
+              aria-hidden
+            />
+          ) : null}
+          {game.hardware}
+        </span>
       </td>
       <td className="hidden max-w-[10rem] truncate px-3 py-2.5 text-ink-muted md:table-cell">
         {game.developer || '—'}
@@ -177,6 +189,7 @@ export function GameList({
   games,
   wishlist,
   groupBy = 'none',
+  consoleColors = {},
   onEdit,
   onStatusChange,
   onPriorityChange,
@@ -248,6 +261,7 @@ export function GameList({
                         key={game.id}
                         game={game}
                         index={index}
+                        consoleColor={consoleColors[game.hardware]}
                         {...rowProps}
                       />
                     )
@@ -259,6 +273,7 @@ export function GameList({
                   key={game.id}
                   game={game}
                   index={index}
+                  consoleColor={consoleColors[game.hardware]}
                   {...rowProps}
                 />
               ))}

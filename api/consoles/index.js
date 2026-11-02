@@ -4,6 +4,13 @@ import { connectToDatabase, handleOptions } from '../_lib/db.js'
 import { resolvePlatformLogos } from '../_lib/igdb.js'
 import { errorResponse, json, serializeConsole } from '../_lib/respond.js'
 
+const COLOR_RE = /^#[0-9a-f]{6}$/i
+
+function parseColor(value) {
+  if (value === null || value === '') return null
+  return typeof value === 'string' && COLOR_RE.test(value) ? value.toLowerCase() : undefined
+}
+
 function parseIgdbId(value) {
   const id = Number(value)
   return Number.isInteger(id) && id > 0 ? id : null
@@ -121,9 +128,18 @@ export default async function handler(req, res) {
         return json(res, 400, { error: 'Invalid console id' })
       }
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
+      const hasName = body?.name !== undefined
+      const hasColor = body?.color !== undefined
       const name = String(body?.name ?? '').trim()
-      if (!name) {
+      if (hasName && !name) {
         return json(res, 400, { error: 'name is required' })
+      }
+      if (!hasName && !hasColor) {
+        return json(res, 400, { error: 'name or color is required' })
+      }
+      const color = hasColor ? parseColor(body.color) : undefined
+      if (hasColor && color === undefined) {
+        return json(res, 400, { error: 'Invalid color' })
       }
 
       const _id = new ObjectId(id)
@@ -132,15 +148,21 @@ export default async function handler(req, res) {
         return json(res, 404, { error: 'Console not found' })
       }
 
-      const clash = await consoles.findOne(
-        { userId, name, _id: { $ne: _id } },
-        { collation: { locale: 'fr', strength: 2 } },
-      )
-      if (clash) {
-        return json(res, 409, { error: 'Une console porte déjà ce nom.' })
+      if (hasColor) {
+        await consoles.updateOne({ _id, userId }, { $set: { color } })
       }
 
-      if (name !== existing.name) {
+      if (hasName) {
+        const clash = await consoles.findOne(
+          { userId, name, _id: { $ne: _id } },
+          { collation: { locale: 'fr', strength: 2 } },
+        )
+        if (clash) {
+          return json(res, 409, { error: 'Une console porte déjà ce nom.' })
+        }
+      }
+
+      if (hasName && name !== existing.name) {
         await games.updateMany(
           { userId, hardware: existing.name },
           { $set: { hardware: name, updatedAt: new Date() } },

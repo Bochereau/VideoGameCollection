@@ -1,7 +1,8 @@
 import { useAuth } from '@clerk/clerk-react'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { CatalogPlatform, ConsoleItem } from '@/types'
 import { catalogApi } from '@/lib/api'
+import { CONSOLE_COLOR_PRESETS } from '@/lib/consoleColor'
 import { useVisualFrame, visualFrameStyle } from '@/lib/useVisualFrame'
 import { Button } from '@/components/ui/Button'
 
@@ -11,6 +12,7 @@ type Props = {
   onSelectHardware: (name: string | null) => void
   onAddConsole: (name: string, igdbId?: number) => Promise<void>
   onRenameConsole: (id: string, name: string) => Promise<void>
+  onRecolorConsole: (id: string, color: string | null) => Promise<void>
   onDeleteConsole: (id: string) => Promise<void>
   open: boolean
   onClose: () => void
@@ -23,6 +25,7 @@ export function Sidebar({
   onSelectHardware,
   onAddConsole,
   onRenameConsole,
+  onRecolorConsole,
   onDeleteConsole,
   open,
   onClose,
@@ -39,6 +42,26 @@ export function Sidebar({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [renameError, setRenameError] = useState<string | null>(null)
+  const [colorId, setColorId] = useState<string | null>(null)
+  const [customColor, setCustomColor] = useState('#7dc9e8')
+  const colorTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => window.clearTimeout(colorTimer.current), [])
+
+  function pickColor(id: string, color: string | null) {
+    window.clearTimeout(colorTimer.current)
+    if (color) setCustomColor(color)
+    void onRecolorConsole(id, color)
+  }
+
+  /** Le sélecteur natif émet en continu pendant le glissement : on temporise. */
+  function pickCustomColor(id: string, color: string) {
+    setCustomColor(color)
+    window.clearTimeout(colorTimer.current)
+    colorTimer.current = window.setTimeout(() => {
+      void onRecolorConsole(id, color)
+    }, 400)
+  }
 
   useEffect(() => {
     if (!adding) return
@@ -114,6 +137,7 @@ export function Sidebar({
 
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-4">
         <div className="flex items-center gap-1">
+          <span className="w-7 shrink-0" aria-hidden />
           <button
             type="button"
             onClick={() => {
@@ -133,104 +157,165 @@ export function Sidebar({
         </div>
 
         {consoles.map((c) => (
-          <div key={c.id} className="group flex items-center gap-1">
-            {editingId === c.id ? (
-              <form
-                className="flex min-w-0 flex-1 items-center gap-1"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const next = editName.trim()
-                  if (!next || next === c.name) {
-                    setEditingId(null)
-                    setRenameError(null)
-                    return
-                  }
-                  setBusy(true)
-                  setRenameError(null)
-                  void onRenameConsole(c.id, next)
-                    .then(() => setEditingId(null))
-                    .catch((err: unknown) => {
-                      setRenameError(
-                        err instanceof Error ? err.message : 'Renommage impossible',
-                      )
-                    })
-                    .finally(() => setBusy(false))
-                }}
-              >
-                <input
-                  autoFocus
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="field min-w-0 !px-2 !py-1 text-sm"
-                  aria-label={`Renommer ${c.name}`}
-                />
-                <button
-                  type="submit"
-                  disabled={busy || !editName.trim()}
-                  className="shrink-0 rounded px-1.5 py-1 text-xs font-medium text-accent hover:bg-accent-soft"
-                >
-                  OK
-                </button>
-              </form>
-            ) : (
+          <div key={c.id}>
+            <div className="group flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => {
-                  onSelectHardware(c.name)
-                  onClose()
-                }}
-                className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
-                  selectedHardware === c.name
-                    ? 'bg-accent-soft font-medium text-accent'
-                    : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
+                className={`inline-flex size-7 shrink-0 items-center justify-center rounded transition hover:bg-ink/10 ${
+                  colorId === c.id ? 'bg-ink/10' : ''
                 }`}
+                aria-label={`Couleur de ${c.name}`}
+                aria-expanded={colorId === c.id}
+                title="Couleur de la console"
+                onClick={() => {
+                  setColorId((v) => (v === c.id ? null : c.id))
+                  setCustomColor(c.color ?? '#7dc9e8')
+                }}
               >
-                <span className="truncate">{c.name}</span>
-                <span className="shrink-0 tabular-nums text-xs opacity-70">{c.count}</span>
+                <span
+                  className={`size-3 rounded-full ${
+                    c.color ? 'shadow-sm' : 'border border-dashed border-ink-muted/70'
+                  }`}
+                  style={c.color ? { backgroundColor: c.color } : undefined}
+                  aria-hidden
+                />
               </button>
-            )}
-            {editingId === c.id ? null : (
+              {editingId === c.id ? (
+                <form
+                  className="flex min-w-0 flex-1 items-center gap-1"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const next = editName.trim()
+                    if (!next || next === c.name) {
+                      setEditingId(null)
+                      setRenameError(null)
+                      return
+                    }
+                    setBusy(true)
+                    setRenameError(null)
+                    void onRenameConsole(c.id, next)
+                      .then(() => setEditingId(null))
+                      .catch((err: unknown) => {
+                        setRenameError(
+                          err instanceof Error ? err.message : 'Renommage impossible',
+                        )
+                      })
+                      .finally(() => setBusy(false))
+                  }}
+                >
+                  <input
+                    autoFocus
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="field min-w-0 !px-2 !py-1 text-sm"
+                    aria-label={`Renommer ${c.name}`}
+                  />
+                  <button
+                    type="submit"
+                    disabled={busy || !editName.trim()}
+                    className="shrink-0 rounded px-1.5 py-1 text-xs font-medium text-accent hover:bg-accent-soft"
+                  >
+                    OK
+                  </button>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectHardware(c.name)
+                    onClose()
+                  }}
+                  className={`flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+                    selectedHardware === c.name
+                      ? 'bg-accent-soft font-medium text-accent'
+                      : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
+                  }`}
+                >
+                  <span className="truncate">{c.name}</span>
+                  <span className="shrink-0 tabular-nums text-xs opacity-70">{c.count}</span>
+                </button>
+              )}
+              {editingId === c.id ? null : (
+                <button
+                  type="button"
+                  className="rounded p-1.5 text-ink-muted opacity-100 transition hover:bg-ink/10 hover:text-ink lg:opacity-0 lg:group-hover:opacity-100"
+                  aria-label={`Renommer ${c.name}`}
+                  onClick={() => {
+                    setEditingId(c.id)
+                    setEditName(c.name)
+                    setRenameError(null)
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path
+                      d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M13.5 6.5l3 3"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
-                className="rounded p-1.5 text-ink-muted opacity-100 transition hover:bg-ink/10 hover:text-ink lg:opacity-0 lg:group-hover:opacity-100"
-                aria-label={`Renommer ${c.name}`}
-                onClick={() => {
-                  setEditingId(c.id)
-                  setEditName(c.name)
-                  setRenameError(null)
-                }}
+                className="rounded p-1.5 text-ink-muted opacity-100 transition hover:bg-danger/15 hover:text-danger lg:opacity-0 lg:group-hover:opacity-100"
+                aria-label={`Supprimer ${c.name}`}
+                onClick={() => onDeleteConsole(c.id)}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <path
-                    d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M13.5 6.5l3 3"
+                    d="M5 7h14M10 11v6M14 11v6M9 7V5h6v2M7 7l1 12h8l1-12"
                     stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                   />
                 </svg>
               </button>
-            )}
-            <button
-              type="button"
-              className="rounded p-1.5 text-ink-muted opacity-100 transition hover:bg-danger/15 hover:text-danger lg:opacity-0 lg:group-hover:opacity-100"
-              aria-label={`Supprimer ${c.name}`}
-              onClick={() => onDeleteConsole(c.id)}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M5 7h14M10 11v6M14 11v6M9 7V5h6v2M7 7l1 12h8l1-12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
+            </div>
+            {colorId === c.id ? (
+              <div className="animate-fade-in mx-1 mt-1 mb-2 space-y-2 rounded-lg border border-line bg-bg/60 p-2">
+                <div className="grid grid-cols-6 gap-1.5">
+                  {CONSOLE_COLOR_PRESETS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`size-6 justify-self-center rounded-full transition hover:scale-110 ${
+                        c.color === color ? 'ring-2 ring-ink ring-offset-1 ring-offset-bg' : ''
+                      }`}
+                      style={{ backgroundColor: color }}
+                      aria-label={`Couleur ${color}`}
+                      aria-pressed={c.color === color}
+                      onClick={() => pickColor(c.id, color)}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <label className="flex cursor-pointer items-center gap-1.5 text-ink-muted hover:text-ink">
+                    <input
+                      type="color"
+                      value={customColor}
+                      onChange={(e) => pickCustomColor(c.id, e.target.value)}
+                      className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
+                    />
+                    Personnalisée
+                  </label>
+                  <button
+                    type="button"
+                    disabled={!c.color}
+                    className="rounded px-1.5 py-1 text-ink-muted hover:bg-ink/10 hover:text-ink disabled:opacity-40"
+                    onClick={() => pickColor(c.id, null)}
+                  >
+                    Aucune
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         ))}
         {renameError ? (

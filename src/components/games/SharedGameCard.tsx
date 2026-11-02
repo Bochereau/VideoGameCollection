@@ -1,10 +1,13 @@
 import type { Game } from '@/types'
+import { GameCopyIcons } from '@/components/games/copyIcons'
 import { cardCoverUrl } from '@/lib/coverUrl'
 import { consoleShortName } from '@/lib/consoleShortName'
+import { consoleBadgeStyle } from '@/lib/consoleColor'
 
 type Props = {
   game: Game
   index: number
+  consoleColor?: string | null
   mineName?: string
   busy?: boolean
   onClaim: () => void
@@ -14,6 +17,7 @@ type Props = {
 export function SharedGameCard({
   game,
   index,
+  consoleColor,
   mineName,
   busy = false,
   onClaim,
@@ -42,7 +46,10 @@ export function SharedGameCard({
         )}
         <span
           title={game.hardware}
-          className="absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full bg-bg/80 px-2.5 text-xs font-medium text-amber backdrop-blur-sm"
+          style={consoleBadgeStyle(consoleColor)}
+          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${
+            consoleColor ? '' : 'bg-bg/80 text-amber'
+          }`}
         >
           {consoleShortName(game.hardware)}
         </span>
@@ -53,9 +60,12 @@ export function SharedGameCard({
           {game.name}
         </h3>
         <div className="mt-2">
-          <span className="rounded bg-bg/70 px-1.5 py-0.5 text-[0.65rem] font-medium text-ink-muted">
-            {game.format === 'digital' ? 'Numérique' : 'Physique'}
-          </span>
+          <GameCopyIcons
+            format={game.format === 'digital' ? 'digital' : 'physical'}
+            condition="none"
+            edition={game.edition}
+            showCondition={false}
+          />
         </div>
         <div className="mt-auto pt-2.5">
           {mineName ? (

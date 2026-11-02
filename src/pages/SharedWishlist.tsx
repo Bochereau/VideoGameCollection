@@ -27,6 +27,7 @@ export function SharedWishlistPage() {
   const { token = '' } = useParams()
   const [games, setGames] = useState<Game[]>([])
   const [ownerName, setOwnerName] = useState('')
+  const [consoleColors, setConsoleColors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(Boolean(token))
   const [missing, setMissing] = useState(!token)
   const [error, setError] = useState<string | null>(null)
@@ -54,6 +55,7 @@ export function SharedWishlistPage() {
         const data = await wishlistShareApi.public(token)
         if (cancelled) return
         setOwnerName(data.ownerName.trim())
+        setConsoleColors(data.colors ?? {})
         const nextGames = data.games.map(toGame)
         setGames(nextGames)
         const stored = readClaims(token)
@@ -299,6 +301,7 @@ export function SharedWishlistPage() {
                           key={game.id}
                           game={game}
                           index={index}
+                          consoleColor={consoleColors[game.hardware]}
                           mineName={claims[game.id]?.name}
                           busy={claimBusy}
                           onClaim={() => {

@@ -10,6 +10,7 @@ import { AddToCollectionModal } from '@/components/games/AddToCollectionModal'
 import { Loading } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
 import { gamesApi, consolesApi, wishlistClaimApi } from '@/lib/api'
+import { consoleColorMap } from '@/lib/consoleColor'
 import type {
   ConditionFilter,
   EditionFilter,
@@ -213,6 +214,7 @@ export function GamesPage({
     () => sortGames(games, sortKey),
     [games, sortKey],
   )
+  const consoleColors = useMemo(() => consoleColorMap(consoles), [consoles])
 
   function patchParams(mutate: (next: URLSearchParams) => void) {
     setSearchParams((prev) => {
@@ -577,6 +579,7 @@ export function GamesPage({
               columnsPerRow={columnsPerRow}
               wishlist={wishlist}
               groupBy={groupBy}
+              consoleColors={consoleColors}
               emptyTitle={emptyTitle}
               emptyDescription={emptyDescription}
               onAdd={() => {

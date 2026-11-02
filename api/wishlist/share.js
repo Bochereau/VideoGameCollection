@@ -96,8 +96,10 @@ export default async function handler(req, res) {
       ])
 
       const logos = {}
+      const colors = {}
       for (const consoleDoc of consoleDocs) {
         if (consoleDoc?.name && consoleDoc.logo) logos[consoleDoc.name] = consoleDoc.logo
+        if (consoleDoc?.name && consoleDoc.color) colors[consoleDoc.name] = consoleDoc.color
       }
 
       const reserved = await reservedIdSet(
@@ -113,6 +115,7 @@ export default async function handler(req, res) {
           return reserved.has(game.id) ? { ...game, reserved: true } : game
         }),
         logos,
+        colors,
       })
     }
 

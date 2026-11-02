@@ -22,6 +22,8 @@ type Props = {
   columnsPerRow: number
   wishlist: boolean
   groupBy?: GroupBy
+  /** Couleur par nom de console */
+  consoleColors?: Record<string, string>
   emptyTitle: string
   emptyDescription: string
   onAdd: () => void
@@ -46,6 +48,7 @@ export function GameGrid({
   columnsPerRow,
   wishlist,
   groupBy = 'none',
+  consoleColors = {},
   emptyTitle,
   emptyDescription,
   onAdd,
@@ -79,7 +82,14 @@ export function GameGrid({
   }
 
   if (viewMode === 'list') {
-    return <GameList games={games} groupBy={groupBy} {...shared} />
+    return (
+      <GameList
+        games={games}
+        groupBy={groupBy}
+        consoleColors={consoleColors}
+        {...shared}
+      />
+    )
   }
 
   const segments = segmentsFor(games, groupBy)
@@ -89,7 +99,13 @@ export function GameGrid({
     return (
       <div className={CARD_GRID} style={gridStyle}>
         {games.map((game, index) => (
-          <GameCard key={game.id} game={game} index={index} {...shared} />
+          <GameCard
+            key={game.id}
+            game={game}
+            index={index}
+            consoleColor={consoleColors[game.hardware]}
+            {...shared}
+          />
         ))}
       </div>
     )
@@ -115,6 +131,7 @@ export function GameGrid({
                   key={game.id}
                   game={game}
                   index={index}
+                  consoleColor={consoleColors[game.hardware]}
                   {...shared}
                 />
               )
