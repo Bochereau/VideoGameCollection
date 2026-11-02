@@ -45,6 +45,8 @@ export interface ConsoleItem {
   logo?: string | null
   /** Couleur hexadécimale (#rrggbb) choisie par l'utilisateur */
   color?: string | null
+  /** Couleur du texte du badge ; null = automatique selon le fond */
+  textColor?: string | null
   igdbId?: number | null
   createdAt?: string
 }
@@ -148,7 +150,12 @@ export type PublicWishlist = {
   ownerName: string
   games: PublicWishlistGame[]
   logos?: Record<string, string>
-  colors?: Record<string, string>
+  colors?: Record<string, ConsoleColors>
+}
+
+export type ConsoleColors = {
+  color?: string | null
+  textColor?: string | null
 }
 
 export type TopEntry = {

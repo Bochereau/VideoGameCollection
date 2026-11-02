@@ -9,7 +9,7 @@ import { consolesApi, topsApi, wishlistClaimApi } from '@/lib/api'
 import { applyColorTheme, readColorTheme, writeColorTheme } from '@/lib/colorTheme'
 import { readGameColumns, writeGameColumns } from '@/lib/columnsPerRow'
 import { readViewMode, writeViewMode } from '@/lib/viewMode'
-import type { ConsoleItem, TopSummary } from '@/types'
+import type { ConsoleColors, ConsoleItem, TopSummary } from '@/types'
 import type { ColorTheme } from '@/types/theme'
 import type { GamesViewMode } from '@/types/view'
 
@@ -153,12 +153,12 @@ export function AppLayout() {
     await refreshConsoles()
   }
 
-  async function recolorConsole(id: string, color: string | null) {
+  async function recolorConsole(id: string, patch: ConsoleColors) {
     const token = await getToken()
     if (!token) return
-    setConsoles((list) => list.map((c) => (c.id === id ? { ...c, color } : c)))
+    setConsoles((list) => list.map((c) => (c.id === id ? { ...c, ...patch } : c)))
     try {
-      await consolesApi.update(token, id, { color })
+      await consolesApi.update(token, id, patch)
     } catch {
       await refreshConsoles()
     }

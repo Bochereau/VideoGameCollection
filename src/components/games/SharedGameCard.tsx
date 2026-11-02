@@ -1,13 +1,13 @@
-import type { Game } from '@/types'
+import type { ConsoleColors, Game } from '@/types'
 import { GameCopyIcons } from '@/components/games/copyIcons'
 import { cardCoverUrl } from '@/lib/coverUrl'
 import { consoleShortName } from '@/lib/consoleShortName'
-import { consoleBadgeStyle } from '@/lib/consoleColor'
+import { consoleBadgeClass, consoleBadgeStyle } from '@/lib/consoleColor'
 
 type Props = {
   game: Game
   index: number
-  consoleColor?: string | null
+  consoleColors?: ConsoleColors
   mineName?: string
   busy?: boolean
   onClaim: () => void
@@ -17,7 +17,7 @@ type Props = {
 export function SharedGameCard({
   game,
   index,
-  consoleColor,
+  consoleColors,
   mineName,
   busy = false,
   onClaim,
@@ -46,20 +46,15 @@ export function SharedGameCard({
         )}
         <span
           title={game.hardware}
-          style={consoleBadgeStyle(consoleColor)}
-          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${
-            consoleColor ? '' : 'bg-bg/80 text-amber'
-          }`}
+          style={consoleBadgeStyle(consoleColors)}
+          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${consoleBadgeClass(
+            consoleColors,
+          )}`}
         >
           {consoleShortName(game.hardware)}
         </span>
-      </div>
-
-      <div className="flex flex-1 flex-col p-2 sm:p-2.5">
-        <h3 className="line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
-          {game.name}
-        </h3>
-        <div className="mt-2">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-2 left-2">
           <GameCopyIcons
             format={game.format === 'digital' ? 'digital' : 'physical'}
             condition="none"
@@ -67,6 +62,12 @@ export function SharedGameCard({
             showCondition={false}
           />
         </div>
+      </div>
+
+      <div className="flex flex-1 flex-col p-2 sm:p-2.5">
+        <h3 className="line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
+          {game.name}
+        </h3>
         <div className="mt-auto pt-2.5">
           {mineName ? (
             <div className="space-y-1.5">

@@ -1,4 +1,4 @@
-import type { Game, GamePriority, GameStatus } from '@/types'
+import type { ConsoleColors, Game, GamePriority, GameStatus } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
@@ -12,13 +12,13 @@ import {
 import { FORMAT_LABELS, GameCopyIcons } from '@/components/games/copyIcons'
 import { cardCoverUrl } from '@/lib/coverUrl'
 import { consoleShortName } from '@/lib/consoleShortName'
-import { consoleBadgeStyle } from '@/lib/consoleColor'
+import { consoleBadgeClass, consoleBadgeStyle } from '@/lib/consoleColor'
 
 type Props = {
   game: Game
   index: number
   wishlist: boolean
-  consoleColor?: string | null
+  consoleColors?: ConsoleColors
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
@@ -32,7 +32,7 @@ export function GameCard({
   game,
   index,
   wishlist,
-  consoleColor,
+  consoleColors,
   onEdit,
   onStatusChange,
   onPriorityChange,
@@ -67,13 +67,24 @@ export function GameCard({
         )}
         <span
           title={game.hardware}
-          style={consoleBadgeStyle(consoleColor)}
-          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${
-            consoleColor ? '' : 'bg-bg/80 text-amber'
-          }`}
+          style={consoleBadgeStyle(consoleColors)}
+          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${consoleBadgeClass(
+            consoleColors,
+          )}`}
         >
           {consoleShortName(game.hardware)}
         </span>
+
+        {/* Sur mobile les boutons restent affichés : les icônes passent au-dessus */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent transition sm:group-hover:opacity-0" />
+        <div className="absolute bottom-11 left-2 transition sm:bottom-2 sm:group-hover:opacity-0">
+          <GameCopyIcons
+            format={format}
+            condition={condition}
+            edition={edition}
+            showCondition={!wishlist}
+          />
+        </div>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-bg/95 via-bg/80 to-transparent p-2 pt-10 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">
           <dl className="hidden space-y-0.5 text-[0.7rem] leading-snug text-ink sm:block">
@@ -146,18 +157,9 @@ export function GameCard({
       ) : null}
 
       <div className="flex flex-1 flex-col p-2 sm:p-2.5">
-        <h3 className="mb-1 line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
+        <h3 className="line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">
           {game.name}
         </h3>
-
-        <div className="mt-1">
-          <GameCopyIcons
-            format={format}
-            condition={condition}
-            edition={edition}
-            showCondition={!wishlist}
-          />
-        </div>
 
         <div className="mt-auto space-y-2 pt-2.5">
           {wishlist && game.reserved ? (

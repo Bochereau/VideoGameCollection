@@ -120,7 +120,7 @@ export const consolesApi = {
   update: (
     token: string,
     id: string,
-    patch: { name?: string; color?: string | null },
+    patch: { name?: string; color?: string | null; textColor?: string | null },
   ) =>
     apiFetch<ConsoleItem>(`/api/consoles?id=${encodeURIComponent(id)}`, token, {
       method: 'PATCH',

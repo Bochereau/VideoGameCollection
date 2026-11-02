@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { GameCondition, GameEdition, GameFormat } from '@/types'
 import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 
@@ -55,19 +55,21 @@ export function ConditionIcon({
 }) {
   switch (condition) {
     case 'complete':
-      // boîtier + coche
+      // carton + pastille cochée
       return (
         <Icon size={size}>
-          <rect x="5" y="3" width="14" height="18" rx="1.5" />
-          <path d="M9.5 12.5l2 2 3.5-4" />
+          <path d="M17 6.5L10 3 3 6.5 10 10l7-3.5z" />
+          <path d="M3 6.5V14l7 3.5V10M17 6.5V11" />
+          <circle cx="17.5" cy="17.5" r="4.5" fill="currentColor" stroke="none" />
+          <path d="M15.5 17.6l1.4 1.4 2.6-2.8" style={{ stroke: 'var(--color-accent)' }} />
         </Icon>
       )
     case 'box':
-      // boîtier seul
+      // carton
       return (
         <Icon size={size}>
-          <rect x="5" y="3" width="14" height="18" rx="1.5" />
-          <path d="M8.5 3v18" />
+          <path d="M21 7.5L12 3 3 7.5 12 12l9-4.5z" />
+          <path d="M3 7.5v9L12 21l9-4.5v-9M12 12v9M7.5 5.25l9 4.5" />
         </Icon>
       )
     case 'manual':
@@ -91,47 +93,74 @@ export function ConditionIcon({
   }
 }
 
-export function EditionIcon({ edition, size }: { edition: GameEdition; size?: number }) {
-  switch (edition) {
-    case 'steelbook':
-      // boîtier métal avec reflets
-      return (
-        <Icon size={size}>
-          <rect x="5" y="3" width="14" height="18" rx="2" />
-          <path d="M10 6.5l-2 3M15 6.5l-6 9" />
-        </Icon>
-      )
-    case 'special':
-      // étoile
-      return (
-        <Icon size={size}>
-          <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
-        </Icon>
-      )
-    case 'deluxe':
-      // diamant
-      return (
-        <Icon size={size}>
-          <path d="M3 9l3-5h12l3 5-9 11z" />
-          <path d="M3 9h18M9.5 4L12 9l2.5-5M12 9v11" />
-        </Icon>
-      )
-    case 'collector':
-      // couronne
-      return (
-        <Icon size={size}>
-          <path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" />
-        </Icon>
-      )
-    default:
-      return null
-  }
+/** Boîtier de jeu (bandeau en haut), coloré selon le palier de l'édition */
+export function EditionIcon({ size }: { size?: number }) {
+  return (
+    <Icon size={size}>
+      <rect x="5" y="2.5" width="14" height="19" rx="2" />
+      <path d="M5 6.5h14M9 11.5h6M9 15h4" />
+    </Icon>
+  )
 }
 
-const CHIP = 'inline-flex size-6 items-center justify-center rounded'
+/**
+ * Paliers façon trophées : Collector = or, Deluxe = argent,
+ * Spéciale = bronze, Steelbook = acier. Standard n'a pas de pastille.
+ */
+export const EDITION_TIERS: Record<
+  Exclude<GameEdition, 'standard'>,
+  { tier: string; style: CSSProperties }
+> = {
+  collector: {
+    tier: 'Or',
+    style: {
+      background: 'linear-gradient(135deg, #fff3b0 0%, #f5c542 45%, #b8860b 100%)',
+      color: '#3d2a00',
+    },
+  },
+  deluxe: {
+    tier: 'Argent',
+    style: {
+      background: 'linear-gradient(135deg, #ffffff 0%, #cbd5e1 45%, #7c8a9e 100%)',
+      color: '#1e293b',
+    },
+  },
+  special: {
+    tier: 'Bronze',
+    style: {
+      background: 'linear-gradient(135deg, #f6c9a0 0%, #cd7f32 45%, #7a4419 100%)',
+      color: '#2b1406',
+    },
+  },
+  steelbook: {
+    tier: 'Acier',
+    style: {
+      background: 'linear-gradient(135deg, #a9bccf 0%, #5b6b7d 50%, #2f3a46 100%)',
+      color: '#eef4fa',
+    },
+  },
+}
+
+export function EditionChip({ edition }: { edition: GameEdition }) {
+  if (edition === 'standard') return null
+  const label = `Édition ${EDITION_LABELS[edition]}`
+  return (
+    <span
+      title={label}
+      aria-label={label}
+      className={`${CHIP} ring-white/40`}
+      style={EDITION_TIERS[edition].style}
+    >
+      <EditionIcon size={16} />
+    </span>
+  )
+}
+
+const CHIP =
+  'inline-flex size-7 items-center justify-center rounded-md shadow-md shadow-black/50 ring-1'
 
 /**
- * Pastilles icônes format / état / édition.
+ * Pastilles icônes format / état / édition, posées en bas de la jaquette.
  * L'édition standard et l'état « aucun » ne sont pas affichés.
  */
 export function GameCopyIcons({
@@ -146,35 +175,26 @@ export function GameCopyIcons({
   showCondition?: boolean
 }) {
   const conditionShown = showCondition && format === 'physical' && condition !== 'none'
-  const editionShown = edition !== 'standard'
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1.5">
       <span
         title={FORMAT_LABELS[format]}
         aria-label={FORMAT_LABELS[format]}
-        className={`${CHIP} bg-bg/70 text-ink-muted`}
+        className={`${CHIP} bg-bg text-ink ring-ink/30`}
       >
-        <FormatIcon format={format} />
+        <FormatIcon format={format} size={16} />
       </span>
       {conditionShown ? (
         <span
           title={`État : ${CONDITION_LABELS[condition]}`}
           aria-label={`État : ${CONDITION_LABELS[condition]}`}
-          className={`${CHIP} bg-accent-soft text-accent`}
+          className={`${CHIP} bg-accent text-bg ring-white/30`}
         >
-          <ConditionIcon condition={condition} />
+          <ConditionIcon condition={condition} size={16} />
         </span>
       ) : null}
-      {editionShown ? (
-        <span
-          title={`Édition ${EDITION_LABELS[edition]}`}
-          aria-label={`Édition ${EDITION_LABELS[edition]}`}
-          className={`${CHIP} bg-amber/20 text-amber`}
-        >
-          <EditionIcon edition={edition} />
-        </span>
-      ) : null}
+      <EditionChip edition={edition} />
     </div>
   )
 }

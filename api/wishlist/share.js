@@ -99,7 +99,12 @@ export default async function handler(req, res) {
       const colors = {}
       for (const consoleDoc of consoleDocs) {
         if (consoleDoc?.name && consoleDoc.logo) logos[consoleDoc.name] = consoleDoc.logo
-        if (consoleDoc?.name && consoleDoc.color) colors[consoleDoc.name] = consoleDoc.color
+        if (consoleDoc?.name && (consoleDoc.color || consoleDoc.textColor)) {
+          colors[consoleDoc.name] = {
+            color: consoleDoc.color || null,
+            textColor: consoleDoc.textColor || null,
+          }
+        }
       }
 
       const reserved = await reservedIdSet(

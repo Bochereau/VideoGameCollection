@@ -130,15 +130,17 @@ export default async function handler(req, res) {
       const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {}
       const hasName = body?.name !== undefined
       const hasColor = body?.color !== undefined
+      const hasTextColor = body?.textColor !== undefined
       const name = String(body?.name ?? '').trim()
       if (hasName && !name) {
         return json(res, 400, { error: 'name is required' })
       }
-      if (!hasName && !hasColor) {
-        return json(res, 400, { error: 'name or color is required' })
+      if (!hasName && !hasColor && !hasTextColor) {
+        return json(res, 400, { error: 'name, color or textColor is required' })
       }
       const color = hasColor ? parseColor(body.color) : undefined
-      if (hasColor && color === undefined) {
+      const textColor = hasTextColor ? parseColor(body.textColor) : undefined
+      if ((hasColor && color === undefined) || (hasTextColor && textColor === undefined)) {
         return json(res, 400, { error: 'Invalid color' })
       }
 
@@ -148,8 +150,16 @@ export default async function handler(req, res) {
         return json(res, 404, { error: 'Console not found' })
       }
 
-      if (hasColor) {
-        await consoles.updateOne({ _id, userId }, { $set: { color } })
+      if (hasColor || hasTextColor) {
+        await consoles.updateOne(
+          { _id, userId },
+          {
+            $set: {
+              ...(hasColor ? { color } : {}),
+              ...(hasTextColor ? { textColor } : {}),
+            },
+          },
+        )
       }
 
       if (hasName) {

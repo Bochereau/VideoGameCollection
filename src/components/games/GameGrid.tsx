@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { Game, GamePriority, GameStatus, GroupBy } from '@/types'
+import type { ConsoleColors, Game, GamePriority, GameStatus, GroupBy } from '@/types'
 import type { GamesViewMode } from '@/types/view'
 import { GameCard } from '@/components/games/GameCard'
 import { GameList } from '@/components/games/GameList'
@@ -23,7 +23,7 @@ type Props = {
   wishlist: boolean
   groupBy?: GroupBy
   /** Couleur par nom de console */
-  consoleColors?: Record<string, string>
+  consoleColors?: Record<string, ConsoleColors>
   emptyTitle: string
   emptyDescription: string
   onAdd: () => void
@@ -103,7 +103,7 @@ export function GameGrid({
             key={game.id}
             game={game}
             index={index}
-            consoleColor={consoleColors[game.hardware]}
+            consoleColors={consoleColors[game.hardware]}
             {...shared}
           />
         ))}
@@ -131,7 +131,7 @@ export function GameGrid({
                   key={game.id}
                   game={game}
                   index={index}
-                  consoleColor={consoleColors[game.hardware]}
+                  consoleColors={consoleColors[game.hardware]}
                   {...shared}
                 />
               )

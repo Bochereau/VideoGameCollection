@@ -1,8 +1,15 @@
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { CatalogPlatform, ConsoleItem } from '@/types'
+import type { CatalogPlatform, ConsoleColors, ConsoleItem } from '@/types'
 import { catalogApi } from '@/lib/api'
-import { CONSOLE_COLOR_PRESETS } from '@/lib/consoleColor'
+import {
+  CONSOLE_COLOR_PRESETS,
+  CONSOLE_TEXT_PRESETS,
+  consoleBadgeClass,
+  consoleBadgeStyle,
+  readableTextColor,
+} from '@/lib/consoleColor'
+import { consoleShortName } from '@/lib/consoleShortName'
 import { useVisualFrame, visualFrameStyle } from '@/lib/useVisualFrame'
 import { Button } from '@/components/ui/Button'
 
@@ -12,7 +19,7 @@ type Props = {
   onSelectHardware: (name: string | null) => void
   onAddConsole: (name: string, igdbId?: number) => Promise<void>
   onRenameConsole: (id: string, name: string) => Promise<void>
-  onRecolorConsole: (id: string, color: string | null) => Promise<void>
+  onRecolorConsole: (id: string, patch: ConsoleColors) => Promise<void>
   onDeleteConsole: (id: string) => Promise<void>
   open: boolean
   onClose: () => void
@@ -43,23 +50,31 @@ export function Sidebar({
   const [editName, setEditName] = useState('')
   const [renameError, setRenameError] = useState<string | null>(null)
   const [colorId, setColorId] = useState<string | null>(null)
+  const [colorTarget, setColorTarget] = useState<keyof ConsoleColors>('color')
   const [customColor, setCustomColor] = useState('#7dc9e8')
   const colorTimer = useRef<number | undefined>(undefined)
 
   useEffect(() => () => window.clearTimeout(colorTimer.current), [])
 
+  /** Valeur de départ du sélecteur natif pour la cible choisie */
+  function initialCustomColor(c: ConsoleItem, target: keyof ConsoleColors) {
+    if (target === 'color') return c.color ?? '#7dc9e8'
+    return c.textColor ?? (c.color ? readableTextColor(c.color) : '#f3e098')
+  }
+
   function pickColor(id: string, color: string | null) {
     window.clearTimeout(colorTimer.current)
     if (color) setCustomColor(color)
-    void onRecolorConsole(id, color)
+    void onRecolorConsole(id, { [colorTarget]: color })
   }
 
   /** Le sélecteur natif émet en continu pendant le glissement : on temporise. */
   function pickCustomColor(id: string, color: string) {
     setCustomColor(color)
     window.clearTimeout(colorTimer.current)
+    const target = colorTarget
     colorTimer.current = window.setTimeout(() => {
-      void onRecolorConsole(id, color)
+      void onRecolorConsole(id, { [target]: color })
     }, 400)
   }
 
@@ -169,16 +184,21 @@ export function Sidebar({
                 title="Couleur de la console"
                 onClick={() => {
                   setColorId((v) => (v === c.id ? null : c.id))
-                  setCustomColor(c.color ?? '#7dc9e8')
+                  setColorTarget('color')
+                  setCustomColor(initialCustomColor(c, 'color'))
                 }}
               >
                 <span
-                  className={`size-3 rounded-full ${
-                    c.color ? 'shadow-sm' : 'border border-dashed border-ink-muted/70'
+                  className={`inline-flex size-5 items-center justify-center rounded-full text-[0.6rem] font-bold leading-none ${
+                    c.color || c.textColor
+                      ? `shadow-sm ${consoleBadgeClass(c)}`
+                      : 'border border-dashed border-ink-muted/70 text-ink-muted'
                   }`}
-                  style={c.color ? { backgroundColor: c.color } : undefined}
+                  style={consoleBadgeStyle(c)}
                   aria-hidden
-                />
+                >
+                  A
+                </span>
               </button>
               {editingId === c.id ? (
                 <form
@@ -280,20 +300,64 @@ export function Sidebar({
             </div>
             {colorId === c.id ? (
               <div className="animate-fade-in mx-1 mt-1 mb-2 space-y-2 rounded-lg border border-line bg-bg/60 p-2">
-                <div className="grid grid-cols-6 gap-1.5">
-                  {CONSOLE_COLOR_PRESETS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      className={`size-6 justify-self-center rounded-full transition hover:scale-110 ${
-                        c.color === color ? 'ring-2 ring-ink ring-offset-1 ring-offset-bg' : ''
-                      }`}
-                      style={{ backgroundColor: color }}
-                      aria-label={`Couleur ${color}`}
-                      aria-pressed={c.color === color}
-                      onClick={() => pickColor(c.id, color)}
-                    />
-                  ))}
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`inline-flex h-7 max-w-[7rem] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm ${consoleBadgeClass(
+                      c,
+                    )}`}
+                    style={consoleBadgeStyle(c)}
+                  >
+                    {consoleShortName(c.name)}
+                  </span>
+                  <div
+                    role="group"
+                    aria-label="Élément à colorer"
+                    className="inline-flex rounded-full bg-ink/5 p-0.5 text-[0.7rem]"
+                  >
+                    {(
+                      [
+                        ['color', 'Fond'],
+                        ['textColor', 'Texte'],
+                      ] as const
+                    ).map(([target, label]) => (
+                      <button
+                        key={target}
+                        type="button"
+                        aria-pressed={colorTarget === target}
+                        className={`rounded-full px-2 py-0.5 transition ${
+                          colorTarget === target
+                            ? 'bg-accent-soft font-medium text-accent'
+                            : 'text-ink-muted hover:text-ink'
+                        }`}
+                        onClick={() => {
+                          window.clearTimeout(colorTimer.current)
+                          setColorTarget(target)
+                          setCustomColor(initialCustomColor(c, target))
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-7 gap-1.5">
+                  {(colorTarget === 'color' ? CONSOLE_COLOR_PRESETS : CONSOLE_TEXT_PRESETS).map(
+                    (color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        className={`size-6 justify-self-center rounded-full border border-line transition hover:scale-110 ${
+                          c[colorTarget] === color
+                            ? 'ring-2 ring-ink ring-offset-1 ring-offset-bg'
+                            : ''
+                        }`}
+                        style={{ backgroundColor: color }}
+                        aria-label={`Couleur ${color}`}
+                        aria-pressed={c[colorTarget] === color}
+                        onClick={() => pickColor(c.id, color)}
+                      />
+                    ),
+                  )}
                 </div>
                 <div className="flex items-center justify-between gap-2 text-xs">
                   <label className="flex cursor-pointer items-center gap-1.5 text-ink-muted hover:text-ink">
@@ -307,11 +371,16 @@ export function Sidebar({
                   </label>
                   <button
                     type="button"
-                    disabled={!c.color}
+                    disabled={!c[colorTarget]}
+                    title={
+                      colorTarget === 'textColor'
+                        ? 'Noir ou blanc selon le fond'
+                        : undefined
+                    }
                     className="rounded px-1.5 py-1 text-ink-muted hover:bg-ink/10 hover:text-ink disabled:opacity-40"
                     onClick={() => pickColor(c.id, null)}
                   >
-                    Aucune
+                    {colorTarget === 'color' ? 'Aucune' : 'Auto'}
                   </button>
                 </div>
               </div>

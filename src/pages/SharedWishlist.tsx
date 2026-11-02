@@ -9,7 +9,7 @@ import { wishlistClaimApi, wishlistShareApi } from '@/lib/api'
 import { readClaims, writeClaims, type StoredClaims } from '@/lib/wishlistClaims'
 import { applyColorTheme, readColorTheme, writeColorTheme } from '@/lib/colorTheme'
 import { readGameColumns } from '@/lib/columnsPerRow'
-import type { Game, PublicWishlistGame } from '@/types'
+import type { ConsoleColors, Game, PublicWishlistGame } from '@/types'
 import type { ColorTheme } from '@/types/theme'
 
 function toGame(game: PublicWishlistGame): Game {
@@ -27,7 +27,7 @@ export function SharedWishlistPage() {
   const { token = '' } = useParams()
   const [games, setGames] = useState<Game[]>([])
   const [ownerName, setOwnerName] = useState('')
-  const [consoleColors, setConsoleColors] = useState<Record<string, string>>({})
+  const [consoleColors, setConsoleColors] = useState<Record<string, ConsoleColors>>({})
   const [loading, setLoading] = useState(Boolean(token))
   const [missing, setMissing] = useState(!token)
   const [error, setError] = useState<string | null>(null)
@@ -301,7 +301,7 @@ export function SharedWishlistPage() {
                           key={game.id}
                           game={game}
                           index={index}
-                          consoleColor={consoleColors[game.hardware]}
+                          consoleColors={consoleColors[game.hardware]}
                           mineName={claims[game.id]?.name}
                           busy={claimBusy}
                           onClaim={() => {
