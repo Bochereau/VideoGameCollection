@@ -1,5 +1,4 @@
 import type { ConsoleColors, Game, GamePriority, GameStatus } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
   AddToCollectionButton,
@@ -9,7 +8,12 @@ import {
   StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
-import { FORMAT_LABELS, GameCopyIcons } from '@/components/games/copyIcons'
+import {
+  ConditionTag,
+  EditionTag,
+  FORMAT_LABELS,
+  GameCopyIcons,
+} from '@/components/games/copyIcons'
 import { cardCoverUrl } from '@/lib/coverUrl'
 import { consoleShortName } from '@/lib/consoleShortName'
 import { consoleBadgeClass, consoleBadgeStyle } from '@/lib/consoleColor'
@@ -68,12 +72,13 @@ export function GameCard({
         <span
           title={game.hardware}
           style={consoleBadgeStyle(consoleColors)}
-          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${consoleBadgeClass(
+          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full px-2.5 text-xs font-semibold shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm ${consoleBadgeClass(
             consoleColors,
           )}`}
         >
           {consoleShortName(game.hardware)}
         </span>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/50 to-transparent" />
 
         {/* Sur mobile les boutons restent affichés : les icônes passent au-dessus */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent transition sm:group-hover:opacity-0" />
@@ -86,58 +91,66 @@ export function GameCard({
           />
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-bg/95 via-bg/80 to-transparent p-2 pt-10 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">
-          <dl className="hidden space-y-0.5 text-[0.7rem] leading-snug text-ink sm:block">
-            {game.developer ? (
+        {/* Fond quasi opaque derrière le texte : seul le haut du panneau est en fondu */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">
+          <div className="h-8 bg-gradient-to-t from-bg/90 to-transparent" />
+          <div className="flex flex-col gap-2 bg-bg/90 px-2 pb-2">
+            <dl className="hidden space-y-1 text-[0.7rem] leading-snug text-ink sm:block">
+              {game.developer ? (
+                <div className="flex gap-1.5">
+                  <dt className="shrink-0 text-accent">Studio</dt>
+                  <dd className="truncate">{game.developer}</dd>
+                </div>
+              ) : null}
+              {game.release ? (
+                <div className="flex gap-1.5">
+                  <dt className="shrink-0 text-accent">Année</dt>
+                  <dd>{game.release}</dd>
+                </div>
+              ) : null}
               <div className="flex gap-1.5">
-                <dt className="shrink-0 text-accent">Studio</dt>
-                <dd className="truncate">{game.developer}</dd>
+                <dt className="shrink-0 text-accent">Format</dt>
+                <dd>{FORMAT_LABELS[format]}</dd>
               </div>
-            ) : null}
-            {game.release ? (
+              {showCondition ? (
+                <div className="flex gap-1.5">
+                  <dt className="shrink-0 text-accent">État</dt>
+                  <dd>
+                    <ConditionTag condition={condition} />
+                  </dd>
+                </div>
+              ) : null}
               <div className="flex gap-1.5">
-                <dt className="shrink-0 text-accent">Année</dt>
-                <dd>{game.release}</dd>
+                <dt className="shrink-0 text-accent">Édition</dt>
+                <dd>
+                  <EditionTag edition={edition} />
+                </dd>
               </div>
-            ) : null}
+            </dl>
             <div className="flex gap-1.5">
-              <dt className="shrink-0 text-accent">Format</dt>
-              <dd>{FORMAT_LABELS[format]}</dd>
+              <Button
+                variant="secondary"
+                className="flex-1 !px-2 !py-1 !text-xs"
+                onClick={() => onEdit(game)}
+              >
+                Modifier
+              </Button>
+              <Button
+                variant="danger"
+                className="!bg-danger/80 !px-2 !py-1 !text-bg hover:!bg-danger"
+                onClick={() => onDelete(game)}
+                aria-label="Supprimer"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path
+                    d="M5 7h14M10 11v6M14 11v6M9 7V5h6v2M7 7l1 12h8l1-12"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </Button>
             </div>
-            {showCondition ? (
-              <div className="flex gap-1.5">
-                <dt className="shrink-0 text-accent">État</dt>
-                <dd>{CONDITION_LABELS[condition]}</dd>
-              </div>
-            ) : null}
-            <div className="flex gap-1.5">
-              <dt className="shrink-0 text-accent">Édition</dt>
-              <dd>{EDITION_LABELS[edition]}</dd>
-            </div>
-          </dl>
-          <div className="flex gap-1.5">
-            <Button
-              variant="secondary"
-              className="flex-1 !px-2 !py-1 !text-xs"
-              onClick={() => onEdit(game)}
-            >
-              Modifier
-            </Button>
-            <Button
-              variant="danger"
-              className="!bg-danger/80 !px-2 !py-1 !text-bg hover:!bg-danger"
-              onClick={() => onDelete(game)}
-              aria-label="Supprimer"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M5 7h14M10 11v6M14 11v6M9 7V5h6v2M7 7l1 12h8l1-12"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </Button>
           </div>
         </div>
       </div>

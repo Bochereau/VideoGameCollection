@@ -47,12 +47,13 @@ export function SharedGameCard({
         <span
           title={game.hardware}
           style={consoleBadgeStyle(consoleColors)}
-          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full px-2.5 text-xs font-medium shadow-sm backdrop-blur-sm ${consoleBadgeClass(
+          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-1rem)] items-center truncate rounded-full px-2.5 text-xs font-semibold shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm ${consoleBadgeClass(
             consoleColors,
           )}`}
         >
           {consoleShortName(game.hardware)}
         </span>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/50 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-2 left-2">
           <GameCopyIcons

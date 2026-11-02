@@ -436,8 +436,8 @@ export function FavoriteButton({
       title={title}
       className={`inline-flex size-8 items-center justify-center rounded-full transition ${
         favorite
-          ? 'bg-bg/75 text-[#f07178] shadow-sm backdrop-blur-sm hover:text-[#ff8a90]'
-          : 'bg-bg/75 text-ink-muted backdrop-blur-sm hover:text-[#f07178]'
+          ? 'bg-bg/90 text-[#f07178] shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm hover:text-[#ff8a90]'
+          : 'bg-bg/90 text-ink shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm hover:text-[#f07178]'
       } ${className}`}
     >
       <HeartIcon filled={favorite} />
@@ -473,7 +473,7 @@ export function PriorityButton({
           e.stopPropagation()
           setOpen((v) => !v)
         }}
-        className={`inline-flex size-8 items-center justify-center rounded-full bg-bg/75 backdrop-blur-sm transition hover:opacity-90 ${PRIORITY_COLORS[value]}`}
+        className={`inline-flex size-8 items-center justify-center rounded-full bg-bg/90 shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm transition hover:opacity-90 ${PRIORITY_COLORS[value]}`}
       >
         <BookmarkIcon filled />
       </button>

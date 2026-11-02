@@ -15,7 +15,7 @@ import {
   groupGamesByYear,
   SegmentHeading,
 } from '@/components/games/priorityGroups'
-import { EditionChip } from '@/components/games/copyIcons'
+import { ConditionChip, EditionChip } from '@/components/games/copyIcons'
 import { cardCoverUrl } from '@/lib/coverUrl'
 
 type Props = {
@@ -131,8 +131,15 @@ function GameRow({
         {format === 'digital' ? 'Numérique' : 'Physique'}
       </td>
       {!wishlist ? (
-        <td className="hidden px-3 py-2.5 whitespace-nowrap text-accent lg:table-cell">
-          {format === 'physical' ? CONDITION_LABELS[condition] : '—'}
+        <td className="hidden px-3 py-2.5 whitespace-nowrap text-ink-muted lg:table-cell">
+          {format === 'physical' ? (
+            <span className="inline-flex items-center gap-1.5">
+              <ConditionChip condition={condition} />
+              {CONDITION_LABELS[condition]}
+            </span>
+          ) : (
+            '—'
+          )}
         </td>
       ) : null}
       <td className="hidden px-3 py-2.5 whitespace-nowrap text-amber lg:table-cell">

@@ -61,7 +61,7 @@ export function ConditionIcon({
           <path d="M17 6.5L10 3 3 6.5 10 10l7-3.5z" />
           <path d="M3 6.5V14l7 3.5V10M17 6.5V11" />
           <circle cx="17.5" cy="17.5" r="4.5" fill="currentColor" stroke="none" />
-          <path d="M15.5 17.6l1.4 1.4 2.6-2.8" style={{ stroke: 'var(--color-accent)' }} />
+          <path d="M15.5 17.6l1.4 1.4 2.6-2.8" style={{ stroke: 'var(--chip-bg)' }} />
         </Icon>
       )
     case 'box':
@@ -156,6 +156,57 @@ export function EditionChip({ edition }: { edition: GameEdition }) {
   )
 }
 
+/** Code couleur de l'état : complet vert, boîte bleu, livret jaune, loose rouge */
+export const CONDITION_STYLES: Record<Exclude<GameCondition, 'none'>, CSSProperties> = {
+  complete: { background: '#a8e6bf', color: '#14532d' },
+  box: { background: '#b3d4f5', color: '#1e3a8a' },
+  manual: { background: '#f7e3a1', color: '#713f12' },
+  loose: { background: '#f5b5b5', color: '#7f1d1d' },
+}
+
+function conditionStyle(condition: Exclude<GameCondition, 'none'>): CSSProperties {
+  const style = CONDITION_STYLES[condition]
+  // --chip-bg sert à « découper » la coche de l'icône Complet
+  return { ...style, '--chip-bg': style.background } as CSSProperties
+}
+
+export function ConditionChip({ condition }: { condition: GameCondition }) {
+  if (condition === 'none') return null
+  const label = `État : ${CONDITION_LABELS[condition]}`
+  return (
+    <span
+      title={label}
+      aria-label={label}
+      className={`${CHIP} ring-white/30`}
+      style={conditionStyle(condition)}
+    >
+      <ConditionIcon condition={condition} size={16} />
+    </span>
+  )
+}
+
+const TAG = 'inline-flex items-center rounded px-1.5 text-[0.65rem] leading-4 font-semibold'
+
+/** Libellé coloré de l'état (panneau de survol) */
+export function ConditionTag({ condition }: { condition: GameCondition }) {
+  if (condition === 'none') return <>{CONDITION_LABELS[condition]}</>
+  return (
+    <span className={TAG} style={CONDITION_STYLES[condition]}>
+      {CONDITION_LABELS[condition]}
+    </span>
+  )
+}
+
+/** Libellé coloré de l'édition (panneau de survol) */
+export function EditionTag({ edition }: { edition: GameEdition }) {
+  if (edition === 'standard') return <>{EDITION_LABELS[edition]}</>
+  return (
+    <span className={TAG} style={EDITION_TIERS[edition].style}>
+      {EDITION_LABELS[edition]}
+    </span>
+  )
+}
+
 const CHIP =
   'inline-flex size-7 items-center justify-center rounded-md shadow-md shadow-black/50 ring-1'
 
@@ -185,15 +236,7 @@ export function GameCopyIcons({
       >
         <FormatIcon format={format} size={16} />
       </span>
-      {conditionShown ? (
-        <span
-          title={`État : ${CONDITION_LABELS[condition]}`}
-          aria-label={`État : ${CONDITION_LABELS[condition]}`}
-          className={`${CHIP} bg-accent text-bg ring-white/30`}
-        >
-          <ConditionIcon condition={condition} size={16} />
-        </span>
-      ) : null}
+      {conditionShown ? <ConditionChip condition={condition} /> : null}
       <EditionChip edition={edition} />
     </div>
   )

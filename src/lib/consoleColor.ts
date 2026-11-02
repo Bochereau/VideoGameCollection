@@ -51,7 +51,7 @@ export function consoleBadgeStyle(colors?: ConsoleColors): CSSProperties | undef
 /** Classes par défaut pour ce qui n'est pas personnalisé */
 export function consoleBadgeClass(colors?: ConsoleColors): string {
   const bg = colors?.color
-  return [bg ? '' : 'bg-bg/80', bg || colors?.textColor ? '' : 'text-amber']
+  return [bg ? '' : 'bg-bg/90', bg || colors?.textColor ? '' : 'text-amber']
     .filter(Boolean)
     .join(' ')
 }
