@@ -1,5 +1,6 @@
 import type { Game, GamePriority } from '@/types'
 import { PRIORITY_COLORS, PRIORITY_LABELS } from '@/types'
+import { ratingColorClass, ratingDotClass } from '@/lib/rating'
 
 export type PriorityGroup = {
   key: string
@@ -16,6 +17,7 @@ export type YearGroup = {
 export type GameSegment =
   | { kind: 'priority'; key: string; label: string; accentClass: string; dotClass: string; games: Game[] }
   | { kind: 'year'; key: string; label: string; accentClass: string; dotClass: string; games: Game[] }
+  | { kind: 'rating'; key: string; label: string; accentClass: string; dotClass: string; games: Game[] }
 
 const PRIORITY_DOT: Record<GamePriority, string> = {
   5: 'bg-red-500',
@@ -76,6 +78,46 @@ export function groupGamesByYear(games: Game[]): GameSegment[] {
       kind: 'year',
       key: 'y-none',
       label: 'Sans année',
+      accentClass: 'text-ink-muted',
+      dotClass: 'bg-ink-muted',
+      games: map.get('none')!,
+    })
+  }
+
+  return segments
+}
+
+/**
+ * Tranches d'une unité : 9+ (9 à 10), 8+, … 1+, moins de 1, puis non notés.
+ * L'ordre des jeux dans chaque tranche est conservé (déjà triés par note).
+ */
+export function groupGamesByRating(games: Game[]): GameSegment[] {
+  const map = new Map<number | 'none', Game[]>()
+  for (const game of games) {
+    const key = game.rating == null ? 'none' : Math.min(9, Math.floor(game.rating))
+    const list = map.get(key)
+    if (list) list.push(game)
+    else map.set(key, [game])
+  }
+
+  const floors = [...map.keys()]
+    .filter((k): k is number => k !== 'none')
+    .sort((a, b) => b - a)
+
+  const segments: GameSegment[] = floors.map((floor) => ({
+    kind: 'rating' as const,
+    key: `r-${floor}`,
+    label: floor === 0 ? 'Moins de 1' : `${floor}+`,
+    accentClass: ratingColorClass(floor),
+    dotClass: ratingDotClass(floor),
+    games: map.get(floor)!,
+  }))
+
+  if (map.has('none')) {
+    segments.push({
+      kind: 'rating',
+      key: 'r-none',
+      label: 'Non noté',
       accentClass: 'text-ink-muted',
       dotClass: 'bg-ink-muted',
       games: map.get('none')!,

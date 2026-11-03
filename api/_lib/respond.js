@@ -52,6 +52,13 @@ export function resolvePriority(doc, status, wishlist) {
   return null
 }
 
+/** Note sur 10 à une décimale, ou null si absente / invalide */
+export function resolveRating(doc) {
+  const raw = Number(doc.rating)
+  if (doc.rating == null || !Number.isFinite(raw) || raw < 0 || raw > 10) return null
+  return Math.round(raw * 10) / 10
+}
+
 export function serializeGame(doc) {
   const format = doc.format === 'digital' ? 'digital' : 'physical'
   const condition = format === 'physical' ? resolveCondition(doc) : 'none'
@@ -74,6 +81,7 @@ export function serializeGame(doc) {
     priority,
     wishlist,
     favorite,
+    rating: wishlist ? null : resolveRating(doc),
     cover: doc.cover ?? null,
     igdbId: doc.igdbId ?? null,
     rawgId: doc.rawgId ?? null,

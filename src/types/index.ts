@@ -26,6 +26,8 @@ export interface Game {
   priority: GamePriority | null
   wishlist: boolean
   favorite: boolean
+  /** Note personnelle sur 10 (une décimale), collection uniquement */
+  rating: number | null
   cover?: string | null
   igdbId?: number | null
   rawgId?: number | null
@@ -61,6 +63,7 @@ export type GameInput = {
   priority?: GamePriority | null
   wishlist?: boolean
   favorite?: boolean
+  rating?: number | null
   cover?: string | null
   igdbId?: number | null
   rawgId?: number | null
@@ -109,8 +112,8 @@ export type ConditionFilter = 'all' | GameCondition
 export type EditionFilter = 'all' | GameEdition
 /** 'all', UNCLASSIFIED_GENRE ou un nom de genre IGDB */
 export type GenreFilter = string
-export type SortKey = 'name' | 'year' | 'priority'
-export type GroupBy = 'none' | 'priority' | 'year'
+export type SortKey = 'name' | 'year' | 'priority' | 'rating'
+export type GroupBy = 'none' | 'priority' | 'year' | 'rating'
 
 export type GamesQuery = {
   wishlist?: boolean

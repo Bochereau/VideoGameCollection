@@ -18,6 +18,7 @@ function toGame(game: PublicWishlistGame): Game {
     status: 'todo',
     wishlist: true,
     favorite: false,
+    rating: null,
     condition: 'none',
     genres: [],
   }

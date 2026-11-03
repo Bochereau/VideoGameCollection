@@ -5,6 +5,7 @@ import { GameCard } from '@/components/games/GameCard'
 import { GameList } from '@/components/games/GameList'
 import {
   groupGamesByPriority,
+  groupGamesByRating,
   groupGamesByYear,
   SegmentHeading,
   type GameSegment,
@@ -30,6 +31,7 @@ type Props = {
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
+  onRatingChange: (game: Game, rating: number | null) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onReleaseReservation: (game: Game) => void
@@ -39,6 +41,7 @@ type Props = {
 function segmentsFor(games: Game[], groupBy: GroupBy): GameSegment[] | null {
   if (groupBy === 'priority') return groupGamesByPriority(games)
   if (groupBy === 'year') return groupGamesByYear(games)
+  if (groupBy === 'rating') return groupGamesByRating(games)
   return null
 }
 
@@ -55,6 +58,7 @@ export function GameGrid({
   onEdit,
   onStatusChange,
   onPriorityChange,
+  onRatingChange,
   onToggleFavorite,
   onAddToCollection,
   onReleaseReservation,
@@ -75,6 +79,7 @@ export function GameGrid({
     onEdit,
     onStatusChange,
     onPriorityChange,
+    onRatingChange,
     onToggleFavorite,
     onAddToCollection,
     onReleaseReservation,

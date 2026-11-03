@@ -43,7 +43,17 @@ type Props = {
 
 function sortGames(list: Game[], sort: SortKey): Game[] {
   const copy = [...list]
-  if (sort === 'priority') {
+  if (sort === 'rating') {
+    // Meilleure note d'abord, jeux non notés en fin de liste
+    copy.sort((a, b) => {
+      const ra = a.rating
+      const rb = b.rating
+      if (ra != null && rb != null && rb !== ra) return rb - ra
+      if (ra == null && rb != null) return 1
+      if (rb == null && ra != null) return -1
+      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+    })
+  } else if (sort === 'priority') {
     copy.sort((a, b) => {
       const pa = a.priority ?? 0
       const pb = b.priority ?? 0
@@ -122,6 +132,8 @@ export function GamesPage({
   const sortKey: SortKey =
     sortParam === 'year'
       ? 'year'
+      : sortParam === 'rating' && !wishlist
+        ? 'rating'
       : sortParam === 'priority' && showPrioritySort
         ? 'priority'
         : sortParam === 'name'
@@ -131,7 +143,13 @@ export function GamesPage({
             : 'name'
 
   const groupBy: GroupBy =
-    sortKey === 'priority' ? 'priority' : sortKey === 'year' ? 'year' : 'none'
+    sortKey === 'priority'
+      ? 'priority'
+      : sortKey === 'year'
+        ? 'year'
+        : sortKey === 'rating'
+          ? 'rating'
+          : 'none'
 
   const query = useMemo(() => {
     const base: {
@@ -362,6 +380,22 @@ export function GamesPage({
     }
   }
 
+  async function updateRating(game: Game, rating: number | null) {
+    setGames((prev) =>
+      prev.map((g) => (g.id === game.id ? { ...g, rating } : g)),
+    )
+    try {
+      await withToken((token) => gamesApi.update(token, game.id, { rating }))
+    } catch (err) {
+      setGames((prev) =>
+        prev.map((g) => (g.id === game.id ? { ...g, rating: game.rating } : g)),
+      )
+      setError(
+        err instanceof Error ? err.message : 'Impossible de mettre à jour la note',
+      )
+    }
+  }
+
   async function toggleFavorite(game: Game) {
     if (game.status !== 'finished') return
     const next = !game.favorite
@@ -501,6 +535,7 @@ export function GamesPage({
                   : null}
                 {sortKey === 'priority' ? ' · Priorité' : null}
                 {sortKey === 'year' ? ' · Année' : null}
+                {sortKey === 'rating' ? ' · Note' : null}
               </p>
             ) : null}
             </div>
@@ -592,6 +627,7 @@ export function GamesPage({
               }}
               onStatusChange={updateStatus}
               onPriorityChange={updatePriority}
+              onRatingChange={updateRating}
               onToggleFavorite={toggleFavorite}
               onAddToCollection={addToCollection}
               onReleaseReservation={releaseReservation}

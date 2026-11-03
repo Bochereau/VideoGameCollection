@@ -202,6 +202,7 @@ export function StatusFilters({
     { id: 'name', label: 'A→Z' },
     { id: 'year', label: 'Année' },
     ...(showPrioritySort ? [{ id: 'priority', label: 'Priorité' }] : []),
+    ...(!wishlist ? [{ id: 'rating', label: 'Note' }] : []),
   ]
   const sortOptionsInline = sortOptions.map((opt) => ({
     ...opt,

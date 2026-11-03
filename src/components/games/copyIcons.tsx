@@ -241,3 +241,50 @@ export function GameCopyIcons({
     </div>
   )
 }
+
+const PILL =
+  'inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-xs leading-none font-semibold whitespace-nowrap ring-1'
+const NEUTRAL_PILL = `${PILL} bg-bg text-ink ring-ink/30`
+
+/** Pastilles complètes (icône + libellé) pour la vue liste */
+export function FormatPill({ format }: { format: GameFormat }) {
+  return (
+    <span className={NEUTRAL_PILL}>
+      <FormatIcon format={format} size={14} />
+      {FORMAT_LABELS[format]}
+    </span>
+  )
+}
+
+export function ConditionPill({ condition }: { condition: GameCondition }) {
+  if (condition === 'none') {
+    return (
+      <span className={`${PILL} bg-bg text-ink-muted ring-line`}>
+        {CONDITION_LABELS[condition]}
+      </span>
+    )
+  }
+  return (
+    <span className={`${PILL} ring-white/30`} style={conditionStyle(condition)}>
+      <ConditionIcon condition={condition} size={14} />
+      {CONDITION_LABELS[condition]}
+    </span>
+  )
+}
+
+export function EditionPill({ edition }: { edition: GameEdition }) {
+  if (edition === 'standard') {
+    return (
+      <span className={NEUTRAL_PILL}>
+        <EditionIcon size={14} />
+        {EDITION_LABELS[edition]}
+      </span>
+    )
+  }
+  return (
+    <span className={`${PILL} ring-white/40`} style={EDITION_TIERS[edition].style}>
+      <EditionIcon size={14} />
+      {EDITION_LABELS[edition]}
+    </span>
+  )
+}

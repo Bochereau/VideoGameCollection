@@ -1,22 +1,28 @@
 import { Fragment } from 'react'
 import type { ConsoleColors, Game, GamePriority, GameStatus, GroupBy } from '@/types'
-import { CONDITION_LABELS, EDITION_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
   AddToCollectionButton,
   FavoriteButton,
   PriorityButton,
+  RatingButton,
   ReservedNotice,
   StatusSelect,
   gameCopyMeta,
 } from '@/components/games/gameActions'
 import {
   groupGamesByPriority,
+  groupGamesByRating,
   groupGamesByYear,
   SegmentHeading,
 } from '@/components/games/priorityGroups'
-import { ConditionChip, EditionChip } from '@/components/games/copyIcons'
+import {
+  ConditionPill,
+  EditionPill,
+  FormatPill,
+} from '@/components/games/copyIcons'
 import { cardCoverUrl } from '@/lib/coverUrl'
+import { consoleBadgeClass, consoleBadgeStyle } from '@/lib/consoleColor'
 
 type Props = {
   games: Game[]
@@ -26,6 +32,7 @@ type Props = {
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
+  onRatingChange: (game: Game, rating: number | null) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onReleaseReservation: (game: Game) => void
@@ -49,10 +56,11 @@ function GameRow({
   game,
   index,
   wishlist,
-  consoleColor,
+  consoleColors,
   onEdit,
   onStatusChange,
   onPriorityChange,
+  onRatingChange,
   onToggleFavorite,
   onAddToCollection,
   onReleaseReservation,
@@ -61,10 +69,11 @@ function GameRow({
   game: Game
   index: number
   wishlist: boolean
-  consoleColor?: string
+  consoleColors?: ConsoleColors
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
+  onRatingChange: (game: Game, rating: number | null) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onReleaseReservation: (game: Game) => void
@@ -109,15 +118,13 @@ function GameRow({
           </div>
         ) : null}
       </td>
-      <td className="px-3 py-2.5 whitespace-nowrap text-amber">
-        <span className="inline-flex items-center gap-1.5">
-          {consoleColor ? (
-            <span
-              className="size-2.5 shrink-0 rounded-full"
-              style={{ backgroundColor: consoleColor }}
-              aria-hidden
-            />
-          ) : null}
+      <td className="px-3 py-2.5 whitespace-nowrap">
+        <span
+          style={consoleBadgeStyle(consoleColors)}
+          className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ring-1 ring-black/10 ${consoleBadgeClass(
+            consoleColors,
+          )}`}
+        >
           {game.hardware}
         </span>
       </td>
@@ -127,29 +134,30 @@ function GameRow({
       <td className="px-3 py-2.5 tabular-nums text-ink-muted">
         {game.release || '—'}
       </td>
-      <td className="px-3 py-2.5 whitespace-nowrap text-ink-muted">
-        {format === 'digital' ? 'Numérique' : 'Physique'}
+      <td className="px-3 py-2.5 whitespace-nowrap">
+        <FormatPill format={format} />
       </td>
       {!wishlist ? (
         <td className="hidden px-3 py-2.5 whitespace-nowrap text-ink-muted lg:table-cell">
-          {format === 'physical' ? (
-            <span className="inline-flex items-center gap-1.5">
-              <ConditionChip condition={condition} />
-              {CONDITION_LABELS[condition]}
-            </span>
-          ) : (
-            '—'
-          )}
+          {format === 'physical' ? <ConditionPill condition={condition} /> : '—'}
         </td>
       ) : null}
-      <td className="hidden px-3 py-2.5 whitespace-nowrap text-amber lg:table-cell">
-        <span className="inline-flex items-center gap-1.5">
-          <EditionChip edition={edition} />
-          {EDITION_LABELS[edition]}
-        </span>
+      <td className="hidden px-3 py-2.5 whitespace-nowrap lg:table-cell">
+        <EditionPill edition={edition} />
       </td>
       <td className="px-3 py-2.5">
         <div className="flex items-center justify-end gap-1.5">
+          {/* Emplacements fixes : note, puis priorité ou cœur dans la même colonne */}
+          {!wishlist ? (
+            <div className="flex w-8 shrink-0 items-center justify-center">
+              {showPriority ? null : (
+                <RatingButton
+                  rating={game.rating}
+                  onChange={(rating) => onRatingChange(game, rating)}
+                />
+              )}
+            </div>
+          ) : null}
           <div className="flex w-8 shrink-0 items-center justify-center">
             {showPriority ? (
               <PriorityButton
@@ -177,14 +185,14 @@ function GameRow({
           )}
           <Button
             variant="secondary"
-            className="!px-2 !py-1 !text-xs"
+            className="!h-8 !px-3 !py-0 !text-xs"
             onClick={() => onEdit(game)}
           >
             Modifier
           </Button>
           <Button
             variant="danger"
-            className="!bg-danger/80 !px-2 !py-1 !text-bg hover:!bg-danger"
+            className="!size-8 !bg-danger/80 !p-0 !text-bg hover:!bg-danger"
             onClick={() => onDelete(game)}
             aria-label="Supprimer"
           >
@@ -204,6 +212,7 @@ export function GameList({
   onEdit,
   onStatusChange,
   onPriorityChange,
+  onRatingChange,
   onToggleFavorite,
   onAddToCollection,
   onReleaseReservation,
@@ -215,6 +224,7 @@ export function GameList({
     onEdit,
     onStatusChange,
     onPriorityChange,
+    onRatingChange,
     onToggleFavorite,
     onAddToCollection,
     onReleaseReservation,
@@ -227,7 +237,9 @@ export function GameList({
       ? groupGamesByPriority(games)
       : groupBy === 'year'
         ? groupGamesByYear(games)
-        : null
+        : groupBy === 'rating'
+          ? groupGamesByRating(games)
+          : null
 
   return (
     <div className="overflow-x-auto rounded-xl border border-line bg-surface/60 backdrop-blur-md">
@@ -272,7 +284,7 @@ export function GameList({
                         key={game.id}
                         game={game}
                         index={index}
-                        consoleColor={consoleColors[game.hardware]?.color ?? undefined}
+                        consoleColors={consoleColors[game.hardware]}
                         {...rowProps}
                       />
                     )
@@ -284,7 +296,7 @@ export function GameList({
                   key={game.id}
                   game={game}
                   index={index}
-                  consoleColor={consoleColors[game.hardware]?.color ?? undefined}
+                  consoleColors={consoleColors[game.hardware]}
                   {...rowProps}
                 />
               ))}

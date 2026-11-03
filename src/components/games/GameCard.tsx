@@ -4,6 +4,7 @@ import {
   AddToCollectionButton,
   FavoriteButton,
   PriorityButton,
+  RatingButton,
   ReservedNotice,
   StatusSelect,
   gameCopyMeta,
@@ -26,6 +27,7 @@ type Props = {
   onEdit: (game: Game) => void
   onStatusChange: (game: Game, status: GameStatus) => void
   onPriorityChange: (game: Game, priority: GamePriority) => void
+  onRatingChange: (game: Game, rating: number | null) => void
   onToggleFavorite: (game: Game) => void
   onAddToCollection: (game: Game) => void
   onReleaseReservation: (game: Game) => void
@@ -40,6 +42,7 @@ export function GameCard({
   onEdit,
   onStatusChange,
   onPriorityChange,
+  onRatingChange,
   onToggleFavorite,
   onAddToCollection,
   onReleaseReservation,
@@ -72,7 +75,9 @@ export function GameCard({
         <span
           title={game.hardware}
           style={consoleBadgeStyle(consoleColors)}
-          className={`absolute top-2 left-2 z-10 inline-flex h-8 max-w-[calc(100%-2.75rem)] items-center truncate rounded-full px-2.5 text-xs font-semibold shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm ${consoleBadgeClass(
+          className={`absolute top-2 left-2 z-10 inline-flex h-8 ${
+            showFavorite ? 'max-w-[calc(100%-5rem)]' : 'max-w-[calc(100%-2.75rem)]'
+          } items-center truncate rounded-full px-2.5 text-xs font-semibold shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm ${consoleBadgeClass(
             consoleColors,
           )}`}
         >
@@ -161,13 +166,21 @@ export function GameCard({
           onChange={(p) => onPriorityChange(game, p)}
           className="absolute top-2 right-2 z-20"
         />
-      ) : showFavorite ? (
-        <FavoriteButton
-          favorite={game.favorite}
-          onClick={() => onToggleFavorite(game)}
-          className="absolute top-2 right-2 z-20"
-        />
-      ) : null}
+      ) : (
+        <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
+          {showFavorite ? (
+            <FavoriteButton
+              favorite={game.favorite}
+              onClick={() => onToggleFavorite(game)}
+            />
+          ) : null}
+          <RatingButton
+            overlay
+            rating={game.rating}
+            onChange={(rating) => onRatingChange(game, rating)}
+          />
+        </div>
+      )}
 
       <div className="flex flex-1 flex-col p-2 sm:p-2.5">
         <h3 className="line-clamp-2 text-xs leading-snug font-semibold text-ink sm:text-sm">

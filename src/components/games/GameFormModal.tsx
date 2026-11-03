@@ -19,6 +19,7 @@ import {
   STATUS_LABELS,
 } from '@/types'
 import { catalogApi, gamesApi } from '@/lib/api'
+import { formatRating, MAX_RATING, parseRatingInput } from '@/lib/rating'
 import { useVisualFrame, visualFrameStyle } from '@/lib/useVisualFrame'
 import { Button } from '@/components/ui/Button'
 
@@ -44,6 +45,7 @@ const empty: GameInput = {
   priority: DEFAULT_PRIORITY,
   wishlist: false,
   favorite: false,
+  rating: null,
   cover: null,
   igdbId: null,
   rawgId: null,
@@ -136,6 +138,7 @@ export function GameFormModal({
   )
   const [duplicates, setDuplicates] = useState<Game[]>([])
   const [duplicateAck, setDuplicateAck] = useState('')
+  const [ratingDraft, setRatingDraft] = useState('')
   const frame = useVisualFrame(open)
 
   useEffect(() => {
@@ -160,6 +163,7 @@ export function GameFormModal({
         priority: initial.priority ?? DEFAULT_PRIORITY,
         wishlist: initial.wishlist,
         favorite: initial.favorite,
+        rating: initial.rating ?? null,
         cover: initial.cover ?? null,
         igdbId: initial.igdbId ?? null,
         rawgId: initial.rawgId ?? null,
@@ -195,6 +199,7 @@ export function GameFormModal({
     setCoverResults([])
     setCoverPickerOpen(false)
     setCoverSource(detectCoverSource(initial?.cover))
+    setRatingDraft(initial?.rating != null ? formatRating(initial.rating) : '')
     setError(null)
     setDuplicates([])
     setDuplicateAck('')
@@ -369,6 +374,11 @@ export function GameFormModal({
       setError('Nom et console sont requis.')
       return
     }
+    const rating = form.wishlist ? null : parseRatingInput(ratingDraft)
+    if (rating === undefined) {
+      setError('La note doit être comprise entre 0 et 10 (une décimale max).')
+      return
+    }
     const ackKey = `${name.toLocaleLowerCase('fr')}\n${hardware.toLocaleLowerCase('fr')}`
     setBusy(true)
     setError(null)
@@ -398,6 +408,7 @@ export function GameFormModal({
         hardware,
         developer: form.developer?.trim() ?? '',
         editor: form.editor?.trim() ?? '',
+        rating,
       })
       onClose()
     } catch (err) {
@@ -904,6 +915,23 @@ export function GameFormModal({
                           ),
                         )}
                       </select>
+                    </Field>
+                  ) : null}
+
+                  {!defaultWishlist && !form.wishlist ? (
+                    <Field label={`Note / ${MAX_RATING}`}>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        className={`field tabular-nums ${
+                          parseRatingInput(ratingDraft) === undefined
+                            ? '!border-danger'
+                            : ''
+                        }`}
+                        placeholder="Ex. 8,5 — vide = non noté"
+                        value={ratingDraft}
+                        onChange={(e) => setRatingDraft(e.target.value)}
+                      />
                     </Field>
                   ) : null}
 

@@ -26,6 +26,14 @@ function parsePriority(value) {
   return n
 }
 
+/** null = pas de note ; undefined = valeur invalide */
+function parseRating(value) {
+  if (value === null || value === '' || value === undefined) return null
+  const n = Number(typeof value === 'string' ? value.replace(',', '.') : value)
+  if (!Number.isFinite(n) || n < 0 || n > 10) return undefined
+  return Math.round(n * 10) / 10
+}
+
 function parseStatus(body, existing) {
   if (body?.status !== undefined) {
     if (STATUSES.has(body.status)) return body.status
@@ -308,6 +316,10 @@ export default async function handler(req, res) {
         !wishlist &&
         status === 'finished' &&
         (body?.favorite === true || body?.favorite === 'true')
+      const rating = wishlist ? null : parseRating(body?.rating)
+      if (rating === undefined) {
+        return json(res, 400, { error: 'rating must be between 0 and 10' })
+      }
 
       const doc = {
         userId,
@@ -325,6 +337,7 @@ export default async function handler(req, res) {
         finished: status === 'finished',
         wishlist,
         favorite,
+        rating,
         cover: body?.cover ? String(body.cover) : null,
         igdbId: body?.igdbId != null ? Number(body.igdbId) : null,
         rawgId: body?.rawgId != null ? Number(body.rawgId) : null,
@@ -427,6 +440,15 @@ export default async function handler(req, res) {
         $set.favorite = false
       } else if (body?.favorite !== undefined) {
         $set.favorite = body.favorite === true || body.favorite === 'true'
+      }
+
+      // Note réservée à la collection : ignorée pour les envies
+      if (body?.rating !== undefined && !willBeWishlist) {
+        const rating = parseRating(body.rating)
+        if (rating === undefined) {
+          return json(res, 400, { error: 'rating must be between 0 and 10' })
+        }
+        $set.rating = rating
       }
 
       if (body?.cover !== undefined) $set.cover = body.cover ? String(body.cover) : null

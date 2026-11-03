@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type FormEvent,
   type ReactNode,
   type RefObject,
 } from 'react'
@@ -23,6 +24,12 @@ import {
   PRIORITY_LABELS,
   STATUS_LABELS,
 } from '@/types'
+import {
+  MAX_RATING,
+  formatRating,
+  parseRatingInput,
+  ratingColorClass,
+} from '@/lib/rating'
 
 export function gameCopyMeta(game: Game): {
   format: GameFormat
@@ -136,12 +143,14 @@ function StatusIcon({ status, size = 12 }: { status: GameStatus; size?: number }
   )
 }
 
-function usePortalMenu(align: 'left' | 'right' = 'right') {
+function usePortalMenu<M extends HTMLElement = HTMLUListElement>(
+  align: 'left' | 'right' = 'right',
+) {
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<MenuPos | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLUListElement>(null)
+  const menuRef = useRef<M>(null)
 
   function updatePos() {
     const el = triggerRef.current
@@ -273,11 +282,11 @@ export function StatusSelect({
         }}
         className={`inline-flex items-center justify-center gap-1.5 rounded-full font-medium leading-none transition ${
           compact
-            ? 'min-w-[6.75rem] px-2.5 py-1 text-[0.65rem]'
+            ? 'h-8 min-w-[6.75rem] px-3 text-xs'
             : 'w-full px-2.5 py-1.5 text-[0.7rem]'
         } ${STATUS_STYLES[status]}`}
       >
-        <StatusIcon status={status} size={compact ? 11 : 12} />
+        <StatusIcon status={status} size={12} />
         <span className="leading-none">{STATUS_LABELS[status]}</span>
       </button>
 
@@ -352,7 +361,7 @@ export function AddToCollectionButton({
       onClick={onClick}
       className={`rounded-full bg-accent/20 font-medium text-accent transition hover:bg-accent hover:text-bg ${
         compact
-          ? 'px-2.5 py-1 text-[0.65rem] whitespace-nowrap'
+          ? 'h-8 px-3 text-xs whitespace-nowrap'
           : 'w-full px-2.5 py-1.5 text-[0.7rem]'
       }`}
     >
@@ -509,6 +518,205 @@ export function PriorityButton({
           ))}
         </PortalMenu>
       ) : null}
+    </div>
+  )
+}
+
+const RING_RADIUS = 15
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS
+
+/** Anneau rempli proportionnellement à la note ; pointillés si non noté */
+function ScoreRing({ rating, size }: { rating: number | null; size: number }) {
+  return (
+    <span
+      className={`relative inline-flex shrink-0 items-center justify-center ${ratingColorClass(rating)}`}
+      style={{ width: size, height: size }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 36 36"
+        fill="none"
+        aria-hidden
+        className="absolute inset-0 -rotate-90"
+      >
+        {rating == null ? (
+          <circle
+            cx="18"
+            cy="18"
+            r={RING_RADIUS}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeDasharray="3 3.3"
+            opacity={0.6}
+          />
+        ) : (
+          <>
+            <circle
+              cx="18"
+              cy="18"
+              r={RING_RADIUS}
+              stroke="currentColor"
+              strokeWidth="3.5"
+              opacity={0.2}
+            />
+            <circle
+              cx="18"
+              cy="18"
+              r={RING_RADIUS}
+              stroke="currentColor"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeDasharray={`${(rating / MAX_RATING) * RING_LENGTH} ${RING_LENGTH}`}
+            />
+          </>
+        )}
+      </svg>
+      <span
+        className={`relative leading-none font-bold tabular-nums ${
+          rating == null ? 'text-ink-muted' : 'text-ink'
+        }`}
+        style={{ fontSize: size * 0.3 }}
+      >
+        {rating == null
+          ? '–'
+          : rating === MAX_RATING
+            ? '10'
+            : formatRating(rating)}
+      </span>
+    </span>
+  )
+}
+
+/** Note sur 10 : anneau cliquable + panneau de saisie (champ + curseur) */
+export function RatingButton({
+  rating,
+  onChange,
+  compact = false,
+  overlay = false,
+  className = '',
+}: {
+  rating: number | null
+  onChange: (rating: number | null) => void
+  compact?: boolean
+  /** Posé sur la jaquette : fond opaque comme les autres boutons ronds */
+  overlay?: boolean
+  className?: string
+}) {
+  const { open, setOpen, rootRef, triggerRef, menuRef, pos } =
+    usePortalMenu<HTMLFormElement>('right')
+  const panelId = useId()
+  const [draft, setDraft] = useState('')
+  const parsed = parseRatingInput(draft)
+  const label =
+    rating == null ? 'Noter ce jeu' : `Note : ${formatRating(rating)} / 10`
+
+  function commit(next: number | null) {
+    if (next !== rating) onChange(next)
+    setOpen(false)
+  }
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (parsed === undefined) return
+    commit(parsed)
+  }
+
+  return (
+    <div ref={rootRef} className={className || 'inline-flex shrink-0'}>
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={label}
+        title={label}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (!open) setDraft(rating == null ? '' : formatRating(rating))
+          setOpen((v) => !v)
+        }}
+        className={`inline-flex rounded-full transition hover:scale-105 ${
+          overlay
+            ? 'bg-bg/90 shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm'
+            : ''
+        }`}
+      >
+        <ScoreRing rating={rating} size={compact ? 28 : 32} />
+      </button>
+
+      {open && pos
+        ? createPortal(
+            <form
+              ref={menuRef}
+              id={panelId}
+              role="dialog"
+              aria-label="Noter le jeu"
+              onSubmit={handleSubmit}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'fixed',
+                top: pos.top,
+                left: pos.left,
+                minWidth: pos.minWidth,
+              }}
+              className="z-[100] space-y-2.5 rounded-lg border border-line bg-bg p-3 shadow-lg shadow-black/50"
+            >
+              <label className="flex items-center gap-2 text-xs text-ink-muted">
+                <span className="font-medium tracking-wide uppercase">Note</span>
+                <input
+                  autoFocus
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="—"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  aria-invalid={parsed === undefined}
+                  className={`field w-16 !py-1 text-center tabular-nums ${
+                    parsed === undefined ? '!border-danger' : ''
+                  }`}
+                />
+                <span>/ {MAX_RATING}</span>
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={MAX_RATING}
+                step={0.1}
+                value={typeof parsed === 'number' ? parsed : 5}
+                onChange={(e) => setDraft(formatRating(Number(e.target.value)))}
+                aria-label="Note"
+                className="block w-full accent-accent"
+              />
+              {parsed === undefined ? (
+                <p className="text-[0.65rem] text-danger">
+                  Entre 0 et 10, une décimale max.
+                </p>
+              ) : null}
+              <div className="flex justify-end gap-1.5">
+                {rating != null ? (
+                  <button
+                    type="button"
+                    onClick={() => commit(null)}
+                    className="rounded-full px-2.5 py-1 text-[0.7rem] font-medium text-ink-muted transition hover:bg-surface hover:text-ink"
+                  >
+                    Effacer
+                  </button>
+                ) : null}
+                <button
+                  type="submit"
+                  disabled={parsed === undefined}
+                  className="rounded-full bg-accent px-3 py-1 text-[0.7rem] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+                >
+                  OK
+                </button>
+              </div>
+            </form>,
+            document.body,
+          )
+        : null}
     </div>
   )
 }
