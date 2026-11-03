@@ -242,10 +242,10 @@ export function GameList({
           : null
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface/60 backdrop-blur-md">
+    <div className="min-h-0 overflow-auto overscroll-contain rounded-xl border border-line bg-surface/60 backdrop-blur-md">
       <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
-        <thead>
-          <tr className="border-b border-line text-[0.65rem] font-medium tracking-wide text-ink-muted uppercase">
+        <thead className="sticky top-0 z-10 bg-bg shadow-[inset_0_-1px_0_var(--color-line)]">
+          <tr className="text-[0.65rem] font-medium tracking-wide text-ink-muted uppercase">
             <th className="w-12 px-3 py-2.5 font-medium">
               <span className="sr-only">Jaquette</span>
             </th>

@@ -233,6 +233,7 @@ export function GamesPage({
     [games, sortKey],
   )
   const consoleColors = useMemo(() => consoleColorMap(consoles), [consoles])
+  const listScroll = viewMode === 'list' && !loading && displayedGames.length > 0
 
   function patchParams(mutate: (next: URLSearchParams) => void) {
     setSearchParams((prev) => {
@@ -603,8 +604,17 @@ export function GamesPage({
         ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="px-4 pb-6 sm:px-6 lg:px-8">
+      {/* Vue liste : le tableau défile lui-même pour garder son en-tête visible */}
+      <div
+        className={`min-h-0 flex-1 ${
+          listScroll ? 'flex flex-col overflow-hidden' : 'overflow-y-auto'
+        }`}
+      >
+        <div
+          className={`px-4 pb-6 sm:px-6 lg:px-8 ${
+            listScroll ? 'flex min-h-0 flex-1 flex-col' : ''
+          }`}
+        >
           {loading ? (
             <Loading />
           ) : (
