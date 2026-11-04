@@ -1,5 +1,12 @@
 import { useAuth } from '@clerk/clerk-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
 import type { AppOutletContext } from '@/components/layout/AppLayout'
 import { GameFormModal } from '@/components/games/GameFormModal'
@@ -11,6 +18,8 @@ import { Loading } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
 import { gamesApi, consolesApi, wishlistClaimApi } from '@/lib/api'
 import { consoleColorMap } from '@/lib/consoleColor'
+import { filterGames, sortGames } from '@/lib/gameFilters'
+import { useStableCallback } from '@/lib/useStableCallback'
 import type {
   ConditionFilter,
   EditionFilter,
@@ -39,45 +48,6 @@ type Props = {
   emptyTitle: string
   emptyDescription: string
   addLabel: string
-}
-
-function sortGames(list: Game[], sort: SortKey): Game[] {
-  const copy = [...list]
-  if (sort === 'rating') {
-    // Meilleure note d'abord, jeux non notés en fin de liste
-    copy.sort((a, b) => {
-      const ra = a.rating
-      const rb = b.rating
-      if (ra != null && rb != null && rb !== ra) return rb - ra
-      if (ra == null && rb != null) return 1
-      if (rb == null && ra != null) return -1
-      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-    })
-  } else if (sort === 'priority') {
-    copy.sort((a, b) => {
-      const pa = a.priority ?? 0
-      const pb = b.priority ?? 0
-      if (pb !== pa) return pb - pa
-      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-    })
-  } else if (sort === 'year') {
-    copy.sort((a, b) => {
-      const ya = a.release
-      const yb = b.release
-      if (ya == null && yb == null) {
-        return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-      }
-      if (ya == null) return 1
-      if (yb == null) return -1
-      if (yb !== ya) return yb - ya
-      return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
-    })
-  } else {
-    copy.sort((a, b) =>
-      a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
-    )
-  }
-  return copy
 }
 
 export function GamesPage({
@@ -151,88 +121,86 @@ export function GamesPage({
           ? 'rating'
           : 'none'
 
-  const query = useMemo(() => {
-    const base: {
-      wishlist: boolean
-      hardware?: string
-      status?: GameStatus
-      favorite?: boolean
-      q?: string
-      format?: 'physical' | 'digital'
-      condition?: 'complete' | 'box' | 'manual' | 'loose' | 'none'
-      edition?: 'standard' | 'special' | 'collector' | 'steelbook' | 'deluxe'
-      genre?: string
-    } = { wishlist }
-    if (hardware) base.hardware = hardware
-    if (q) base.q = q
-    if (!wishlist && statusFilter !== 'all') base.status = statusFilter
-    if (!wishlist && favoriteFilter === 'yes') base.favorite = true
-    if (formatFilter === 'physical' || formatFilter === 'digital') {
-      base.format = formatFilter
-    }
-    if (
-      !wishlist &&
-      conditionFilter !== 'all' &&
-      formatFilter !== 'digital' &&
-      (conditionFilter === 'complete' ||
-        conditionFilter === 'box' ||
-        conditionFilter === 'manual' ||
-        conditionFilter === 'loose' ||
-        conditionFilter === 'none')
-    ) {
-      base.condition = conditionFilter
-    }
-    if (
-      editionFilter === 'standard' ||
-      editionFilter === 'special' ||
-      editionFilter === 'collector' ||
-      editionFilter === 'steelbook' ||
-      editionFilter === 'deluxe'
-    ) {
-      base.edition = editionFilter
-    }
-    if (genreFilter !== 'all') base.genre = genreFilter
-    return base
-  }, [
-    wishlist,
-    hardware,
-    q,
-    statusFilter,
-    favoriteFilter,
-    formatFilter,
-    conditionFilter,
-    editionFilter,
-    genreFilter,
-  ])
+  const filters = useMemo(
+    () => ({
+      wishlist,
+      hardware,
+      q,
+      status: statusFilter,
+      favorite: favoriteFilter,
+      format: formatFilter,
+      condition: conditionFilter,
+      edition: editionFilter,
+      genre: genreFilter,
+    }),
+    [
+      wishlist,
+      hardware,
+      q,
+      statusFilter,
+      favoriteFilter,
+      formatFilter,
+      conditionFilter,
+      editionFilter,
+      genreFilter,
+    ],
+  )
 
+  // Ignore les réponses d'un chargement dépassé par un plus récent
+  const requestRef = useRef(0)
+
+  /**
+   * Charge toute la collection (ou la liste d'envies) ; les filtres sont
+   * appliqués en mémoire. Seul le premier chargement affiche le spinner :
+   * les rechargements suivants remplacent la liste sans démonter la grille.
+   */
   const load = useCallback(async () => {
-    setLoading(true)
+    const requestId = ++requestRef.current
     setError(null)
     try {
       const token = await getToken()
       if (!token) return
       const [list, consoles] = await Promise.all([
-        gamesApi.list(token, query),
+        gamesApi.list(token, { wishlist }),
         consolesApi.list(token),
       ])
+      if (requestId !== requestRef.current) return
       setGames(list)
       setConsoleNames(consoles.map((c) => c.name))
     } catch (err) {
+      if (requestId !== requestRef.current) return
       setError(err instanceof Error ? err.message : 'Erreur de chargement')
     } finally {
-      setLoading(false)
+      if (requestId === requestRef.current) setLoading(false)
     }
-  }, [getToken, query, collectionVersion])
+  }, [getToken, wishlist, collectionVersion])
 
   useEffect(() => {
     void load()
   }, [load])
 
   const displayedGames = useMemo(
-    () => sortGames(games, sortKey),
-    [games, sortKey],
+    () => sortGames(filterGames(games, filters), sortKey),
+    [games, filters, sortKey],
   )
-  const consoleColors = useMemo(() => consoleColorMap(consoles), [consoles])
+  // La grille suit avec un léger différé : la saisie et les filtres restent
+  // réactifs. Liste et regroupement sont différés ensemble pour rester cohérents.
+  const gridView = useMemo(
+    () => ({ games: displayedGames, groupBy }),
+    [displayedGames, groupBy],
+  )
+  const deferredGrid = useDeferredValue(gridView)
+
+  // Recalcule les couleurs seulement si elles changent vraiment : un simple
+  // rafraîchissement des consoles (compteurs) ne doit pas redessiner les cartes
+  const consoleColorsKey = consoles
+    .map((c) => `${c.name}\u0000${c.color ?? ''}\u0000${c.textColor ?? ''}`)
+    .join('\u0001')
+  const consoleColors = useMemo(
+    () => consoleColorMap(consoles),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [consoleColorsKey],
+  )
   const listScroll = viewMode === 'list' && !loading && displayedGames.length > 0
 
   function patchParams(mutate: (next: URLSearchParams) => void) {
@@ -341,122 +309,126 @@ export function GamesPage({
       return gamesApi.create(token, payload)
     })
     if (editing) {
-      setGames((prev) => prev.map((game) => (game.id === saved.id ? saved : game)))
+      setGames((prev) =>
+        prev.map((game) =>
+          game.id === saved.id
+            ? { ...saved, reserved: saved.reserved ?? game.reserved }
+            : game,
+        ),
+      )
     } else {
       await load()
     }
     await refreshConsoles()
   }
 
-  async function updateStatus(game: Game, status: GameStatus) {
-    await withToken((token) =>
-      gamesApi.update(token, game.id, {
+  /** Applique un changement local à un seul jeu (les autres gardent leur identité) */
+  function patchGame(id: string, patch: Partial<Game>) {
+    setGames((prev) => prev.map((g) => (g.id === id ? { ...g, ...patch } : g)))
+  }
+
+  // Gestionnaires stables : les cartes mémoïsées ne se redessinent que si
+  // leur propre jeu change
+  const updateStatus = useStableCallback(
+    async (game: Game, status: GameStatus) => {
+      const patch = {
         status,
         favorite: status === 'finished' ? game.favorite : false,
-        priority: status === 'todo' ? (game.priority ?? 3) : null,
-      }),
-    )
-    await load()
-  }
+        priority:
+          status === 'todo' ? (game.priority ?? 3) : null,
+      } satisfies Partial<Game>
+      // Mise à jour immédiate ; le filtre en mémoire masque le jeu s'il ne
+      // correspond plus (ex. filtre « En cours »)
+      patchGame(game.id, patch)
+      try {
+        await withToken((token) => gamesApi.update(token, game.id, patch))
+      } catch (err) {
+        patchGame(game.id, {
+          status: game.status,
+          favorite: game.favorite,
+          priority: game.priority,
+        })
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Impossible de mettre à jour l’état',
+        )
+      }
+    },
+  )
 
-  async function updatePriority(game: Game, priority: GamePriority) {
-    setGames((prev) =>
-      prev.map((g) => (g.id === game.id ? { ...g, priority } : g)),
-    )
-    try {
-      await withToken((token) =>
-        gamesApi.update(token, game.id, { priority }),
-      )
-    } catch (err) {
-      setGames((prev) =>
-        prev.map((g) =>
-          g.id === game.id ? { ...g, priority: game.priority } : g,
-        ),
-      )
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Impossible de mettre à jour la priorité',
-      )
-    }
-  }
+  const updatePriority = useStableCallback(
+    async (game: Game, priority: GamePriority) => {
+      patchGame(game.id, { priority })
+      try {
+        await withToken((token) =>
+          gamesApi.update(token, game.id, { priority }),
+        )
+      } catch (err) {
+        patchGame(game.id, { priority: game.priority })
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Impossible de mettre à jour la priorité',
+        )
+      }
+    },
+  )
 
-  async function updateRating(game: Game, rating: number | null) {
-    setGames((prev) =>
-      prev.map((g) => (g.id === game.id ? { ...g, rating } : g)),
-    )
-    try {
-      await withToken((token) => gamesApi.update(token, game.id, { rating }))
-    } catch (err) {
-      setGames((prev) =>
-        prev.map((g) => (g.id === game.id ? { ...g, rating: game.rating } : g)),
-      )
-      setError(
-        err instanceof Error ? err.message : 'Impossible de mettre à jour la note',
-      )
-    }
-  }
+  const updateRating = useStableCallback(
+    async (game: Game, rating: number | null) => {
+      patchGame(game.id, { rating })
+      try {
+        await withToken((token) => gamesApi.update(token, game.id, { rating }))
+      } catch (err) {
+        patchGame(game.id, { rating: game.rating })
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Impossible de mettre à jour la note',
+        )
+      }
+    },
+  )
 
-  async function toggleFavorite(game: Game) {
+  const toggleFavorite = useStableCallback(async (game: Game) => {
     if (game.status !== 'finished') return
     const next = !game.favorite
-    setGames((prev) => {
-      const updated = prev.map((g) =>
-        g.id === game.id ? { ...g, favorite: next } : g,
-      )
-      if (favoriteFilter === 'yes' && !next) {
-        return updated.filter((g) => g.id !== game.id)
-      }
-      return updated
-    })
+    // Avec le filtre « Coups de cœur », le jeu disparaît via le filtre en mémoire
+    patchGame(game.id, { favorite: next })
     try {
       await withToken((token) =>
         gamesApi.update(token, game.id, { favorite: next }),
       )
     } catch (err) {
-      setGames((prev) => {
-        const restored = prev.some((g) => g.id === game.id)
-          ? prev.map((g) =>
-              g.id === game.id
-                ? { ...g, favorite: Boolean(game.favorite) }
-                : g,
-            )
-          : [...prev, game].sort((a, b) =>
-              a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }),
-            )
-        return restored
-      })
+      patchGame(game.id, { favorite: Boolean(game.favorite) })
       setError(
         err instanceof Error
           ? err.message
           : 'Impossible de mettre à jour le coup de cœur',
       )
     }
-  }
+  })
 
-  async function addToCollection(game: Game) {
+  const addToCollection = useStableCallback((game: Game) => {
     setAddingGame(game)
-  }
+  })
 
-  async function releaseReservation(game: Game) {
+  const releaseReservation = useStableCallback(async (game: Game) => {
     if (!window.confirm(`Libérer « ${game.name} » ? Le jeu redevient disponible.`)) {
       return
     }
     setError(null)
     try {
       await withToken((token) => wishlistClaimApi.release(token, game.id))
-      setGames((prev) =>
-        prev.map((item) =>
-          item.id === game.id ? { ...item, reserved: false } : item,
-        ),
-      )
+      patchGame(game.id, { reserved: false })
       await refreshReservations()
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Impossible de libérer la réservation',
       )
     }
-  }
+  })
 
   async function confirmAddToCollection(priority: GamePriority) {
     if (!addingGame) return
@@ -471,8 +443,10 @@ export function GamesPage({
           favorite: false,
         }),
       )
+      // Le jeu quitte la liste d'envies : on le retire sans tout recharger
+      const movedId = addingGame.id
+      setGames((prev) => prev.filter((g) => g.id !== movedId))
       setAddingGame(null)
-      await load()
       await refreshConsoles()
       await refreshReservations()
     } catch (err) {
@@ -486,17 +460,27 @@ export function GamesPage({
     }
   }
 
-  async function removeGame(game: Game) {
+  const removeGame = useStableCallback(async (game: Game) => {
     if (!window.confirm(`Supprimer « ${game.name} » ?`)) return
     try {
       await withToken((token) => gamesApi.remove(token, game.id))
-      await load()
+      setGames((prev) => prev.filter((g) => g.id !== game.id))
       await refreshConsoles()
       if (game.reserved) await refreshReservations()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Suppression impossible')
     }
-  }
+  })
+
+  const openCreate = useStableCallback(() => {
+    setEditing(null)
+    setModalOpen(true)
+  })
+
+  const openEdit = useStableCallback((game: Game) => {
+    setEditing(game)
+    setModalOpen(true)
+  })
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -585,10 +569,7 @@ export function GamesPage({
           showPrioritySort={showPrioritySort}
           sort={sortKey}
           onSortChange={setSort}
-          onAdd={() => {
-            setEditing(null)
-            setModalOpen(true)
-          }}
+          onAdd={openCreate}
           onReset={resetFilters}
           addLabel={addLabel}
           consoles={consoles}
@@ -619,22 +600,16 @@ export function GamesPage({
             <Loading />
           ) : (
             <GameGrid
-              games={displayedGames}
+              games={deferredGrid.games}
               viewMode={viewMode}
               columnsPerRow={columnsPerRow}
               wishlist={wishlist}
-              groupBy={groupBy}
+              groupBy={deferredGrid.groupBy}
               consoleColors={consoleColors}
               emptyTitle={emptyTitle}
               emptyDescription={emptyDescription}
-              onAdd={() => {
-                setEditing(null)
-                setModalOpen(true)
-              }}
-              onEdit={(game) => {
-                setEditing(game)
-                setModalOpen(true)
-              }}
+              onAdd={openCreate}
+              onEdit={openEdit}
               onStatusChange={updateStatus}
               onPriorityChange={updatePriority}
               onRatingChange={updateRating}

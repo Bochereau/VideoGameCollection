@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { memo, useMemo, type CSSProperties } from 'react'
 import type { ConsoleColors, Game, GamePriority, GameStatus, GroupBy } from '@/types'
 import type { GamesViewMode } from '@/types/view'
 import { GameCard } from '@/components/games/GameCard'
@@ -16,6 +16,13 @@ import { Button } from '@/components/ui/Button'
 export type { GamesViewMode }
 
 const CARD_GRID = 'game-card-grid'
+
+/** Seules les premières cartes ont l'animation d'apparition */
+const ANIMATED_CARDS = 24
+
+function cardAnimationDelay(index: number): number | null {
+  return index < ANIMATED_CARDS ? Math.min(index, 12) * 40 : null
+}
 
 type Props = {
   games: Game[]
@@ -45,7 +52,7 @@ function segmentsFor(games: Game[], groupBy: GroupBy): GameSegment[] | null {
   return null
 }
 
-export function GameGrid({
+export const GameGrid = memo(function GameGrid({
   games,
   viewMode,
   columnsPerRow,
@@ -64,6 +71,11 @@ export function GameGrid({
   onReleaseReservation,
   onDelete,
 }: Props) {
+  const segments = useMemo(
+    () => (viewMode === 'list' ? null : segmentsFor(games, groupBy)),
+    [games, groupBy, viewMode],
+  )
+
   if (games.length === 0) {
     return (
       <EmptyState
@@ -97,7 +109,6 @@ export function GameGrid({
     )
   }
 
-  const segments = segmentsFor(games, groupBy)
   const gridStyle = { '--game-cols': columnsPerRow } as CSSProperties
 
   if (!segments) {
@@ -107,7 +118,7 @@ export function GameGrid({
           <GameCard
             key={game.id}
             game={game}
-            index={index}
+            animationDelay={cardAnimationDelay(index)}
             consoleColors={consoleColors[game.hardware]}
             {...shared}
           />
@@ -135,7 +146,7 @@ export function GameGrid({
                 <GameCard
                   key={game.id}
                   game={game}
-                  index={index}
+                  animationDelay={cardAnimationDelay(index)}
                   consoleColors={consoleColors[game.hardware]}
                   {...shared}
                 />
@@ -146,4 +157,4 @@ export function GameGrid({
       ))}
     </div>
   )
-}
+})

@@ -244,6 +244,17 @@
       grid-template-columns: repeat(var(--game-cols, 8), minmax(0, 1fr));
     }
   }
+
+  /*
+   * Grandes collections : le navigateur saute la mise en page et le dessin des
+   * cartes hors écran. La hauteur réelle est mémorisée après le premier
+   * affichage (« auto ») ; 340px n'est qu'une estimation de départ.
+   * Les menus des cartes passent par des portails, ils ne sont donc pas rognés.
+   */
+  .game-card-grid > article {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 340px;
+  }
 }
 
 @keyframes fade-up {

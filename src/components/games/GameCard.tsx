@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { ConsoleColors, Game, GamePriority, GameStatus } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
@@ -21,7 +22,8 @@ import { consoleBadgeClass, consoleBadgeStyle } from '@/lib/consoleColor'
 
 type Props = {
   game: Game
-  index: number
+  /** Délai d'apparition en ms ; null = pas d'animation (cartes au-delà des premières) */
+  animationDelay: number | null
   wishlist: boolean
   consoleColors?: ConsoleColors
   onEdit: (game: Game) => void
@@ -34,9 +36,10 @@ type Props = {
   onDelete: (game: Game) => void
 }
 
-export function GameCard({
+/** Mémoïsée : la carte ne se redessine que si son jeu ou ses couleurs changent */
+export const GameCard = memo(function GameCard({
   game,
-  index,
+  animationDelay,
   wishlist,
   consoleColors,
   onEdit,
@@ -55,8 +58,12 @@ export function GameCard({
 
   return (
     <article
-      className="animate-fade-up group relative flex flex-col rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 backdrop-blur-md transition duration-300 hover:border-accent/40 hover:shadow-cyan-500/10"
-      style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
+      className={`${
+        animationDelay != null ? 'animate-fade-up ' : ''
+      }group relative flex flex-col rounded-xl border border-line bg-surface-elevated shadow-md shadow-black/25 transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-cyan-500/10`}
+      style={
+        animationDelay != null ? { animationDelay: `${animationDelay}ms` } : undefined
+      }
     >
       <div className="relative aspect-[3/4] overflow-hidden rounded-t-xl bg-bg">
         {game.cover ? (
@@ -77,7 +84,7 @@ export function GameCard({
           style={consoleBadgeStyle(consoleColors)}
           className={`absolute top-2 left-2 z-10 inline-flex h-8 ${
             showFavorite ? 'max-w-[calc(100%-5rem)]' : 'max-w-[calc(100%-2.75rem)]'
-          } items-center truncate rounded-full px-2.5 text-xs font-semibold shadow-md shadow-black/50 ring-1 ring-black/10 backdrop-blur-sm ${consoleBadgeClass(
+          } items-center truncate rounded-full px-2.5 text-xs font-semibold shadow-md shadow-black/50 ring-1 ring-black/10 ${consoleBadgeClass(
             consoleColors,
           )}`}
         >
@@ -86,8 +93,8 @@ export function GameCard({
         <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/50 to-transparent" />
 
         {/* Sur mobile les boutons restent affichés : les icônes passent au-dessus */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent transition sm:group-hover:opacity-0" />
-        <div className="absolute bottom-11 left-2 transition sm:bottom-2 sm:group-hover:opacity-0">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent transition-opacity sm:group-hover:opacity-0" />
+        <div className="absolute bottom-11 left-2 transition-opacity sm:bottom-2 sm:group-hover:opacity-0">
           <GameCopyIcons
             format={format}
             condition={condition}
@@ -97,7 +104,7 @@ export function GameCard({
         </div>
 
         {/* Fond quasi opaque derrière le texte : seul le haut du panneau est en fondu */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 [&_button]:pointer-events-auto">
           <div className="h-8 bg-gradient-to-t from-bg/90 to-transparent" />
           <div className="flex flex-col gap-2 bg-bg/90 px-2 pb-2">
             <dl className="hidden space-y-1 text-[0.7rem] leading-snug text-ink sm:block">
@@ -203,4 +210,4 @@ export function GameCard({
       </div>
     </article>
   )
-}
+})

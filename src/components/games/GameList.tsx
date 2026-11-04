@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, memo, useMemo } from 'react'
 import type { ConsoleColors, Game, GamePriority, GameStatus, GroupBy } from '@/types'
 import { Button } from '@/components/ui/Button'
 import {
@@ -39,6 +39,9 @@ type Props = {
   onDelete: (game: Game) => void
 }
 
+/** Seules les premières lignes ont l'animation d'apparition */
+const ANIMATED_ROWS = 24
+
 function TrashIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -52,9 +55,10 @@ function TrashIcon() {
   )
 }
 
-function GameRow({
+/** Mémoïsée : la ligne ne se redessine que si son jeu ou ses couleurs changent */
+const GameRow = memo(function GameRow({
   game,
-  index,
+  animated,
   wishlist,
   consoleColors,
   onEdit,
@@ -67,7 +71,8 @@ function GameRow({
   onDelete,
 }: {
   game: Game
-  index: number
+  /** Délai d'apparition en ms ; null = pas d'animation */
+  animated: number | null
   wishlist: boolean
   consoleColors?: ConsoleColors
   onEdit: (game: Game) => void
@@ -85,8 +90,10 @@ function GameRow({
 
   return (
     <tr
-      className="animate-fade-up border-b border-line/60 last:border-b-0 transition hover:bg-accent-soft/40"
-      style={{ animationDelay: `${Math.min(index, 20) * 20}ms` }}
+      className={`${
+        animated != null ? 'animate-fade-up ' : ''
+      }border-b border-line/60 last:border-b-0 transition-colors hover:bg-accent-soft/40`}
+      style={animated != null ? { animationDelay: `${animated}ms` } : undefined}
     >
       <td className="w-12 px-3 py-2">
         <div className="aspect-[3/4] w-10 overflow-hidden rounded bg-bg">
@@ -202,9 +209,13 @@ function GameRow({
       </td>
     </tr>
   )
+})
+
+function rowAnimation(index: number): number | null {
+  return index < ANIMATED_ROWS ? index * 20 : null
 }
 
-export function GameList({
+export const GameList = memo(function GameList({
   games,
   wishlist,
   groupBy = 'none',
@@ -232,14 +243,17 @@ export function GameList({
   }
 
   let rowIndex = 0
-  const segments =
-    groupBy === 'priority'
-      ? groupGamesByPriority(games)
-      : groupBy === 'year'
-        ? groupGamesByYear(games)
-        : groupBy === 'rating'
-          ? groupGamesByRating(games)
-          : null
+  const segments = useMemo(
+    () =>
+      groupBy === 'priority'
+        ? groupGamesByPriority(games)
+        : groupBy === 'year'
+          ? groupGamesByYear(games)
+          : groupBy === 'rating'
+            ? groupGamesByRating(games)
+            : null,
+    [games, groupBy],
+  )
 
   return (
     <div className="min-h-0 overflow-auto overscroll-contain rounded-xl border border-line bg-surface/60 backdrop-blur-md">
@@ -283,7 +297,7 @@ export function GameList({
                       <GameRow
                         key={game.id}
                         game={game}
-                        index={index}
+                        animated={rowAnimation(index)}
                         consoleColors={consoleColors[game.hardware]}
                         {...rowProps}
                       />
@@ -295,7 +309,7 @@ export function GameList({
                 <GameRow
                   key={game.id}
                   game={game}
-                  index={index}
+                  animated={rowAnimation(index)}
                   consoleColors={consoleColors[game.hardware]}
                   {...rowProps}
                 />
@@ -304,4 +318,4 @@ export function GameList({
       </table>
     </div>
   )
-}
+})
