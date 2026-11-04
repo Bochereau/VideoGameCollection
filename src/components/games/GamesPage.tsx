@@ -190,6 +190,10 @@ export function GamesPage({
     [displayedGames, groupBy],
   )
   const deferredGrid = useDeferredValue(gridView)
+  // Juste après le chargement, la valeur différée est encore la liste vide
+  // initiale : on garde le spinner plutôt que d'afficher « Aucun jeu ».
+  const gridPending =
+    deferredGrid.games.length === 0 && displayedGames.length > 0
 
   // Recalcule les couleurs seulement si elles changent vraiment : un simple
   // rafraîchissement des consoles (compteurs) ne doit pas redessiner les cartes
@@ -596,7 +600,7 @@ export function GamesPage({
             listScroll ? 'flex min-h-0 flex-1 flex-col' : ''
           }`}
         >
-          {loading ? (
+          {loading || gridPending ? (
             <Loading />
           ) : (
             <GameGrid
